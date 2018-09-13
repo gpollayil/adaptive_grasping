@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <launch>
 	<!-- LAUNCH ARGUMENTS -->
-	
+
 	<!-- Robot to be used -->
     <arg name="robot_name" default="lwr_adaptive"/>
 
 	<!-- Set world to be used -->
-	<arg name="environment_name" default="lwr_soma_surface"/> 
-	
+	<arg name="environment_name" default="lwr_soma_surface"/>
+
 	<!-- Set simulation tools -->
 	<arg name="use_gazebo" default="true"/>
 
@@ -41,7 +41,7 @@
 		<!-- Spawn the full robot into Gazebo  -->
     	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model $(arg robot_name) -param robot_description -J $(arg robot_name)::right_arm_a1_joint 0.40 -J $(arg robot_name)::right_arm_a2_joint -1.09 -J $(arg robot_name)::right_arm_a3_joint -1.59 -J $(arg robot_name)::right_arm_a4_joint -0.60 -J $(arg robot_name)::right_arm_a5_joint -0.25 -J $(arg robot_name)::right_arm_a6_joint 0.40 -J $(arg robot_name)::right_arm_e1_joint -0.29 -unpause"/>
     </group>
-	
+
 	<!-- Joint and robot state publishers of the full robot description -->
 	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
 		<!-- FOR USING JOINT STATE PUBLISER FOR GETTING FINGER JOINT STATES -->
@@ -63,7 +63,7 @@
 		<arg name="allow_trajectory_execution" value="false" />
 		<arg name="fake_execution" value="true" />
 		<arg name="info" value="true"/>
-		<arg name="debug" value="false"/> 
+		<arg name="debug" value="false"/>
 	</include>
 
 	<!-- LWR Controllers -->
