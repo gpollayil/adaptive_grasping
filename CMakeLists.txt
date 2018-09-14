@@ -74,11 +74,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-	 geometry_msgs
-)
+# generate_messages(
+#    DEPENDENCIES
+#    std_msgs
+# 	 geometry_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -158,6 +158,10 @@ add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+target_link_libraries(${PROJECT_NAME}_tf_listener
+   ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

@@ -24,8 +24,8 @@ ros::Publisher pub_tf_info; 								// publisher for transformed tf
 
 // AUX FUNCTION
 void transform_and_publish(const tf::StampedTransform& trans) {
-  geometry_msgs::PoseStamped trans_msg;
-  tf::poseStampedTFToMsg(trans, trans_msg);               // converting
+  geometry_msgs::TransformStamped trans_msg;
+  tf::transformStampedTFToMsg(trans, trans_msg);               // converting
   pub_tf_info.publish(trans_msg);
 }
 
