@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<!--
+TF LISTENER for publishing frames
+-->
+
+<launch>
+
+  <!-- LOADING PARAMS -->
+	<param name="child_frame" value="/right_hand_ee_link"/>
+	<param name="parent_frame" value="/world"/>
+
+  <!-- RUNNING THE Tf Listener node -->
+	<node name="adaptive_grasping_tf_listener_node" pkg="adaptive_grasping" type="adaptive_grasping_tf_listener" respawn="true" args="output_topic:=/tf_transformed2_pose" output="screen">
+	</node>
+
+	<!-- Record the necessary topics -->
+	<node name="record_bags" pkg="rosbag" type="record" args="/tf_transformed2_pose"/>
+
+</launch>
