@@ -1,6 +1,9 @@
 #ifndef CONTACT_PRESERVER_H
 #define CONTACT_PRESERVER_H
 
+#include <kdl/jacobian.hpp>
+#include <Eigen/Core>
+
 /**
 * @brief This class is called by the adaptive_grasping method to compute the contact preserving reference motions.
 *
@@ -28,7 +31,10 @@ public:
 
 private:
   // Current hand jacobian
-  
+  KDL::Jacobian J;
+
+  // Grasp Matrix
+  Eigen::MatrixXd G;
 }
 
 #endif // CONTACT_PRESERVER_H
