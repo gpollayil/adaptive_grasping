@@ -2,7 +2,7 @@
 #define CONTACT_PRESERVER_H
 
 #include <kdl/jacobian.hpp>
-#include <Eigen/Core>
+#include <Eigen/Dense>
 
 /**
 * @brief This class is called by the adaptive_grasping method to compute the
@@ -16,11 +16,11 @@ public:
   /** CONSTRUCTOR
   * @brief Default constructor for contactPreserver
   *
-  * @param S
+  * @param S_
   *   the synergy matrix of the hand (if hand fully actuated S = I)
   * @return null
   */
-  contactPreserver(Eigen::MatrixXd S);
+  contactPreserver(Eigen::MatrixXd S_);
 
   /** DESTRUCTOR
   * @brief Default destructor for contactPreserver
@@ -33,40 +33,40 @@ public:
   /** CHANGEHANDTYPE
   * @brief Function to eventually change the hand type (set new S)
   *
-  * @param S
+  * @param S_
   *   the new synergy matrix
   * @return bool (success or failure)
   */
-  bool changeHandType(Eigen::MatrixXd S);
+  bool changeHandType(Eigen::MatrixXd S_);
 
   /** SETGRASPSTATE
   * @brief Function to set new values for J, G, T and H
   *
-  * @param J
+  * @param J_
   *   the whole jacobian for the contacts
-  * @param G
+  * @param G_
   *   the whole grasp matrix for the contacts
-  * @param T
+  * @param T_
   *   the whole palm twist pole change matrix for the contacts
-  * @param H
+  * @param H_
   *   the new contact selection matrix
   * @return bool (success or failure)
   */
-  bool setGraspState(KDL::Jacobian J, Eigen::MatrixXd G, Eigen::MatrixXd T,
-    Eigen::MatrixXd H);
+  bool setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
+    Eigen::MatrixXd H_);
 
   /** SETMINIMIZATIONPARAMS
   * @brief Function to set new values for the minimization problem
   *
-  * @param x_d
+  * @param x_d_
   *   the desired motion of the hand given by some high level planner
-  * @param A_tilde
+  * @param A_tilde_
   *   the weight matrix in the cost function of the minimization
   * @return bool (success or failure)
   */
-  bool setMinimizationParams(Eigen::VectorXd x_d, Eigen::MatrixXd A_tilde);
+  bool setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_);
 
-  /** PERFORM MINIMIZATION
+  /** PERFORMMINIMIZATION
   * @brief Function to perform the minimization using current values
   *
   * @return Eigen::VectorXd x_ref the resulting motion that preserves contacts
@@ -100,6 +100,6 @@ private:
 
   // Null space basis of Q
   Eigen::MatrixXd N;
-}
+};
 
 #endif // CONTACT_PRESERVER_H
