@@ -55,6 +55,6 @@ private:
   // Subscribing to handle finger collision
   ros::Subscriber finger_col_sub;
 
-}
+};
 
 #endif // CONTACT_STATE_H
