@@ -1,0 +1,4116 @@
+<?xml version="1.0" ?>
+<sdf version='1.5'>
+  <world name='default'>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+    </model>
+    <light name='sun' type='directional'>
+      <cast_shadows>1</cast_shadows>
+      <pose frame=''>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>3.15821 0.624388 1.14062 0 0.095643 2.95138</pose>
+        <view_controller>orbit</view_controller>
+      </camera>
+    </gui>
+    <model name='table'>
+      <pose frame=''>2 1 0.3 0 -0 0</pose>
+      <static>1</static>
+      <link name='linkTable'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <collision name='my_collisionTable'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2 2 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='my_visualTable'>
+          <geometry>
+            <box>
+              <size>2 2 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <gravity>0</gravity>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <gravity>0 0 -9.8</gravity>
+      <magnetic_field>5.5645e-06 2.28758e-05 -4.23884e-05</magnetic_field>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <state world_name='default'>
+      <sim_time>489 295000000</sim_time>
+      <real_time>1492 663341361</real_time>
+      <wall_time>1537358885 142002827</wall_time>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='lwr_adaptive'>
+        <pose frame=''>2.8e-05 1e-06 -1.9e-05 -2e-06 -2.2e-05 -5e-06</pose>
+        <link name='right_arm_1_link'>
+          <pose frame=''>0.847777 0.800992 1.52921 -2.77033 -0.709291 -0.538899</pose>
+          <velocity>-7e-05 -0.000105 -9.2e-05 0.002299 -0.000618 -0.004888</velocity>
+          <acceleration>0.246982 -0.462093 0.101748 0.016715 -0.000927 -0.029876</acceleration>
+          <wrench>0.580407 -1.08592 0.239107 0 -0 0</wrench>
+        </link>
+        <link name='right_arm_2_link'>
+          <pose frame=''>0.989547 0.800976 1.38743 -0.832733 -1.18948 -2.63663</pose>
+          <velocity>5e-06 -0.000441 -3.3e-05 0.009569 0.02297 0.002204</velocity>
+          <acceleration>0.20286 -0.347938 -1.86738 0.065391 0.034455 0.013076</acceleration>
+          <wrench>0.476721 -0.817655 -4.38833 0 -0 0</wrench>
+        </link>
+        <link name='right_arm_3_link'>
+          <pose frame=''>1.17044 0.731913 1.43751 0.006444 -1.3177 2.77023</pose>
+          <velocity>0.00129 -0.000508 -0.004826 0.007166 0.023767 0.001568</velocity>
+          <acceleration>2.22403 -0.59082 -7.83506 0.04897 0.03565 0.009304</acceleration>
+          <wrench>5.22648 -1.38843 -18.4124 0 -0 0</wrench>
+        </link>
+        <link name='right_arm_4_link'>
+          <pose frame=''>1.35133 0.662851 1.48759 3.13993 -0.233907 -0.364737</pose>
+          <velocity>0.002587 -0.00058 -0.009618 0.000801 0.007085 0.001591</velocity>
+          <acceleration>2.02436 -0.467457 -9.83714 0.005474 0.010627 0.009438</acceleration>
+          <wrench>4.75725 -1.09852 -23.1173 0 -0 0</wrench>
+        </link>
+        <link name='right_arm_5_link'>
+          <pose frame=''>1.39452 0.646007 1.29304 3.00651 -0.191558 0.248055</pose>
+          <velocity>0.001235 -0.000355 -0.009938 0.003059 0.006173 -0.008663</velocity>
+          <acceleration>0.39975 -0.218158 -10.1355 0.019346 0.009259 -0.047002</acceleration>
+          <wrench>0.939413 -0.512671 -23.8183 0 -0 0</wrench>
+        </link>
+        <link name='right_arm_6_link'>
+          <pose frame=''>1.43555 0.630003 1.10821 2.99501 -0.439118 0.284874</pose>
+          <velocity>-4.2e-05 -0.000157 -0.010238 0.004539 -0.000327 -0.00776</velocity>
+          <acceleration>-0.034538 -0.118583 -10.2356 0.01182 -0.000851 -0.020209</acceleration>
+          <wrench>-0.037992 -0.130441 -11.2591 0 -0 0</wrench>
+        </link>
+        <link name='right_arm_7_link'>
+          <pose frame=''>1.47024 0.62829 1.03837 -3.09274 -0.459017 -0.159301</pose>
+          <velocity>-3.2e-05 -0.000109 -0.010234 0.000433 -0.000156 0.000146</velocity>
+          <acceleration>-0.016466 -0.059338 -10.2284 0.198639 -0.06627 0.056699</acceleration>
+          <wrench>-0.041659 -0.150125 -25.8779 0 -0 0</wrench>
+        </link>
+        <link name='right_arm_base_link'>
+          <pose frame=''>0.769997 0.801001 1.607 3.1415 -0.785422 -3e-06</pose>
+          <velocity>-2e-05 0.000202 -2.2e-05 -0.000644 -0.000134 -0.005358</velocity>
+          <acceleration>-0.027952 -0.042749 -0.032991 -0.003446 -0.000469 -0.018221</acceleration>
+          <wrench>-0.055905 -0.085498 -0.065982 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_index_distal_link'>
+          <pose frame=''>1.64785 0.641468 0.918254 -3.09242 0.059951 -0.048657</pose>
+          <velocity>-1.3e-05 -3.1e-05 -0.010184 0.000432 -7.7e-05 0.000147</velocity>
+          <acceleration>-0.013112 -0.02877 -10.1836 0.015414 -0.006123 0.012035</acceleration>
+          <wrench>-0.001311 -0.002877 -1.01836 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_index_fake_link1'>
+          <pose frame=''>1.59102 0.644236 0.92167 -3.09242 0.059952 -0.048657</pose>
+          <velocity>-1.6e-05 -4e-05 -0.010207 0.000438 -1e-06 0.000151</velocity>
+          <acceleration>-0.015671 -0.039991 -10.2074 0.004377 -2.9e-05 0.001508</acceleration>
+          <wrench>-0.001567 -0.003999 -1.02074 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_index_fake_link2'>
+          <pose frame=''>1.61295 0.643167 0.920351 -3.09242 0.059951 -0.048657</pose>
+          <velocity>-1.5e-05 -3.6e-05 -0.010201 0.000401 -0.000677 0.000118</velocity>
+          <acceleration>-0.01467 -0.036196 -10.2006 0.004013 -0.006777 0.001175</acceleration>
+          <wrench>-0.001467 -0.00362 -1.02006 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_index_fake_link3'>
+          <pose frame=''>1.63489 0.642099 0.919033 -3.09242 0.059951 -0.048657</pose>
+          <velocity>-1.4e-05 -3.3e-05 -0.010189 0.000417 -0.000368 0.000133</velocity>
+          <acceleration>-0.013608 -0.032833 -10.1887 0.004166 -0.003677 0.001326</acceleration>
+          <wrench>-0.001361 -0.003283 -1.01887 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_index_knuckle_link'>
+          <pose frame=''>1.58205 0.644672 0.922209 -3.09242 0.059952 -0.048657</pose>
+          <velocity>-1.6e-05 -4.2e-05 -0.010209 0.000432 -0.000155 0.000143</velocity>
+          <acceleration>-0.015904 -0.041198 -10.2086 0.015195 -0.011867 -0.015597</acceleration>
+          <wrench>-0.001431 -0.003708 -0.918773 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_index_middle_link'>
+          <pose frame=''>1.62592 0.642537 0.919572 -3.09242 0.059951 -0.048657</pose>
+          <velocity>-1.4e-05 -3.4e-05 -0.010192 0.000417 -0.000373 0.000132</velocity>
+          <acceleration>-0.013778 -0.033535 -10.19 0.014858 -0.02054 0.00812</acceleration>
+          <wrench>-0.000689 -0.001677 -0.5095 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_index_proximal_link'>
+          <pose frame=''>1.60398 0.643605 0.920891 -3.09242 0.059951 -0.048657</pose>
+          <velocity>-1.5e-05 -3.7e-05 -0.010207 0.0004 -0.000729 0.000115</velocity>
+          <acceleration>-0.015066 -0.036844 -10.2034 0.014227 -0.040102 0.007128</acceleration>
+          <wrench>-0.000753 -0.001842 -0.51017 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_invisible_wire_link'>
+          <pose frame=''>1.48653 0.63811 0.924054 2.54145 1.49327 2.40529</pose>
+          <velocity>-1.6e-05 -5.7e-05 -0.010227 -2e-06 -9.7e-05 0.000174</velocity>
+          <acceleration>-0.015832 -0.056629 -10.2272 -1.9e-05 -0.000969 0.001736</acceleration>
+          <wrench>-0.001583 -0.005663 -1.02272 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_little_distal_link'>
+          <pose frame=''>1.62836 0.573533 0.915832 -3.10358 0.067579 -0.2234</pose>
+          <velocity>-3e-06 -3.3e-05 -0.01021 0.000428 -0.000155 0.000144</velocity>
+          <acceleration>-0.002244 -0.030906 -10.2091 0.015262 -0.012399 0.011771</acceleration>
+          <wrench>-0.000224 -0.003091 -1.02091 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_little_fake_link1'>
+          <pose frame=''>1.5729 0.586132 0.919682 -3.10358 0.067579 -0.2234</pose>
+          <velocity>-7e-06 -4.2e-05 -0.010235 0.000437 -0.000123 0.000145</velocity>
+          <acceleration>-0.006978 -0.041773 -10.2351 0.004372 -0.001231 0.001451</acceleration>
+          <wrench>-0.000698 -0.004177 -1.02351 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_little_fake_link2'>
+          <pose frame=''>1.5943 0.581269 0.918196 -3.10358 0.067579 -0.2234</pose>
+          <velocity>-5e-06 -3.8e-05 -0.010227 0.000277 -0.000812 0.000118</velocity>
+          <acceleration>-0.005295 -0.038096 -10.2275 0.002772 -0.008119 0.001182</acceleration>
+          <wrench>-0.00053 -0.00381 -1.02275 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_little_fake_link3'>
+          <pose frame=''>1.61571 0.576407 0.91671 -3.10358 0.067579 -0.2234</pose>
+          <velocity>-4e-06 -3.5e-05 -0.010214 0.000359 -0.000454 0.000132</velocity>
+          <acceleration>-0.003514 -0.034871 -10.2143 0.003588 -0.004537 0.001319</acceleration>
+          <wrench>-0.000351 -0.003487 -1.02143 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_little_knuckle_link'>
+          <pose frame=''>1.56414 0.588122 0.920289 -3.10358 0.067579 -0.2234</pose>
+          <velocity>-8e-06 -4.3e-05 -0.010236 0.000432 -0.000156 0.000144</velocity>
+          <acceleration>-0.0074 -0.042983 -10.2358 0.015165 -0.011228 -0.015997</acceleration>
+          <wrench>-0.000666 -0.003868 -0.921223 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_little_middle_link'>
+          <pose frame=''>1.60695 0.578396 0.917318 -3.10358 0.067579 -0.2234</pose>
+          <velocity>-4e-06 -3.6e-05 -0.010218 0.000357 -0.000465 0.000132</velocity>
+          <acceleration>-0.003834 -0.035538 -10.2157 0.01275 -0.0256 0.007954</acceleration>
+          <wrench>-0.000192 -0.001777 -0.510786 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_little_proximal_link'>
+          <pose frame=''>1.58555 0.583258 0.918804 -3.10358 0.067579 -0.2234</pose>
+          <velocity>-6e-06 -3.9e-05 -0.010234 0.000276 -0.000822 0.000118</velocity>
+          <acceleration>-0.005842 -0.03869 -10.2304 0.0099 -0.045234 0.007034</acceleration>
+          <wrench>-0.000292 -0.001935 -0.511519 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_middle_distal_link'>
+          <pose frame=''>1.65155 0.615506 0.916687 -3.09783 0.064009 -0.136021</pose>
+          <velocity>-1.1e-05 -2.8e-05 -0.010225 0.000472 0.000159 0.000157</velocity>
+          <acceleration>-0.011118 -0.025839 -10.2269 0.016832 0.012694 0.012893</acceleration>
+          <wrench>-0.001112 -0.002584 -1.02269 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_middle_fake_link1'>
+          <pose frame=''>1.59519 0.62322 0.920335 -3.09783 0.064009 -0.136021</pose>
+          <velocity>-1.2e-05 -3.9e-05 -0.010215 0.000467 0.000107 0.000155</velocity>
+          <acceleration>-0.012419 -0.038884 -10.2149 0.004662 0.001039 0.00155</acceleration>
+          <wrench>-0.001242 -0.003888 -1.02149 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_middle_fake_link2'>
+          <pose frame=''>1.61694 0.620243 0.918927 -3.09783 0.064009 -0.136021</pose>
+          <velocity>-1.2e-05 -3.5e-05 -0.010218 0.00047 0.000139 0.000156</velocity>
+          <acceleration>-0.011653 -0.034614 -10.2177 0.004695 0.001383 0.001564</acceleration>
+          <wrench>-0.001165 -0.003461 -1.02177 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_middle_fake_link3'>
+          <pose frame=''>1.6387 0.617265 0.917519 -3.09783 0.064009 -0.136021</pose>
+          <velocity>-1.1e-05 -3e-05 -0.010222 0.00047 0.000149 0.000157</velocity>
+          <acceleration>-0.011184 -0.030442 -10.2217 0.004703 0.001493 0.001567</acceleration>
+          <wrench>-0.001118 -0.003044 -1.02217 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_middle_knuckle_link'>
+          <pose frame=''>1.5863 0.624437 0.920909 -3.09783 0.06401 -0.136021</pose>
+          <velocity>-1.3e-05 -4e-05 -0.010216 0.000432 -0.00016 0.000143</velocity>
+          <acceleration>-0.012766 -0.040079 -10.2162 0.0151 -0.01189 -0.016128</acceleration>
+          <wrench>-0.001149 -0.003607 -0.919454 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_middle_middle_link'>
+          <pose frame=''>1.6298 0.618483 0.918094 -3.09783 0.064009 -0.136021</pose>
+          <velocity>-1.1e-05 -3.2e-05 -0.01022 0.00047 0.000142 0.000157</velocity>
+          <acceleration>-0.011148 -0.03127 -10.2208 0.016758 0.007796 0.009551</acceleration>
+          <wrench>-0.000557 -0.001564 -0.511039 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_middle_proximal_link'>
+          <pose frame=''>1.60805 0.62146 0.919501 -3.09783 0.064009 -0.136021</pose>
+          <velocity>-1.2e-05 -3.6e-05 -0.010216 0.000467 0.000112 0.000155</velocity>
+          <acceleration>-0.011688 -0.035452 -10.2171 0.016661 0.006197 0.009481</acceleration>
+          <wrench>-0.000584 -0.001773 -0.510853 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_ring_distal_link'>
+          <pose frame=''>1.64139 0.593741 0.916137 -3.10124 0.066212 -0.188447</pose>
+          <velocity>-6e-06 -3.1e-05 -0.010201 0.000431 -0.000139 0.000144</velocity>
+          <acceleration>-0.005412 -0.029087 -10.1999 0.015373 -0.011113 0.011822</acceleration>
+          <wrench>-0.000541 -0.002909 -1.01999 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_ring_fake_link1'>
+          <pose frame=''>1.58552 0.604396 0.919908 -3.10124 0.066212 -0.188447</pose>
+          <velocity>-1e-05 -4e-05 -0.010225 0.000438 -0.00011 0.000146</velocity>
+          <acceleration>-0.009708 -0.040064 -10.2254 0.004384 -0.00111 0.001456</acceleration>
+          <wrench>-0.000971 -0.004006 -1.02254 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_ring_fake_link2'>
+          <pose frame=''>1.60709 0.600284 0.918453 -3.10124 0.066211 -0.188447</pose>
+          <velocity>-8e-06 -3.6e-05 -0.010218 0.000306 -0.000786 0.000118</velocity>
+          <acceleration>-0.008159 -0.036355 -10.2179 0.003061 -0.007863 0.001178</acceleration>
+          <wrench>-0.000816 -0.003635 -1.02179 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_ring_fake_link3'>
+          <pose frame=''>1.62865 0.596171 0.916997 -3.10124 0.066211 -0.188447</pose>
+          <velocity>-7e-06 -3.3e-05 -0.010205 0.000374 -0.000429 0.000132</velocity>
+          <acceleration>-0.006522 -0.03309 -10.205 0.003744 -0.004291 0.001322</acceleration>
+          <wrench>-0.000652 -0.003309 -1.0205 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_ring_knuckle_link'>
+          <pose frame=''>1.5767 0.606078 0.920503 -3.10124 0.066212 -0.188447</pose>
+          <velocity>-1e-05 -4.2e-05 -0.010226 0.000432 -0.000155 0.000144</velocity>
+          <acceleration>-0.010092 -0.041277 -10.2262 0.015132 -0.01134 -0.016114</acceleration>
+          <wrench>-0.000908 -0.003715 -0.920359 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_ring_middle_link'>
+          <pose frame=''>1.61983 0.597854 0.917592 -3.10124 0.066211 -0.188447</pose>
+          <velocity>-7e-06 -3.4e-05 -0.010208 0.000372 -0.000446 0.000132</velocity>
+          <acceleration>-0.006812 -0.033766 -10.2064 0.013278 -0.024538 0.007988</acceleration>
+          <wrench>-0.000341 -0.001688 -0.51032 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_ring_proximal_link'>
+          <pose frame=''>1.59827 0.601966 0.919048 -3.10124 0.066211 -0.188447</pose>
+          <velocity>-9e-06 -3.8e-05 -0.010224 0.000305 -0.000796 0.000117</velocity>
+          <acceleration>-0.00867 -0.036964 -10.2207 0.010927 -0.043793 0.007071</acceleration>
+          <wrench>-0.000434 -0.001848 -0.511036 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_thumb_distal_link'>
+          <pose frame=''>1.57336 0.71034 0.913786 2.07315 -0.015871 1.05009</pose>
+          <velocity>-2.1e-05 -4.1e-05 -0.010184 0.000296 -7.4e-05 -0.000133</velocity>
+          <acceleration>-0.019466 -0.041317 -10.1807 0.010081 -0.005882 -0.009511</acceleration>
+          <wrench>-0.001947 -0.004132 -1.01807 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_thumb_fake_link1'>
+          <pose frame=''>1.55596 0.679982 0.913229 2.07315 -0.015871 1.05009</pose>
+          <velocity>-2e-05 -4.2e-05 -0.010198 0.000412 -0.000143 0.000114</velocity>
+          <acceleration>-0.020068 -0.041651 -10.1981 0.00412 -0.001435 0.001142</acceleration>
+          <wrench>-0.002007 -0.004165 -1.01981 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_thumb_fake_link3'>
+          <pose frame=''>1.5669 0.699064 0.913578 2.07315 -0.015871 1.05009</pose>
+          <velocity>-2.1e-05 -4.1e-05 -0.010188 0.000352 -0.000108 -1.3e-05</velocity>
+          <acceleration>-0.020846 -0.040621 -10.1884 0.003524 -0.001079 -0.000126</acceleration>
+          <wrench>-0.002085 -0.004062 -1.01885 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_thumb_knuckle_link'>
+          <pose frame=''>1.54495 0.660297 0.916163 1.64652 -0.015871 1.05009</pose>
+          <velocity>-1.8e-05 -4.5e-05 -0.010209 0.000427 -0.000153 0.000146</velocity>
+          <acceleration>-0.019613 -0.043717 -10.2025 0.008124 -0.008374 0.014443</acceleration>
+          <wrench>-0.001765 -0.003934 -0.918228 0 -0 0</wrench>
+        </link>
+        <link name='right_hand_thumb_proximal_link'>
+          <pose frame=''>1.56242 0.691258 0.913437 2.07315 -0.015871 1.05009</pose>
+          <velocity>-2.1e-05 -4.1e-05 -0.010192 0.000356 -0.00011 -5e-06</velocity>
+          <acceleration>-0.021218 -0.04093 -10.1904 0.012451 -0.006044 0.000426</acceleration>
+          <wrench>-0.001061 -0.002047 -0.50952 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='table'>
+        <pose frame=''>1.92877 0.911349 0.3 0 -0 0</pose>
+        <link name='linkTable'>
+          <pose frame=''>1.92877 0.911349 0.3 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='unit_cylinder_2'>
+        <pose frame=''>1.47906 0.754091 0.729942 -5.3e-05 -1.5e-05 -1.77716</pose>
+        <link name='link'>
+          <pose frame=''>1.47906 0.754091 0.729942 -5.3e-05 -1.5e-05 -1.77716</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 -0 -9.8 0 -0 0</acceleration>
+          <wrench>0 -0 -9.8 0 -0 0</wrench>
+        </link>
+      </model>
+      <iterations>0</iterations>
+    </state>
+    <model name='lwr_adaptive'>
+      <link name='right_arm_base_link'>
+        <pose frame=''>0.77 0.801 1.607 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>0 0 0.055 0 -0 0</pose>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.00381667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.0036</iyy>
+            <iyz>0</iyz>
+            <izz>0.00381667</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_base_link_collision'>
+          <pose frame=''>0 0 0.055 0 -0 -3.14159</pose>
+          <geometry>
+            <cylinder>
+              <length>0.11</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_base_link_visual'>
+          <pose frame=''>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/base.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='world_right_arm_base_joint' type='revolute'>
+        <child>right_arm_base_link</child>
+        <parent>world</parent>
+        <axis>
+          <limit>
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+          <xyz>0 0 1</xyz>
+        </axis>
+      </joint>
+      <link name='right_arm_1_link'>
+        <pose frame=''>0.847782 0.80099 1.52922 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>0 -0.06 0.13 0 -0 0</pose>
+          <mass>2.35</mass>
+          <inertia>
+            <ixx>0.0160583</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003525</iyy>
+            <iyz>0</iyz>
+            <izz>0.0139433</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_1_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_1_link_collision_right_arm_1_link_1'>
+          <pose frame=''>0 0.06 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_1_link_collision_right_arm_1_link_2'>
+          <pose frame=''>0 0.03 0.1 -0.291 0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_1_link_visual'>
+          <pose frame=''>0 0 -0.008 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/link_1.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_arm_a1_joint' type='revolute'>
+        <child>right_arm_1_link</child>
+        <parent>right_arm_base_link</parent>
+        <axis>
+          <xyz>0.707108 -9.3e-05 -0.707105</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>176</effort>
+            <velocity>1.91986</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+            <friction>10</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='right_arm_2_link'>
+        <pose frame=''>0.989557 0.800971 1.38744 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>0 0.06 0.07 0 -0 0</pose>
+          <mass>2.35</mass>
+          <inertia>
+            <ixx>0.0160583</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003525</iyy>
+            <iyz>0</iyz>
+            <izz>0.0139433</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_2_link_collision'>
+          <pose frame=''>0 0 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_2_link_collision_right_arm_2_link_1'>
+          <pose frame=''>0 -0.06 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_2_link_collision_right_arm_2_link_2'>
+          <pose frame=''>0 -0.03 0.1 -0.291 0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_2_link_visual'>
+          <pose frame=''>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/link_2.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_arm_a2_joint' type='revolute'>
+        <child>right_arm_2_link</child>
+        <parent>right_arm_1_link</parent>
+        <axis>
+          <xyz>6.6e-05 1 -6.6e-05</xyz>
+          <limit>
+            <lower>-2.0944</lower>
+            <upper>2.0944</upper>
+            <effort>176</effort>
+            <velocity>1.91986</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+            <friction>10</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='right_arm_3_link'>
+        <pose frame=''>1.13098 0.800953 1.24602 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>0 0.06 0.13 0 -0 0</pose>
+          <mass>2.35</mass>
+          <inertia>
+            <ixx>0.0160583</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003525</iyy>
+            <iyz>0</iyz>
+            <izz>0.0139433</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_3_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_3_link_collision_right_arm_3_link_1'>
+          <pose frame=''>0 -0.06 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_3_link_collision_right_arm_3_link_2'>
+          <pose frame=''>0 -0.03 0.1 0.291 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_3_link_visual'>
+          <pose frame=''>0 0 -0.008 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/link_3.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_arm_e1_joint' type='revolute'>
+        <child>right_arm_3_link</child>
+        <parent>right_arm_2_link</parent>
+        <axis>
+          <xyz>0.707108 -9.3e-05 -0.707105</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>100</effort>
+            <velocity>2.23402</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+            <friction>10</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='right_arm_4_link'>
+        <pose frame=''>1.2724 0.800934 1.1046 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>0 -0.06 0.07 0 -0 0</pose>
+          <mass>2.35</mass>
+          <inertia>
+            <ixx>0.0160583</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003525</iyy>
+            <iyz>0</iyz>
+            <izz>0.0139433</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_4_link_collision'>
+          <pose frame=''>0 0 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_4_link_collision_right_arm_4_link_1'>
+          <pose frame=''>0 0.06 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_4_link_collision_right_arm_4_link_2'>
+          <pose frame=''>0 0.03 0.1 0.291 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_4_link_visual'>
+          <pose frame=''>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/link_4.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_arm_a3_joint' type='revolute'>
+        <child>right_arm_4_link</child>
+        <parent>right_arm_3_link</parent>
+        <axis>
+          <xyz>-6.6e-05 -1 6.6e-05</xyz>
+          <limit>
+            <lower>-2.0944</lower>
+            <upper>2.0944</upper>
+            <effort>100</effort>
+            <velocity>2.23402</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+            <friction>10</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='right_arm_5_link'>
+        <pose frame=''>1.41382 0.800916 0.96318 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>0 0 0.124 0 -0 0</pose>
+          <mass>2.35</mass>
+          <inertia>
+            <ixx>0.0148645</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003525</iyy>
+            <iyz>0</iyz>
+            <izz>0.0127495</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_5_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_5_link_collision_right_arm_5_link_1'>
+          <pose frame=''>0 0.04 0.19 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_5_link_collision_right_arm_5_link_2'>
+          <pose frame=''>0 0.02 0.095 -0.207 0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.198</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_5_link_visual'>
+          <pose frame=''>0 0 -0.008 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/link_5.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_arm_a4_joint' type='revolute'>
+        <child>right_arm_5_link</child>
+        <parent>right_arm_4_link</parent>
+        <axis>
+          <xyz>0.707108 -9.3e-05 -0.707105</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>100</effort>
+            <velocity>3.56047</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+            <friction>10</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='right_arm_6_link'>
+        <pose frame=''>1.54817 0.800898 0.82883 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>0 0 0.0625 0 -0 0</pose>
+          <mass>1.1</mass>
+          <inertia>
+            <ixx>0.00286458</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.00286458</iyy>
+            <iyz>0</iyz>
+            <izz>0.00286458</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_6_link_collision'>
+          <pose frame=''>0 -0.01 0 0 -0 -3.14159</pose>
+          <geometry>
+            <sphere>
+              <radius>0.08</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_6_link_visual'>
+          <pose frame=''>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/link_6.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_arm_a5_joint' type='revolute'>
+        <child>right_arm_6_link</child>
+        <parent>right_arm_5_link</parent>
+        <axis>
+          <xyz>6.6e-05 1 -6.6e-05</xyz>
+          <limit>
+            <lower>-2.0944</lower>
+            <upper>2.0944</upper>
+            <effort>38</effort>
+            <velocity>3.21141</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+            <friction>10</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='right_arm_7_link'>
+        <pose frame=''>1.60333 0.800891 0.773676 3.1415 -0.7854 -9.5831e-21</pose>
+        <inertial>
+          <pose frame=''>-0.0102672 -0.000126677 0.10747 0 -0 0</pose>
+          <mass>2.53</mass>
+          <inertia>
+            <ixx>1.22073</ixx>
+            <ixy>-0.028119</ixy>
+            <ixz>-0.215343</ixz>
+            <iyy>0.949855</iyy>
+            <iyz>-0.0425204</iyz>
+            <izz>1.51933</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_arm_7_link_collision'>
+          <pose frame=''>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <cylinder>
+              <length>0.05</length>
+              <radius>0.04</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_7_link_collision_right_arm_7_link_1'>
+          <pose frame=''>0 0 0.031 0 -0 3.1415</pose>
+          <geometry>
+            <cylinder>
+              <length>0.023</length>
+              <radius>0.033</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_7_link_collision_right_arm_7_link_2'>
+          <pose frame=''>0 0 0.033 0 -0 3.1415</pose>
+          <geometry>
+            <box>
+              <size>0.066 0.0725 0.0256</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_7_link_collision_right_arm_7_link_3'>
+          <pose frame=''>0 0 0.041 1.5708 5.55112e-17 -1.57089</pose>
+          <geometry>
+            <box>
+              <size>0.066 0.0725 0.0456</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_7_link_collision_right_arm_7_link_4'>
+          <pose frame=''>-0.0120001 1.06778e-06 0.078 -4.24145e-06 -0.5236 -8.68597e-05</pose>
+          <geometry>
+            <box>
+              <size>0.066 0.0725 0.0256</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_7_link_collision_right_arm_7_link_5'>
+          <pose frame=''>0.0359613 -3.06421e-06 0.114928 2.0944 -1.8366e-06 -1.57089</pose>
+          <geometry>
+            <box>
+              <size>0.066 0.0725 0.12</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_7_link_collision_right_arm_7_link_6'>
+          <pose frame=''>-0.0561134 5.38753e-06 0.096406 -2.68937e-06 -1.04729 3.1415</pose>
+          <geometry>
+            <box>
+              <size>0.066 0.066 0.062</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='right_arm_7_link_collision_right_arm_7_link_7'>
+          <pose frame=''>-0.0376273 -0.0069463 0.109386 -2.68937e-06 -1.04729 3.1415</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/palm_right_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_arm_7_link_visual'>
+          <pose frame=''>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/kuka-lwr/lwr_description/meshes/lwr4plus/visual/link_7.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_arm_7_link_visual_right_arm_7_link_1'>
+          <pose frame=''>0 0 0.0115 0 -0 3.1415</pose>
+          <geometry>
+            <cylinder>
+              <length>0.023</length>
+              <radius>0.033</radius>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_arm_7_link_visual_right_arm_7_link_2'>
+          <pose frame=''>0 0 0.033 0 -0 3.1415</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/accesories/clamp.stl</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_arm_7_link_visual_right_arm_7_link_3'>
+          <pose frame=''>0 0 0.041 1.5708 5.55112e-17 -1.57089</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/accesories/merged_angle_flange_30.stl</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_arm_7_link_visual_right_arm_7_link_4'>
+          <pose frame=''>-0.0120001 1.06778e-06 0.078 -4.24145e-06 -0.5236 -8.68597e-05</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/accesories/clamp.stl</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_arm_7_link_visual_right_arm_7_link_5'>
+          <pose frame=''>0.0359613 -3.06421e-06 0.114928 2.0944 -1.8366e-06 -1.57089</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/accesories/merged_angle_flange_90.stl</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_arm_7_link_visual_right_arm_7_link_6'>
+          <pose frame=''>-0.0829615 7.83342e-06 0.0809084 -2.68937e-06 -1.04729 3.1415</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/accesories/softhand_base_right.stl</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_arm_7_link_visual_right_arm_7_link_7'>
+          <pose frame=''>-0.0376273 -0.0069463 0.109386 -2.68937e-06 -1.04729 3.1415</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/palm_right.stl</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay/>
+        <gravity>1</gravity>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_palm_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <topic>right_hand_palm_link_collision</topic>
+            <collision>right_hand_softhand_base_collision_right_hand_palm_link</collision>
+          </contact>
+          <plugin name='right_hand_palm_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_palm_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_palm_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose frame=''>-0.0376273 -0.0069463 0.109386 -2.68937e-06 -1.04729 3.1415</pose>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_arm_a6_joint' type='revolute'>
+        <child>right_arm_7_link</child>
+        <parent>right_arm_6_link</parent>
+        <axis>
+          <xyz>0.707108 -9.3e-05 -0.707105</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>38</effort>
+            <velocity>3.21141</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+            <friction>10</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_index_knuckle_link'>
+        <pose frame=''>1.74372 0.82733 0.697166 3.1181 -0.260858 0.090364</pose>
+        <inertial>
+          <pose frame=''>0.00128564 -9.58e-07 0.000425011 0 -0 0</pose>
+          <mass>0.09</mass>
+          <inertia>
+            <ixx>0.00405</ixx>
+            <ixy>0</ixy>
+            <ixz>0.00045</ixz>
+            <iyy>0.0081</iyy>
+            <iyz>0</iyz>
+            <izz>0.0063</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_index_knuckle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_index_knuckle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_index_knuckle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_index_knuckle_link_collision</collision>
+            <topic>right_hand_index_knuckle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_index_knuckle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_index_knuckle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_index_knuckle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_index_abd_joint' type='revolute'>
+        <child>right_hand_index_knuckle_link</child>
+        <parent>right_arm_7_link</parent>
+        <axis>
+          <xyz>0.258906 -0.000124 -0.965903</xyz>
+          <limit>
+            <lower>-0.523599</lower>
+            <upper>0.523599</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_index_fake_link1'>
+        <pose frame=''>1.75238 0.828115 0.699487 3.1181 -0.260858 0.090364</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_index_inner_joint' type='revolute'>
+        <child>right_hand_index_fake_link1</child>
+        <parent>right_hand_index_knuckle_link</parent>
+        <axis>
+          <xyz>-0.084183 0.996192 -0.022693</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_index_proximal_link'>
+        <pose frame=''>1.76489 0.829249 0.70284 3.1181 -0.260858 0.090364</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_index_proximal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_index_proximal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_index_proximal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_index_proximal_link_collision</collision>
+            <topic>right_hand_index_proximal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_index_proximal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_index_proximal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_index_proximal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_index_inner_joint_mimic' type='revolute'>
+        <child>right_hand_index_proximal_link</child>
+        <parent>right_hand_index_fake_link1</parent>
+        <axis>
+          <xyz>-0.084183 0.996192 -0.022693</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_index_fake_link2'>
+        <pose frame=''>1.77355 0.830033 0.705161 3.1181 -0.260858 0.090364</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_index_middle_joint' type='revolute'>
+        <child>right_hand_index_fake_link2</child>
+        <parent>right_hand_index_proximal_link</parent>
+        <axis>
+          <xyz>-0.084183 0.996192 -0.022693</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_index_middle_link'>
+        <pose frame=''>1.78606 0.831167 0.708514 3.1181 -0.260858 0.090364</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_index_middle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_index_middle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_index_middle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_index_middle_link_collision</collision>
+            <topic>right_hand_index_middle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_index_middle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_index_middle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_index_middle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_index_middle_joint_mimic' type='revolute'>
+        <child>right_hand_index_middle_link</child>
+        <parent>right_hand_index_fake_link2</parent>
+        <axis>
+          <xyz>-0.084183 0.996192 -0.022693</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_index_fake_link3'>
+        <pose frame=''>1.79472 0.831951 0.710835 3.1181 -0.260858 0.090364</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_index_outer_joint' type='revolute'>
+        <child>right_hand_index_fake_link3</child>
+        <parent>right_hand_index_middle_link</parent>
+        <axis>
+          <xyz>-0.084183 0.996192 -0.022693</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_index_distal_link'>
+        <pose frame=''>1.80723 0.833085 0.714188 3.1181 -0.260858 0.090364</pose>
+        <inertial>
+          <pose frame=''>0.00984909 5.6e-07 0.000820286 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.0035</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0002</ixz>
+            <iyy>0.008</iyy>
+            <iyz>0</iyz>
+            <izz>0.0076</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_index_distal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_index_distal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_index_distal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_index_distal_link_collision</collision>
+            <topic>right_hand_index_distal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_index_distal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_index_distal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_index_distal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_index_outer_joint_mimic' type='revolute'>
+        <child>right_hand_index_distal_link</child>
+        <parent>right_hand_index_fake_link3</parent>
+        <axis>
+          <xyz>-0.084183 0.996192 -0.022693</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_little_knuckle_link'>
+        <pose frame=''>1.73406 0.76883 0.694584 -3.11837 -0.260881 -0.0902971</pose>
+        <inertial>
+          <pose frame=''>0.00128564 -9.58e-07 0.000425011 0 -0 0</pose>
+          <mass>0.09</mass>
+          <inertia>
+            <ixx>0.00405</ixx>
+            <ixy>0</ixy>
+            <ixz>0.00045</ixz>
+            <iyy>0.0081</iyy>
+            <iyz>0</iyz>
+            <izz>0.0063</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_little_knuckle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_little_knuckle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_little_knuckle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_little_knuckle_link_collision</collision>
+            <topic>right_hand_little_knuckle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_little_knuckle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_little_knuckle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_little_knuckle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_little_abd_joint' type='revolute'>
+        <child>right_hand_little_knuckle_link</child>
+        <parent>right_arm_7_link</parent>
+        <axis>
+          <xyz>0.258906 -0.000124 -0.965903</xyz>
+          <limit>
+            <lower>-0.523599</lower>
+            <upper>0.523599</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_little_fake_link1'>
+        <pose frame=''>1.74272 0.768046 0.696906 -3.11837 -0.260881 -0.0902971</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_little_inner_joint' type='revolute'>
+        <child>right_hand_little_fake_link1</child>
+        <parent>right_hand_little_knuckle_link</parent>
+        <axis>
+          <xyz>0.084185 0.996198 0.022437</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_little_proximal_link'>
+        <pose frame=''>1.75523 0.766913 0.700259 -3.11837 -0.260881 -0.0902971</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_little_proximal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_little_proximal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_little_proximal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_little_proximal_link_collision</collision>
+            <topic>right_hand_little_proximal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_little_proximal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_little_proximal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_little_proximal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_little_inner_joint_mimic' type='revolute'>
+        <child>right_hand_little_proximal_link</child>
+        <parent>right_hand_little_fake_link1</parent>
+        <axis>
+          <xyz>0.084185 0.996198 0.022437</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_little_fake_link2'>
+        <pose frame=''>1.76389 0.766129 0.70258 -3.11837 -0.260881 -0.0902971</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_little_middle_joint' type='revolute'>
+        <child>right_hand_little_fake_link2</child>
+        <parent>right_hand_little_proximal_link</parent>
+        <axis>
+          <xyz>0.084185 0.996198 0.022437</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_little_middle_link'>
+        <pose frame=''>1.7764 0.764997 0.705933 -3.11837 -0.260881 -0.0902971</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_little_middle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_little_middle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_little_middle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_little_middle_link_collision</collision>
+            <topic>right_hand_little_middle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_little_middle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_little_middle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_little_middle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_little_middle_joint_mimic' type='revolute'>
+        <child>right_hand_little_middle_link</child>
+        <parent>right_hand_little_fake_link2</parent>
+        <axis>
+          <xyz>0.084185 0.996198 0.022437</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_little_fake_link3'>
+        <pose frame=''>1.78506 0.764213 0.708254 -3.11837 -0.260881 -0.0902971</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_little_outer_joint' type='revolute'>
+        <child>right_hand_little_fake_link3</child>
+        <parent>right_hand_little_middle_link</parent>
+        <axis>
+          <xyz>0.084185 0.996198 0.022437</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_little_distal_link'>
+        <pose frame=''>1.79757 0.76308 0.711608 -3.11837 -0.260881 -0.0902971</pose>
+        <inertial>
+          <pose frame=''>0.00984909 5.6e-07 0.000820286 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.0035</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0002</ixz>
+            <iyy>0.008</iyy>
+            <iyz>0</iyz>
+            <izz>0.0076</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_little_distal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_little_distal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_little_distal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_little_distal_link_collision</collision>
+            <topic>right_hand_little_distal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_little_distal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_little_distal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_little_distal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_little_outer_joint_mimic' type='revolute'>
+        <child>right_hand_little_distal_link</child>
+        <parent>right_hand_little_fake_link3</parent>
+        <axis>
+          <xyz>0.084185 0.996198 0.022437</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_middle_knuckle_link'>
+        <pose frame=''>1.75048 0.807831 0.69898 3.14146 -0.261889 3.37301e-05</pose>
+        <inertial>
+          <pose frame=''>0.00128564 -9.58e-07 0.000425011 0 -0 0</pose>
+          <mass>0.09</mass>
+          <inertia>
+            <ixx>0.00405</ixx>
+            <ixy>0</ixy>
+            <ixz>0.00045</ixz>
+            <iyy>0.0081</iyy>
+            <iyz>0</iyz>
+            <izz>0.0063</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_middle_knuckle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_middle_knuckle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_middle_knuckle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_middle_knuckle_link_collision</collision>
+            <topic>right_hand_middle_knuckle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_middle_knuckle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_middle_knuckle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_middle_knuckle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_middle_abd_joint' type='revolute'>
+        <child>right_hand_middle_knuckle_link</child>
+        <parent>right_arm_7_link</parent>
+        <axis>
+          <xyz>0.258906 -0.000125 -0.965903</xyz>
+          <limit>
+            <lower>-0.523599</lower>
+            <upper>0.523599</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_middle_fake_link1'>
+        <pose frame=''>1.75917 0.807831 0.701311 3.14146 -0.261889 3.37301e-05</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_middle_inner_joint' type='revolute'>
+        <child>right_hand_middle_fake_link1</child>
+        <parent>right_hand_middle_knuckle_link</parent>
+        <axis>
+          <xyz>1e-06 1 -0.000129</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_middle_proximal_link'>
+        <pose frame=''>1.77173 0.807831 0.704676 3.14146 -0.261889 3.37301e-05</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_middle_proximal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_middle_proximal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_middle_proximal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_middle_proximal_link_collision</collision>
+            <topic>right_hand_middle_proximal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_middle_proximal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_middle_proximal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_middle_proximal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_middle_inner_joint_mimic' type='revolute'>
+        <child>right_hand_middle_proximal_link</child>
+        <parent>right_hand_middle_fake_link1</parent>
+        <axis>
+          <xyz>1e-06 1 -0.000129</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_middle_fake_link2'>
+        <pose frame=''>1.78042 0.807832 0.707006 3.14146 -0.261889 3.37301e-05</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_middle_middle_joint' type='revolute'>
+        <child>right_hand_middle_fake_link2</child>
+        <parent>right_hand_middle_proximal_link</parent>
+        <axis>
+          <xyz>1e-06 1 -0.000129</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_middle_middle_link'>
+        <pose frame=''>1.79298 0.807832 0.710372 3.14146 -0.261889 3.37301e-05</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_middle_middle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_middle_middle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_middle_middle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_middle_middle_link_collision</collision>
+            <topic>right_hand_middle_middle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_middle_middle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_middle_middle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_middle_middle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_middle_middle_joint_mimic' type='revolute'>
+        <child>right_hand_middle_middle_link</child>
+        <parent>right_hand_middle_fake_link2</parent>
+        <axis>
+          <xyz>1e-06 1 -0.000129</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_middle_fake_link3'>
+        <pose frame=''>1.80167 0.807832 0.712702 3.14146 -0.261889 3.37301e-05</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_middle_outer_joint' type='revolute'>
+        <child>right_hand_middle_fake_link3</child>
+        <parent>right_hand_middle_middle_link</parent>
+        <axis>
+          <xyz>1e-06 1 -0.000129</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_middle_distal_link'>
+        <pose frame=''>1.81423 0.807833 0.716068 3.14146 -0.261889 3.37301e-05</pose>
+        <inertial>
+          <pose frame=''>0.00984909 5.6e-07 0.000820286 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.0035</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0002</ixz>
+            <iyy>0.008</iyy>
+            <iyz>0</iyz>
+            <izz>0.0076</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_middle_distal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_middle_distal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_middle_distal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_middle_distal_link_collision</collision>
+            <topic>right_hand_middle_distal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_middle_distal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_middle_distal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_middle_distal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_middle_outer_joint_mimic' type='revolute'>
+        <child>right_hand_middle_distal_link</child>
+        <parent>right_hand_middle_fake_link3</parent>
+        <axis>
+          <xyz>1e-06 1 -0.000129</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_ring_knuckle_link'>
+        <pose frame=''>1.74372 0.78833 0.697171 -3.1277 -0.261529 -0.0541711</pose>
+        <inertial>
+          <pose frame=''>0.00128564 -9.58e-07 0.000425011 0 -0 0</pose>
+          <mass>0.09</mass>
+          <inertia>
+            <ixx>0.00405</ixx>
+            <ixy>0</ixy>
+            <ixz>0.00045</ixz>
+            <iyy>0.0081</iyy>
+            <iyz>0</iyz>
+            <izz>0.0063</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_ring_knuckle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_ring_knuckle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/knuckle.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_ring_knuckle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_ring_knuckle_link_collision</collision>
+            <topic>right_hand_ring_knuckle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_ring_knuckle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_ring_knuckle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_ring_knuckle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_ring_abd_joint' type='revolute'>
+        <child>right_hand_ring_knuckle_link</child>
+        <parent>right_arm_7_link</parent>
+        <axis>
+          <xyz>0.258906 -0.000124 -0.965903</xyz>
+          <limit>
+            <lower>-0.523599</lower>
+            <upper>0.523599</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_ring_fake_link1'>
+        <pose frame=''>1.7524 0.78786 0.699498 -3.1277 -0.261529 -0.0541711</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_ring_inner_joint' type='revolute'>
+        <child>right_hand_ring_fake_link1</child>
+        <parent>right_hand_ring_knuckle_link</parent>
+        <axis>
+          <xyz>0.050552 0.998631 0.013422</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_ring_proximal_link'>
+        <pose frame=''>1.76494 0.78718 0.702859 -3.1277 -0.261529 -0.0541711</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_ring_proximal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_ring_proximal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_ring_proximal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_ring_proximal_link_collision</collision>
+            <topic>right_hand_ring_proximal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_ring_proximal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_ring_proximal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_ring_proximal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_ring_inner_joint_mimic' type='revolute'>
+        <child>right_hand_ring_proximal_link</child>
+        <parent>right_hand_ring_fake_link1</parent>
+        <axis>
+          <xyz>0.050552 0.998631 0.013422</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_ring_fake_link2'>
+        <pose frame=''>1.77362 0.786709 0.705186 -3.1277 -0.261529 -0.0541711</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_ring_middle_joint' type='revolute'>
+        <child>right_hand_ring_fake_link2</child>
+        <parent>right_hand_ring_proximal_link</parent>
+        <axis>
+          <xyz>0.050552 0.998631 0.013422</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_ring_middle_link'>
+        <pose frame=''>1.78616 0.786029 0.708547 -3.1277 -0.261529 -0.0541711</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_ring_middle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_ring_middle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_ring_middle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_ring_middle_link_collision</collision>
+            <topic>right_hand_ring_middle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_ring_middle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_ring_middle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_ring_middle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_ring_middle_joint_mimic' type='revolute'>
+        <child>right_hand_ring_middle_link</child>
+        <parent>right_hand_ring_fake_link2</parent>
+        <axis>
+          <xyz>0.050552 0.998631 0.013422</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_ring_fake_link3'>
+        <pose frame=''>1.79484 0.785558 0.710874 -3.1277 -0.261529 -0.0541711</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_ring_outer_joint' type='revolute'>
+        <child>right_hand_ring_fake_link3</child>
+        <parent>right_hand_ring_middle_link</parent>
+        <axis>
+          <xyz>0.050552 0.998631 0.013422</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_ring_distal_link'>
+        <pose frame=''>1.80738 0.784878 0.714235 -3.1277 -0.261529 -0.0541711</pose>
+        <inertial>
+          <pose frame=''>0.00984909 5.6e-07 0.000820286 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.0035</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0002</ixz>
+            <iyy>0.008</iyy>
+            <iyz>0</iyz>
+            <izz>0.0076</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_ring_distal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_ring_distal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_ring_distal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_ring_distal_link_collision</collision>
+            <topic>right_hand_ring_distal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_ring_distal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_ring_distal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_ring_distal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_ring_outer_joint_mimic' type='revolute'>
+        <child>right_hand_ring_distal_link</child>
+        <parent>right_hand_ring_fake_link3</parent>
+        <axis>
+          <xyz>0.050552 0.998631 0.013422</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_invisible_wire_link'>
+        <pose frame=''>1.65407 0.807827 0.669721 -0.000496067 1.30891 -0.000479849</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_synergy_joint' type='revolute'>
+        <child>right_hand_invisible_wire_link</child>
+        <parent>right_arm_7_link</parent>
+        <axis>
+          <xyz>0.965903 3.3e-05 0.258906</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>1</upper>
+            <effort>100</effort>
+            <velocity>100000</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='right_hand_thumb_knuckle_link'>
+        <pose frame=''>1.70896 0.837444 0.678562 1.32716 -0.0970209 1.19873</pose>
+        <inertial>
+          <pose frame=''>0.0136081 -0.000532174 -0.000216691 0 -0 0</pose>
+          <mass>0.09</mass>
+          <inertia>
+            <ixx>0.00315</ixx>
+            <ixy>0.00027</ixy>
+            <ixz>-0.00054</ixz>
+            <iyy>0.009</iyy>
+            <iyz>0.00018</iyz>
+            <izz>0.009</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_thumb_knuckle_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/thumb_knuckle_right_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_thumb_knuckle_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/thumb_knuckle_right.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_thumb_knuckle_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_thumb_knuckle_link_collision</collision>
+            <topic>right_hand_thumb_knuckle_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_thumb_knuckle_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_thumb_knuckle_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_thumb_knuckle_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_thumb_abd_joint' type='revolute'>
+        <child>right_hand_thumb_knuckle_link</child>
+        <parent>right_arm_7_link</parent>
+        <axis>
+          <xyz>-0.895569 0.374577 -0.240101</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>1.5708</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_thumb_fake_link1'>
+        <pose frame=''>1.71796 0.858306 0.677554 1.75379 -0.0970209 1.19873</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_thumb_inner_joint' type='revolute'>
+        <child>right_hand_thumb_fake_link1</child>
+        <parent>right_hand_thumb_knuckle_link</parent>
+        <axis>
+          <xyz>-0.13489 0.154888 -0.97868</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_thumb_proximal_link'>
+        <pose frame=''>1.72266 0.870359 0.678814 1.75379 -0.0970209 1.19873</pose>
+        <inertial>
+          <pose frame=''>0.00507434 -4.524e-06 -0.000262953 0 -0 0</pose>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.00175</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0001</ixz>
+            <iyy>0.00275</iyy>
+            <iyz>0</iyz>
+            <izz>0.00275</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_thumb_proximal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_thumb_proximal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/phalanx.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_thumb_proximal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_thumb_proximal_link_collision</collision>
+            <topic>right_hand_thumb_proximal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_thumb_proximal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_thumb_proximal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_thumb_proximal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_thumb_inner_joint_mimic' type='revolute'>
+        <child>right_hand_thumb_proximal_link</child>
+        <parent>right_hand_thumb_fake_link1</parent>
+        <axis>
+          <xyz>-0.13489 0.154888 -0.97868</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_thumb_fake_link3'>
+        <pose frame=''>1.72592 0.878704 0.679685 1.75379 -0.0970209 1.19873</pose>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <joint name='right_hand_thumb_outer_joint' type='revolute'>
+        <child>right_hand_thumb_fake_link3</child>
+        <parent>right_hand_thumb_proximal_link</parent>
+        <axis>
+          <xyz>-0.13489 0.154888 -0.97868</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_hand_thumb_distal_link'>
+        <pose frame=''>1.73062 0.890757 0.680945 1.75379 -0.0970209 1.19873</pose>
+        <inertial>
+          <pose frame=''>0.00984909 5.6e-07 0.000820286 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.0035</ixx>
+            <ixy>0</ixy>
+            <ixz>0.0002</ixz>
+            <iyy>0.008</iyy>
+            <iyz>0</iyz>
+            <izz>0.0076</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_hand_thumb_distal_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip_collision.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>1e+06</kp>
+                <kd>100</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>500</mu>
+                <mu2>500</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='right_hand_thumb_distal_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>0.001 0.001 0.001</scale>
+              <uri>/home/mathew/ocado_ws/src/pisa-iit-soft-hand/soft_hand_description/meshes/fingertip.stl</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <sensor name='right_hand_thumb_distal_link_contact' type='contact'>
+          <always_on>1</always_on>
+          <update_rate>1000</update_rate>
+          <contact>
+            <collision>right_hand_thumb_distal_link_collision</collision>
+            <topic>right_hand_thumb_distal_link_collision</topic>
+          </contact>
+          <plugin name='right_hand_thumb_distal_link_gazebo_ros_bumper_plugin' filename='libgazebo_ros_bumper.so'>
+            <alwaysOn>true</alwaysOn>
+            <frameName>right_hand_thumb_distal_link</frameName>
+            <updateRate>100.0</updateRate>
+            <bumperTopicName>/contacts/right_hand_thumb_distal_link</bumperTopicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_hand_thumb_outer_joint_mimic' type='revolute'>
+        <child>right_hand_thumb_distal_link</child>
+        <parent>right_hand_thumb_fake_link3</parent>
+        <axis>
+          <xyz>-0.13489 0.154888 -0.97868</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.785398</upper>
+            <effort>100</effort>
+            <velocity>100</velocity>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <provide_feedback>1</provide_feedback>
+          <ode>
+            <provide_feedback>1</provide_feedback>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <plugin name='right_arm_lwr_hw_sim' filename='liblwr_hw_gazebo_plugin.so'>
+        <robotNamespace>right_arm</robotNamespace>
+      </plugin>
+      <plugin name='ft_sensor' filename='libgazebo_ros_ft_sensor.so'>
+        <updateRate>100.0</updateRate>
+        <topicName>ft_sensor_topic</topicName>
+        <jointName>right_arm_a6_joint</jointName>
+        <robotNamespace>/</robotNamespace>
+      </plugin>
+      <static>0</static>
+      <plugin name='gazebo_ros_soft_hand' filename='libgazebo_ros_soft_hand.so'>
+        <robotNamespace>right_hand</robotNamespace>
+      </plugin>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+    </model>
+    <model name='unit_cylinder_2'>
+      <pose frame=''>-1 -5 0.5 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <cylinder>
+              <radius>0.0850317</radius>
+              <length>0.259885</length>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <cylinder>
+              <radius>0.0850315</radius>
+              <length>0.259885</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+    </model>
+    <light name='user_spot_light_7' type='spot'>
+      <pose frame=''>13 -1 1 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <direction>0 0 -1</direction>
+      <attenuation>
+        <range>20</range>
+        <constant>0.5</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <spot>
+        <inner_angle>0.6</inner_angle>
+        <outer_angle>1</outer_angle>
+        <falloff>1</falloff>
+      </spot>
+    </light>
+  </world>
+</sdf>
