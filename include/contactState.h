@@ -15,10 +15,10 @@ class contactState {
 
 public:
 
-  // public typedefs
-  typedef boost::shared_ptr<IMUGraspControllerCaller> Ptr;
-  typedef boost::shared_ptr<const IMUGraspControllerCaller> ConstPtr;
-  
+  // public typedefs ???
+  //typedef boost::shared_ptr<IMUGraspControllerCaller> Ptr;
+  //typedef boost::shared_ptr<const IMUGraspControllerCaller> ConstPtr;
+
   /** CONSTRUCTOR
   * @brief Default constructor for contactState
   *
