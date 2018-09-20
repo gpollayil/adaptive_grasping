@@ -43,7 +43,7 @@ namespace adaptive_grasping {
     *   the new synergy matrix
     * @return bool (success or failure)
     */
-    bool changeHandType(Eigen::MatrixXd S_);
+    void changeHandType(Eigen::MatrixXd S_);
 
     /** SETGRASPSTATE
     * @brief Function to set new values for J, G, T and H
@@ -58,7 +58,7 @@ namespace adaptive_grasping {
     *   the new contact selection matrix
     * @return bool (success or failure)
     */
-    bool setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
+    void setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
       Eigen::MatrixXd H_);
 
     /** SETMINIMIZATIONPARAMS
@@ -70,7 +70,7 @@ namespace adaptive_grasping {
     *   the weight matrix in the cost function of the minimization
     * @return bool (success or failure)
     */
-    bool setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_);
+    void setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_);
 
     /** PERFORMMINIMIZATION
     * @brief Function to perform the minimization using current values
