@@ -63,6 +63,14 @@ namespace adaptive_grasping {
     */
     std::map< int, Eigen::Affine3d > readValues();
 
+    /** GETPARAMSOFYAML
+    * @brief Class function to get things from parameter server
+    *
+    * @param null
+    * @return bool = true if success
+    */
+    bool getParamsOfYaml();
+
   private:
 
     // The finger which has just touched (read via topic)
@@ -71,7 +79,10 @@ namespace adaptive_grasping {
     // The vector containing all the fingers in collision
     std::map< int, Eigen::Affine3d > touched_fingers_details;
 
-    // Subscribing to handle finger collision
+    // Node handle for the subscriber to finger collision
+    ros::NodeHandle node_contact_state;
+
+    // Subscribrt to topic of finger collision
     ros::Subscriber finger_col_sub;
 
   }; // closing class
