@@ -29,7 +29,7 @@ void contactPreserver::setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_,
   Eigen::MatrixXd T_, Eigen::MatrixXd H_){
     // Set the new J, G, T and H matrices
     J = J_; G = G_; T = T_; H = H_;
-  }
+}
 
 /* SETMINIMIZATIONPARAMS */
 void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_,

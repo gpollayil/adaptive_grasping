@@ -41,7 +41,7 @@ namespace adaptive_grasping {
     *
     * @param S_
     *   the new synergy matrix
-    * @return bool (success or failure)
+    * @return null
     */
     void changeHandType(Eigen::MatrixXd S_);
 
@@ -56,7 +56,7 @@ namespace adaptive_grasping {
     *   the whole palm twist pole change matrix for the contacts
     * @param H_
     *   the new contact selection matrix
-    * @return bool (success or failure)
+    * @return null
     */
     void setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
       Eigen::MatrixXd H_);
@@ -68,7 +68,7 @@ namespace adaptive_grasping {
     *   the desired motion of the hand given by some high level planner
     * @param A_tilde_
     *   the weight matrix in the cost function of the minimization
-    * @return bool (success or failure)
+    * @return null
     */
     void setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_);
 
