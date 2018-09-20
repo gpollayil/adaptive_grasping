@@ -1,8 +1,13 @@
 #ifndef CONTACT_STATE_H
 #define CONTACT_STATE_H
 
+#include <map>
 #include <Eigen/Geometry>
 #include <std_msgs/Int8.h>
+#include <ros/ros.h>
+
+#define EXEC_NAMESPACE    "adaptive_grasping"
+#define CLASS_NAMESPACE   "contact_state"
 
 /**
 * @brief This class is called by the adaptive_grasping method to get the
@@ -61,15 +66,16 @@ namespace adaptive_grasping {
     * @param null
     * @return std::map< int, Eigen::Affine3d >
     */
-    std::map< int, Eigen::Affine3d > readValues();
+    std::map<int, Eigen::Affine3d> readValues();
 
     /** GETPARAMSOFYAML
     * @brief Class function to get things from parameter server
     *
-    * @param null
+    * @param  param_name: name of the parameter to be parsed
+              default_param_name: default to be saved if param not found
     * @return bool = true if success
     */
-    bool getParamsOfYaml();
+    bool getParamOfYaml(std::string param_name, std::string default_param_name);
 
   private:
 
@@ -77,7 +83,13 @@ namespace adaptive_grasping {
     int touching_finger;
 
     // The vector containing all the fingers in collision
-    std::map< int, Eigen::Affine3d > touched_fingers_details;
+    std::map<int, Eigen::Affine3d> touched_fingers_map;
+
+    // Temporary string for saving parameters
+    std::string temp_param;
+
+    // Map for storing already read parameters
+    std::map<std::string, std::string> params_map;
 
     // Node handle for the subscriber to finger collision
     ros::NodeHandle node_contact_state;
