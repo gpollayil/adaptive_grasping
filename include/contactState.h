@@ -11,50 +11,71 @@
 * of the touching fingers and its frames (all inside the class)
 */
 
-class contactState {
+namespace adaptive_grasping {
 
-public:
+  class contactState {
 
-  // public typedefs ???
-  //typedef boost::shared_ptr<IMUGraspControllerCaller> Ptr;
-  //typedef boost::shared_ptr<const IMUGraspControllerCaller> ConstPtr;
+  public:
 
-  /** CONSTRUCTOR
-  * @brief Default constructor for contactState
-  *
-  * @param null
-  * @return null
-  */
-  contactState();
+    // public typedefs ???
+    //typedef boost::shared_ptr<contactState> Ptr;
+    //typedef boost::shared_ptr<const contactState> ConstPtr;
 
-  /** DESTRUCTOR
-  * @brief Default destructor for contactState
-  *
-  * @param null
-  * @return null
-  */
-  ~contactState();
+    /** CONSTRUCTOR
+    * @brief Default constructor for contactState
+    *
+    * @param null
+    * @return null
+    */
+    contactState();
 
-  /** HANDLECOLLISION
-  * @brief Callback function to handle the touching topic (finger_col_sub)
-  *
-  * @param Int8 msg
-  *   the listened message or the finger_col_sub
-  * @return void (as all callbacks)
-  */
-  void handleCollision(const std_msgs::Int8::ConstPtr& msg);
+    /** DESTRUCTOR
+    * @brief Default destructor for contactState
+    *
+    * @param null
+    * @return null
+    */
+    ~contactState();
 
-private:
+    /** HANDLECOLLISION
+    * @brief Callback function to handle the touching topic (finger_col_sub)
+    *
+    * @param Int8 msg
+    *   the listened message or the finger_col_sub
+    * @return void (as all callbacks)
+    */
+    void handleCollision(const std_msgs::Int8::ConstPtr& msg);
 
-  // The finger which has just touched (read via topic)
-  int touching_finger;
+    /** GETTRANSFORMS
+    * @brief Class function to get frames for the touching fingers
+    *   which will be written into touched_fingers_details
+    *
+    * @param null
+    * @return void
+    */
+    void getTrasforms();
 
-  // The vector containing all the fingers in collision
-  std::map< int, Eigen::Affine3d > touched_fingers_details;
+    /** READVALUES
+    * @brief Class function to read the private variables
+    *
+    * @param null
+    * @return std::map< int, Eigen::Affine3d >
+    */
+    std::map< int, Eigen::Affine3d > readValues();
 
-  // Subscribing to handle finger collision
-  ros::Subscriber finger_col_sub;
+  private:
 
-};
+    // The finger which has just touched (read via topic)
+    int touching_finger;
+
+    // The vector containing all the fingers in collision
+    std::map< int, Eigen::Affine3d > touched_fingers_details;
+
+    // Subscribing to handle finger collision
+    ros::Subscriber finger_col_sub;
+
+  }; // closing class
+
+} // closing namespace
 
 #endif // CONTACT_STATE_H
