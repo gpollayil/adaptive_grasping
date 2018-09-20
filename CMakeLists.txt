@@ -142,8 +142,13 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/adaptive_grasping_node.cpp)
 
+set(ADAPTIVE_SOURCE_FILES
+	src/contactState.cpp
+	src/contactPreserver.cpp
+)
+
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
-add_executable(${PROJECT_NAME}_contact_preserver src/contactPreserver.cpp)
+add_executable(${PROJECT_NAME}_node ${ADAPTIVE_SOURCE_FILES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -163,7 +168,7 @@ add_executable(${PROJECT_NAME}_contact_preserver src/contactPreserver.cpp)
 target_link_libraries(${PROJECT_NAME}_tf_listener
    ${catkin_LIBRARIES}
 )
-target_link_libraries(${PROJECT_NAME}_contact_preserver
+target_link_libraries(${PROJECT_NAME}_node
    ${catkin_LIBRARIES}
 )
 
