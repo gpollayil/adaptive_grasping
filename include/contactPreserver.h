@@ -4,6 +4,9 @@
 #include <kdl/jacobian.hpp>
 #include <Eigen/Dense>
 
+#define EXEC_NAMESPACE    "adaptive_grasping"
+#define CLASS_NAMESPACE   "contact_preserver"
+
 /**
 * @brief This class is called by the adaptive_grasping method to compute the
 * contact preserving reference motions.
@@ -15,6 +18,7 @@ namespace adaptive_grasping {
   class contactPreserver {
 
   public:
+
     /** CONSTRUCTOR
     * @brief Default constructor for contactPreserver
     *
@@ -76,7 +80,7 @@ namespace adaptive_grasping {
     Eigen::VectorXd performMinimization();
 
   private:
-    // Current hand jacobian
+    // Current contacts jacobian
     KDL::Jacobian J;
 
     // Grasp matrix
@@ -105,7 +109,7 @@ namespace adaptive_grasping {
 
   }; // closing class
 
-} // closing namespace 
+} // closing namespace
 
 
 
