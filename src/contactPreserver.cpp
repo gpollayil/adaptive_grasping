@@ -5,6 +5,8 @@
 *
 */
 
+using namespace adaptive_grasping;
+
 /* CONSTRUCTOR */
 contactPreserver::contactPreserver(Eigen::MatrixXd S_){
   // Set the synergy matrix
@@ -17,34 +19,34 @@ contactPreserver::~contactPreserver(){
 }
 
 /* CHANGEHANDTYPE */
-bool changeHandType(Eigen::MatrixXd S_){
+bool contactPreserver::changeHandType(Eigen::MatrixXd S_){
   // Set the new synergy matrix
   S = S_;
 }
 
 /* SETGRASPSTATE */
-bool setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
+bool contactPreserver::setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
   Eigen::MatrixXd H_){
     // Set the new J, G, T and H matrices
     J = J_; G = G_; T = T_; H = H_;
   }
 
 /* SETMINIMIZATIONPARAMS */
-bool setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_){
+bool contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_){
   // Set the new desired motion vector and weight matrix
   x_d = x_d_; A_tilde = A_tilde_;
 }
 
 /* PERFORMMINIMIZATION */
-Eigen::VectorXd performMinimization(){
+Eigen::VectorXd contactPreserver::performMinimization(){
   // Resize Q to be of correct size
   Q.resize(H.rows(), x_d.norm());
 
   // Now create the block matrix
-  Q << H*J*S, H*T, MatrixXd::Zero(H.rows(), G.rows())-H*G.transpose();
+  Q << H*J.data*S, H*T, Eigen::MatrixXd::Zero(H.rows(), G.rows())-H*G.transpose();
 
   // Compute a basis of the null space by using LU decomposition
-  FullPivLU<MatrixXd> lu(Q);
+  Eigen::FullPivLU<Eigen::MatrixXd> lu(Q);
   N = lu.kernel();
 
   // Finally, compute the reference motion that preserves the contacts
