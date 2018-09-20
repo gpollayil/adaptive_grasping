@@ -144,6 +144,7 @@ include_directories(
 
 set(ADAPTIVE_SOURCE_FILES
 	src/contactState.cpp
+	src/matricesCreator.cpp
 	src/contactPreserver.cpp
 )
 

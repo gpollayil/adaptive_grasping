@@ -1,9 +1,13 @@
-#ifndef MATICES_CREATOR_H
-#define MATICES_CREATOR_H
+#ifndef MATRICES_CREATOR_H
+#define MATRICES_CREATOR_H
 
 #include <kdl_parser/kdl_parser.hpp>
+#include <kdl/jntarray.hpp>
 #include <kdl/tree.hpp>
 #include <kdl/chain.hpp>
+#include <kdl/jacobian.hpp>
+#include <kdl/chainjnttojacsolver.hpp>
+#include <Eigen/Dense>
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "matrices_creator"
@@ -26,6 +30,8 @@ namespace adaptive_grasping {
     *
     * @param H_i_
     *   the basic contact selection matrix of the hand (in local frames)
+    * @param world_frame_name_, palm_frame_name_
+    *   the names of global and palm frames
     * @return null
     */
     matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
@@ -39,23 +45,43 @@ namespace adaptive_grasping {
     */
     ~matricesCreator();
 
+    /** CHANGEHANDTYPE
+    * @brief Function to eventually change the hand type (set new H_i)
+    *
+    * @param H_i_
+    *   the new contact selection matrix
+    * @return null
+    */
+    void changeHandType(Eigen::MatrixXd H_i_);
+
+    /** CHANGEFRAMENAMES
+    * @brief Function to eventually change the world and palm frame names
+    *
+    * @param world_frame_name_, palm_frame_name_
+    *   the new frame names
+    * @return null
+    */
+    void changeFrameNames(std::string world_frame_name_,
+      std::string palm_frame_name_);
+
     /** SETCONTACTSMAP
     * @brief Function to set the map that has details about contacts
     *
     * @param contacts_map_
     *   the map containing int ids and transforms of contactinf fingers
-    * @return bool (success or failure)
+    * @return null
     */
-    bool setContactsMap(std::map<int, Eigen::Affine3d> contacts_map_);
+    void setContactsMap(std::map<int, std::tuple<std::string, Eigen::Affine3d,
+      Eigen::Affine3d>> contacts_map_);
 
     /** SETOBJECTPOSE
     * @brief Function to set the current object pose
     *
     * @param object_pose_
     *   the object pose
-    * @return bool (success or failure)
+    * @return null
     */
-    bool setObjectPose(Eigen::Affine3d object_pose_);
+    void setObjectPose(Eigen::Affine3d object_pose_);
 
   private:
 
@@ -92,11 +118,13 @@ namespace adaptive_grasping {
     KDL::JntArray finger_joint_array;
 
     // Jacobian solver from joint array
-    KDL::ChainJntToJacSolver jacobian_solver;
+    // KDL::ChainJntToJacSolver jacobian_solver;
 
     // Object pose
     Eigen::Affine3d object_pose;
 
-  }
+  };
 
 }
+
+#endif // MATRICES_CREATOR_H
