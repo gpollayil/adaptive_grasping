@@ -18,7 +18,7 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
   // Trying to save msg  with and empty tuple (if already touching finger, then
   // won't insert)
   touching_finger = msg->data;
-  Eigen::Affine3d
-  std::tuple<std::string, Eigen::Affine3d,
-    Eigen::Affine3d> empty (std::make_tuple(20,'b'))
+  // Eigen::Affine3d
+  // std::tuple<std::string, Eigen::Affine3d,
+  //   Eigen::Affine3d> empty (std::make_tuple(20,'b'))
 }
