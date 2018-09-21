@@ -43,7 +43,20 @@ std::map<int, std::tuple<std::string, Eigen::Affine3d,
   Eigen::Affine3d>>::iterator it_c;
 
 // Now with a loop echoing and saving all needed transforms in contacts_map
-for(it_c = contacts_map.begin(); it_c != = contacts_map.end(); ++it_c){
-  
+for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+  // Getting the frame names
+  std::string frame_fing = std::get<0>(it_c->second);
+  std::string frame_world = params_map.at("world_name");
+  std::string frame_palm = params_map.at("palm_name");
+
+  // Getting all the needed transforms
+  Eigen::Affine3d fing_aff = getTrasform(frame_world, frame_fing);
+  Eigen::Affine3d palm_aff = getTrasform(frame_fing, frame_palm);
+
 }
+}
+
+/* GETTRANSFORM*/
+Eigen::Affine3d getTrasform(std::string frame1_name, std::string frame2_name){
+
 }
