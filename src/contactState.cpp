@@ -53,6 +53,14 @@ for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
   Eigen::Affine3d fing_aff = getTrasform(frame_world, frame_fing);
   Eigen::Affine3d palm_aff = getTrasform(frame_fing, frame_palm);
 
+  // Writing the correct tuple into the map
+  std::tuple<std::string, Eigen::Affine3d,
+    Eigen::Affine3d> correct_tuple (std::make_tuple(frame_fing,
+      fing_aff, palm_aff));
+  contact_state_mutex.lock();                             // mutex on
+  contacts_map[touching_finger] = correct_tuple;
+  contact_state_mutex.unlock();                           // mutex off
+
 }
 }
 
