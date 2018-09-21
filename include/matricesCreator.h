@@ -1,6 +1,8 @@
 #ifndef MATRICES_CREATOR_H
 #define MATRICES_CREATOR_H
 
+#include <map>
+#include <tuple>
 #include <boost/scoped_ptr.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 #include <kdl/jntarray.hpp>

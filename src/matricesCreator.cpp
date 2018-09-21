@@ -125,7 +125,14 @@ Eigen::MatrixXd matricesCreator::computePoleChange(Eigen::Affine3d contact_pose,
 }
 
 /* COMPUTEWHOLEJACOBIAN */
-KDL::Jacobian computeWholeJacobian(std::map<int, std::tuple<std::string,
+KDL::Jacobian matricesCreator::computeWholeJacobian(std::map<int, std::tuple<std::string,
   Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
-    
+    // Creating an iterator for contacts_map
+    std::map<int, std::tuple<std::string, Eigen::Affine3d,
+      Eigen::Affine3d>>::iterator it_c;
+      
+    // For each contact, compute J_i, G_i and T_i and compose into J, G and T
+    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+
+    }
 }
