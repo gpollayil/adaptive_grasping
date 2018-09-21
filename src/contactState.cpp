@@ -25,6 +25,15 @@ contactState::~contactState(){
   // Nothing to do here
 }
 
+/* READVALUES */
+void contactState::readValues(std::map<int, std::tuple<std::string,
+  Eigen::Affine3d, Eigen::Affine3d>>& input_map_){
+    // Reading the contacts_map
+    contact_state_mutex.lock();                             // mutex on
+    input_map_ = contacts_map;
+    contact_state_mutex.unlock();                           // mutex off
+  }
+
 /* HANDLECOLLISION */
 void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
   // Temporary saving of message
@@ -37,36 +46,36 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
     Eigen::Affine3d> empty_tuple (std::make_tuple(touched_link_name,
       identity_aff, identity_aff));
 
-// Just to be sure that the last touched finger id is in the map, inserting
-// (eventually overwriting) the element in the contacts_map
-contact_state_mutex.lock();                             // mutex on
-contacts_map[touching_finger] = empty_tuple;
-contact_state_mutex.unlock();                           // mutex off
-
-// Creating an iterator for contacts_map
-std::map<int, std::tuple<std::string, Eigen::Affine3d,
-  Eigen::Affine3d>>::iterator it_c;
-
-// Now with a loop echoing and saving all needed transforms in contacts_map
-for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
-  // Getting the frame names
-  std::string frame_fing = std::get<0>(it_c->second);
-  std::string frame_world = params_map.at("world_name");
-  std::string frame_palm = params_map.at("palm_name");
-
-  // Getting all the needed transforms
-  Eigen::Affine3d fing_aff = getTrasform(frame_world, frame_fing);
-  Eigen::Affine3d palm_aff = getTrasform(frame_fing, frame_palm);
-
-  // Writing the correct tuple into the map
-  std::tuple<std::string, Eigen::Affine3d,
-    Eigen::Affine3d> correct_tuple (std::make_tuple(frame_fing,
-      fing_aff, palm_aff));
+  // Just to be sure that the last touched finger id is in the map, inserting
+  // (eventually overwriting) the element in the contacts_map
   contact_state_mutex.lock();                             // mutex on
-  contacts_map[touching_finger] = correct_tuple;
+  contacts_map[touching_finger] = empty_tuple;
   contact_state_mutex.unlock();                           // mutex off
 
-}
+  // Creating an iterator for contacts_map
+  std::map<int, std::tuple<std::string, Eigen::Affine3d,
+    Eigen::Affine3d>>::iterator it_c;
+
+  // Now with a loop echoing and saving all needed transforms in contacts_map
+  for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+    // Getting the frame names
+    std::string frame_fing = std::get<0>(it_c->second);
+    std::string frame_world = params_map.at("world_name");
+    std::string frame_palm = params_map.at("palm_name");
+
+    // Getting all the needed transforms
+    Eigen::Affine3d fing_aff = getTrasform(frame_world, frame_fing);
+    Eigen::Affine3d palm_aff = getTrasform(frame_fing, frame_palm);
+
+    // Writing the correct tuple into the map
+    std::tuple<std::string, Eigen::Affine3d,
+      Eigen::Affine3d> correct_tuple (std::make_tuple(frame_fing,
+        fing_aff, palm_aff));
+    contact_state_mutex.lock();                             // mutex on
+    contacts_map[touching_finger] = correct_tuple;
+    contact_state_mutex.unlock();                           // mutex off
+
+  }
 }
 
 /* GETTRANSFORM*/

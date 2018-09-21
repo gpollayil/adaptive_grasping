@@ -55,10 +55,10 @@ namespace adaptive_grasping {
     * @brief Class function to read the private variables
     *
     * @param null
-    * @return std::map< int, Eigen::Affine3d >
+    * @return void
     */
-    bool readValues(std::map<int, std::tuple<std::string, Eigen::Affine3d,
-      Eigen::Affine3d>>& contacts_map);
+    void readValues(std::map<int, std::tuple<std::string, Eigen::Affine3d,
+      Eigen::Affine3d>>& input_map_);
 
   private:
 
@@ -67,9 +67,6 @@ namespace adaptive_grasping {
 
     // The finger which has just touched (read via topic)
     int touching_finger;
-
-    // Temporary string for saving parameters (Needed???)
-    std::string temp_param;
 
     // The vector containing info on all the fingers in collision
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
@@ -99,7 +96,7 @@ namespace adaptive_grasping {
     *   which will be written an Eigen::Affine3d
     *
     * @param null
-    * @return Eigen::Affine3d = transfrom of echoed frame
+    * @return Eigen::Affine3d = transfrom of echoed frames
     */
     Eigen::Affine3d getTrasform(std::string frame1_name, std::string frame2_name);
 
