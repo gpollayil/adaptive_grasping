@@ -6,6 +6,7 @@
 #include <Eigen/Geometry>
 #include <std_msgs/Int8.h>
 #include <ros/ros.h>
+#include <mutex>
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_state"
@@ -31,10 +32,14 @@ namespace adaptive_grasping {
     /** CONSTRUCTOR
     * @brief Default constructor for contactState
     *
-    * @param null
+    * @param name of the topic where finger touch ids are published
+    * @param a map containing correspondance id -> link_name
+    * @param a map containing params that the main parsed from parameter server
     * @return null
     */
-    contactState(std::string topic_name);
+    contactState(std::string topic_name,
+      std::map<int, std::string> link_names_map_,
+        std::map<std::string, std::string> params_map_);
 
     /** DESTRUCTOR
     * @brief Default destructor for contactState
@@ -55,18 +60,24 @@ namespace adaptive_grasping {
 
   private:
 
+    // A mutual exclusion lock for the variables of this class
+    std::mutex contact_state_mutex;
+
     // The finger which has just touched (read via topic)
     int touching_finger;
+
+    // Temporary string for saving parameters (Needed???)
+    std::string temp_param;
 
     // The vector containing info on all the fingers in collision
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>> contacts_map;
 
-    // Temporary string for saving parameters
-    std::string temp_param;
-
-    // Map for storing already read parameters
+    // Map for storing already read params from paramter server
     std::map<std::string, std::string> params_map;
+
+    // Map for storing correspondance between id and finger link name
+    std::map<int, std::string> link_names_map;
 
     // Node handle and subscriber for the subscriber to finger collision
     ros::NodeHandle node_contact_state;
@@ -81,14 +92,14 @@ namespace adaptive_grasping {
     */
     void handleCollision(const std_msgs::Int8::ConstPtr& msg);
 
-    /** GETTRANSFORMS
-    * @brief Class function to get frames for the touching fingers
-    *   which will be written into touched_fingers_details
+    /** GETTRANSFORM
+    * @brief Class function to echo frame for the touching fingers
+    *   which will be written an Eigen::Affine3d
     *
     * @param null
-    * @return void
+    * @return Eigen::Affine3d = transfrom of echoed frame
     */
-    void getTrasforms();
+    Eigen::Affine3d getTrasform();
 
   }; // closing class
 
