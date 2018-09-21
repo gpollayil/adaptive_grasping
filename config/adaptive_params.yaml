@@ -1,0 +1,17 @@
+# Parameters for adaptive_grasping package
+# Remember that there can be other important constants that can only be changed
+# from the src code.
+
+adaptive_grasping:
+  # The following map contains the correspondance between ids and link names
+  link_names_map:
+    1: "right_hand_thumb_distal_link"
+    2: "right_hand_index_distal_link"
+    3: "right_hand_middle_distal_link"
+    4: "right_hand_ring_distal_link"
+    5: "right_hand_little_distal_link"
+  # The following map contains other necessary params for adaptive_grasping
+  params_map:
+    world_name: "world"
+    palm_name: "right_hand_palm_link"
+    ee_name: "right_hand_ee_link"
