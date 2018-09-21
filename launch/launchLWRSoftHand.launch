@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- THIS FILE LAUNCHES THE KUKA LWR + SOFTHAND: BOTH THE PACKAGES ARE NEEDED -->
 <launch>
 	<!-- LAUNCH ARGUMENTS -->
 
