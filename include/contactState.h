@@ -99,7 +99,7 @@ namespace adaptive_grasping {
     * @param null
     * @return Eigen::Affine3d = transfrom of echoed frame
     */
-    Eigen::Affine3d getTrasform();
+    Eigen::Affine3d getTrasform(std::string frame1_name, std::string frame2_name);
 
   }; // closing class
 
