@@ -3,10 +3,12 @@
 
 #include <map>
 #include <tuple>
-#include <Eigen/Geometry>
+#include <Eigen/Dense>
 #include <std_msgs/Int8.h>
-#include <ros/ros.h>
 #include <mutex>
+#include <ros/ros.h>
+#include <tf/transform_listener.h>
+#include <tf_conversions/tf_eigen.h>
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_state"
