@@ -40,8 +40,10 @@ contact_state_mutex.unlock();                           // mutex off
 
 // Creating an iterator for contacts_map
 std::map<int, std::tuple<std::string, Eigen::Affine3d,
-  Eigen::Affine3d>>::iterator it_contacts = contacts_map.begin();
+  Eigen::Affine3d>>::iterator it_c;
 
 // Now with a loop echoing and saving all needed transforms in contacts_map
-
+for(it_c = contacts_map.begin(); it_c != = contacts_map.end(); ++it_c){
+  
+}
 }
