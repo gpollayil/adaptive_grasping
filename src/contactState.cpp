@@ -57,6 +57,7 @@ for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
 }
 
 /* GETTRANSFORM*/
-Eigen::Affine3d getTrasform(std::string frame1_name, std::string frame2_name){
+Eigen::Affine3d contactState::getTrasform(std::string frame1_name,
+  std::string frame2_name){
 
 }
