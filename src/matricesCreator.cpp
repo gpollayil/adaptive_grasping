@@ -80,8 +80,20 @@ KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
 /* COMPUTE GRASP */
 Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
   Eigen::Affine3d object_pose){
+    // Getting object-contact vector
     Eigen::Vector3d OC =
       object_pose.translation() - contact_pose.translation();
+
+    // Creating skew matrix
     Eigen::Matrix3d OC_hat;
-    OC_hat << 0, -OC(2), OC(1), OC(2), 0, -OC(0), -OC(1), OC(0), 0; 
+    OC_hat << 0, -OC(2), OC(1), OC(2), 0, -OC(0), -OC(1), OC(0), 0;
+
+    // Blockwise building the grasp matrix
+    Eigen::MatrixXd G_; G_.resize(6, 6);
+    Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
+    Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
+    G_ << I_3, O_3 - OC_hat, O_3, I_3;
+
+    // Return the result
+    return G_;
 }
