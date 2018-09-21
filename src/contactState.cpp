@@ -20,6 +20,11 @@ contactState::contactState(std::string topic_name,
   this->link_names_map = link_names_map_;
 }
 
+/* DESTRUCTOR */
+contactState::~contactState(){
+  // Nothing to do here
+}
+
 /* HANDLECOLLISION */
 void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
   // Temporary saving of message
@@ -67,5 +72,24 @@ for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
 /* GETTRANSFORM*/
 Eigen::Affine3d contactState::getTrasform(std::string frame1_name,
   std::string frame2_name){
+    // tf echoing using input frame names
+    tf::TransformListener tf_listener;
+    tf::StampedTransform stamped_transform;
+    try {
+		tf_listener.waitForTransform(std::string("/") + frame1_name,
+      std::string("/") + frame2_name, ros::Time(0), ros::Duration(10.0) );
+		tf_listener.lookupTransform(std::string("/") + frame1_name,
+      std::string("/") + frame2_name, ros::Time(0), stamped_transform);
+    } catch (tf::TransformException ex){
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
 
+    // Converting to Affine3d
+    Eigen::Affine3d affine;
+    tf::Transform transform(stamped_transform.getRotation(),
+      stamped_transform.getOrigin());
+    tf::transformTFToEigen(transform, affine);
+
+    return affine;
 }
