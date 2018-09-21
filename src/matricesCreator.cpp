@@ -63,21 +63,21 @@ bool matricesCreator::prepareKDL(){
   return true;
 }
 
-/* COMPUTE JACOBIAN */
+/* COMPUTEJACOBIAN */
 KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
   KDL::JntArray q_){
     // Reset the jacobian solver
     jacobian_solver.reset(new KDL::ChainJntToJacSolver(chain));
 
     // Compute jacobian for q_
-    KDL::Jacobian J_;
-    jacobian_solver->JntToJac(q_, J_);
+    KDL::Jacobian J_i;
+    jacobian_solver->JntToJac(q_, J_i);
 
     // Return result
-    return J_;
+    return J_i;
 }
 
-/* COMPUTE GRASP */
+/* COMPUTEGRASP */
 Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
   Eigen::Affine3d object_pose){
     // Getting object-contact vector
@@ -89,11 +89,43 @@ Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
     OC_hat << 0, -OC(2), OC(1), OC(2), 0, -OC(0), -OC(1), OC(0), 0;
 
     // Blockwise building the grasp matrix
-    Eigen::MatrixXd G_; G_.resize(6, 6);
+    Eigen::MatrixXd G_i; G_i.resize(6, 6);
     Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
     Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
-    G_ << I_3, O_3 - OC_hat, O_3, I_3;
+    G_i << I_3, O_3 - OC_hat, O_3, I_3;
 
     // Return the result
-    return G_;
+    return G_i;
+}
+
+/* COMPUTEPOLECHANGE */
+Eigen::MatrixXd matricesCreator::computePoleChange(Eigen::Affine3d contact_pose,
+  Eigen::Affine3d pc_pose){
+    // Get the translation part of palm-contact transform
+    Eigen::Vector3d PC_p = pc_pose.translation();
+
+    // Get the palm to world transformation
+    Eigen::Affine3d P_to_W = (contact_pose * pc_pose.inverse()).inverse();
+
+    // Transform it into world coordinates
+    Eigen::Vector3d PC_w = P_to_W.linear() * PC_p;
+
+    // Creating the skew matrix
+    Eigen::Matrix3d PC_hat;
+    PC_hat << 0, -PC_w(2), PC_w(1), PC_w(2), 0, -PC_w(0), -PC_w(1), PC_w(0), 0;
+
+    // Blockwise building the grasp matrix
+    Eigen::MatrixXd T_i; T_i.resize(6, 6);
+    Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
+    Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
+    T_i << I_3, O_3 - PC_hat, O_3, I_3;
+
+    // Return the result
+    return T_i;
+}
+
+/* COMPUTEWHOLEJACOBIAN */
+KDL::Jacobian computeWholeJacobian(std::map<int, std::tuple<std::string,
+  Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
+    
 }

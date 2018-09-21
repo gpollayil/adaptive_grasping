@@ -137,29 +137,52 @@ namespace adaptive_grasping {
     // Object pose
     Eigen::Affine3d object_pose;
 
-    /** COMPUTE JACOBIAN
+    /** COMPUTEJACOBIAN
     * @brief Function to compute jacobian for a given chain and joint array
     *
     * @param chain
     *   the kinematic chain
     * @param q_
     *   the state of the joints of the chain
-    * @return KDL::Jacobian J_ jacobian of chain in q_
+    * @return KDL::Jacobian J_i jacobian of chain in q_
     */
     KDL::Jacobian computeJacobian(KDL::Chain chain, KDL::JntArray q_);
 
-    /** COMPUTE GRASP
+    /** COMPUTEGRASP
     * @brief Function to compute grasp matrix for a given contact location and
     * object pose
     *
     * @param contact_pose
-    *   the pose of the contacting link on the object
+    *   the pose of the contacting link on the object in global frame
     * @param object_pose
-    *   the pose of the object
-    * @return Eigen::MatrixXd G_ the grasp matrix for the contact
+    *   the pose of the object in global frame
+    * @return Eigen::MatrixXd G_i the grasp matrix for the contact
     */
     Eigen::MatrixXd computeGrasp(Eigen::Affine3d contact_pose,
       Eigen::Affine3d object_pose);
+
+    /** COMPUTEPOLECHANGE
+    * @brief Function to compute palm-contact twist pole change matrix for a
+    * given contact location and palm-contact_pose
+    *
+    * @param contact_pose
+    *   the pose of the contacting link on the object in global frame
+    * @param pc_pose
+    *   the transformation fron palm to contact in palm frame
+    * @return Eigen::MatrixXd T_i the palm-contact twist pole change matrix
+    */
+    Eigen::MatrixXd computePoleChange(Eigen::Affine3d contact_pose,
+      Eigen::Affine3d pc_pose);
+
+    /** COMPUTEWHOLEJACOBIAN
+    * @brief Function to compute the whole block jacobian for contacts
+    *
+    * @param contacts_map_
+    *   the needed details about contacts: link names, joint arrays, poses
+    * @return KDL::Jacobian J_i jacobian of chain in q_
+    */
+    KDL::Jacobian computeWholeJacobian(std::map<int, std::tuple<std::string,
+      Eigen::Affine3d, Eigen::Affine3d>> contacts_map_);
 
   };
 
