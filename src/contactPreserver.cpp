@@ -25,7 +25,7 @@ void contactPreserver::changeHandType(Eigen::MatrixXd S_){
 }
 
 /* SETGRASPSTATE */
-void contactPreserver::setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_,
+void contactPreserver::setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_,
   Eigen::MatrixXd T_, Eigen::MatrixXd H_){
     // Set the new J, G, T and H matrices
     J = J_; G = G_; T = T_; H = H_;
@@ -45,7 +45,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
   // Now create the block matrix
   Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
-  Q << H*J.data*S, H*T, NullMatrix-H*G.transpose();
+  Q << H*J*S, H*T, NullMatrix-H*G.transpose();
 
   // Compute a basis of the null space by using LU decomposition
   Eigen::FullPivLU<Eigen::MatrixXd> lu(Q);

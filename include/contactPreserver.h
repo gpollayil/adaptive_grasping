@@ -1,7 +1,6 @@
 #ifndef CONTACT_PRESERVER_H
 #define CONTACT_PRESERVER_H
 
-#include <kdl/jacobian.hpp>
 #include <Eigen/Dense>
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
@@ -58,7 +57,7 @@ namespace adaptive_grasping {
     *   the new contact selection matrix
     * @return null
     */
-    void setGraspState(KDL::Jacobian J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
+    void setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
       Eigen::MatrixXd H_);
 
     /** SETMINIMIZATIONPARAMS
@@ -81,7 +80,7 @@ namespace adaptive_grasping {
 
   private:
     // Current contacts jacobian
-    KDL::Jacobian J;
+    Eigen::MatrixXd J;
 
     // Grasp matrix
     Eigen::MatrixXd G;
