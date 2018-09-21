@@ -80,5 +80,8 @@ KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
 /* COMPUTE GRASP */
 Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
   Eigen::Affine3d object_pose){
-    Eigen::VectorXd contact_position = contact_pose.translation();
+    Eigen::Vector3d OC =
+      object_pose.translation() - contact_pose.translation();
+    Eigen::Matrix3d OC_hat;
+    OC_hat << 0, -OC(2), OC(1), OC(2), 0, -OC(0), -OC(1), OC(0), 0; 
 }
