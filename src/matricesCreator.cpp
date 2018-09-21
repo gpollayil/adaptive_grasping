@@ -15,6 +15,9 @@ matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_n
 
     // Set the frame names for world and palm
     changeFrameNames(world_frame_name_, palm_frame_name_);
+
+    // Prepare KDL to get the robot kinematic tree
+    prepareKDL();
 }
 
 /* DESTRUCTOR */
@@ -44,4 +47,38 @@ void matricesCreator::setContactsMap(std::map<int, std::tuple<std::string,
 /* SETOBJECTPOSE */
 void matricesCreator::setObjectPose(Eigen::Affine3d object_pose_){
   object_pose = object_pose_;
+}
+
+/* PREPAREKDL */
+bool matricesCreator::prepareKDL(){
+  // Load robot description from ROS parameter server
+  std::string robot_description_string;
+  nh.param("robot_description", robot_description_string, std::string());
+
+  // Get kinematic tree from robot description
+  if (!kdl_parser::treeFromString(robot_description_string, robot_kin_tree)){
+    ROS_ERROR("Failed to get robot kinematic tree!");
+    return false;
+  }
+  return true;
+}
+
+/* COMPUTE JACOBIAN */
+KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
+  KDL::JntArray q_){
+    // Reset the jacobian solver
+    jacobian_solver.reset(new KDL::ChainJntToJacSolver(chain));
+
+    // Compute jacobian for q_
+    KDL::Jacobian J_;
+    jacobian_solver->JntToJac(q_, J_);
+
+    // Return result
+    return J_;
+}
+
+/* COMPUTE GRASP */
+Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
+  Eigen::Affine3d object_pose){
+    Eigen::VectorXd contact_position = contact_pose.translation();
 }

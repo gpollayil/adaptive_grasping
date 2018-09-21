@@ -1,6 +1,7 @@
 #ifndef MATRICES_CREATOR_H
 #define MATRICES_CREATOR_H
 
+#include <boost/scoped_ptr.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 #include <kdl/jntarray.hpp>
 #include <kdl/tree.hpp>
@@ -8,6 +9,7 @@
 #include <kdl/jacobian.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
 #include <Eigen/Dense>
+#include <ros/ros.h>
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "matrices_creator"
@@ -83,7 +85,18 @@ namespace adaptive_grasping {
     */
     void setObjectPose(Eigen::Affine3d object_pose_);
 
+    /** PREPAREKDL
+    * @brief Function to prepare KDL jacobian solver
+    *
+    * @param null
+    * @return bool (success or failure)
+    */
+    bool prepareKDL();
+
   private:
+
+    // ROS Node Handle for parsing parameters
+    ros::NodeHandle nh;
 
     // Basic contact selection matrix
     Eigen::MatrixXd H_i;
@@ -109,7 +122,7 @@ namespace adaptive_grasping {
     Eigen::MatrixXd H;
 
     // Hand kinematic tree
-    KDL::Tree hand_kin_tree;
+    KDL::Tree robot_kin_tree;
 
     // Finger kinematic chain
     KDL::Chain finger_kin_chain;
@@ -118,10 +131,35 @@ namespace adaptive_grasping {
     KDL::JntArray finger_joint_array;
 
     // Jacobian solver from joint array
+    boost::scoped_ptr<KDL::ChainJntToJacSolver> jacobian_solver;
     // KDL::ChainJntToJacSolver jacobian_solver;
 
     // Object pose
     Eigen::Affine3d object_pose;
+
+    /** COMPUTE JACOBIAN
+    * @brief Function to compute jacobian for a given chain and joint array
+    *
+    * @param chain
+    *   the kinematic chain
+    * @param q_
+    *   the state of the joints of the chain
+    * @return KDL::Jacobian J_ jacobian of chain in q_
+    */
+    KDL::Jacobian computeJacobian(KDL::Chain chain, KDL::JntArray q_);
+
+    /** COMPUTE GRASP
+    * @brief Function to compute grasp matrix for a given contact location and
+    * object pose
+    *
+    * @param contact_pose
+    *   the pose of the contacting link on the object
+    * @param object_pose
+    *   the pose of the object
+    * @return Eigen::MatrixXd G_ the grasp matrix for the contact
+    */
+    Eigen::MatrixXd computeGrasp(Eigen::Affine3d contact_pose,
+      Eigen::Affine3d object_pose);
 
   };
 
