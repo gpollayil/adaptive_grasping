@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 	geometry_msgs
   tf
   tf_conversions
+	kdl_parser
 )
 
 ## System dependencies are found with CMake's conventions
