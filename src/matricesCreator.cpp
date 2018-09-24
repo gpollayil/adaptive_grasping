@@ -85,6 +85,12 @@ void matricesCreator::computeAllMatrices(){
   computeWholeContactSelection(contacts_map);
 }
 
+/* READALLMATRICES */
+void matricesCreator::readAllMatrices(Eigen::MatrixXd& read_J,
+  Eigen::MatrixXd& read_G, Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H){
+    read_J = J; read_G = G; read_T = T; read_H = H;
+}
+
 /* COMPUTEJACOBIAN */
 KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
   KDL::JntArray q_){

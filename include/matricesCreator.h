@@ -115,6 +115,22 @@ namespace adaptive_grasping {
     */
     void computeAllMatrices();
 
+    /** READALLMATRICES
+    * @brief Function to read all of the matrices J, G, T and H at once
+    *
+    * @param read_J
+    *   the reference to which the whole jacobian should be saved
+    * @param read_G
+    *   the reference to which the whole grasp should be saved
+    * @param read_T
+    *   the reference to which the whole pole change should be saved
+    * @param read_H
+    *   the reference to which the contact selection should be saved
+    * @return null
+    */
+    void readAllMatrices(Eigen::MatrixXd& read_J, Eigen::MatrixXd& read_G,
+      Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H);
+
   private:
 
     // ROS Node Handle for parsing parameters

@@ -152,6 +152,9 @@ set(ADAPTIVE_SOURCE_FILES
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
 add_executable(${PROJECT_NAME}_node ${ADAPTIVE_SOURCE_FILES})
 
+#TESTS
+add_executable(${PROJECT_NAME}_matricesCreator_test test/test_matrices_creator.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -171,6 +174,11 @@ target_link_libraries(${PROJECT_NAME}_tf_listener
    ${catkin_LIBRARIES}
 )
 target_link_libraries(${PROJECT_NAME}_node
+   ${catkin_LIBRARIES}
+)
+
+#TESTS
+target_link_libraries(${PROJECT_NAME}_matricesCreator_test
    ${catkin_LIBRARIES}
 )
 
