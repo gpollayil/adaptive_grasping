@@ -37,12 +37,12 @@ namespace adaptive_grasping {
     *   the basic contact selection matrix of the hand (in local frames)
     * @param world_frame_name_, palm_frame_name_
     *   the names of global and palm frames
-    * @param total_joints_
-    *   the total number of hand joints
+    * @param joint_numbers_
+    *   the number of joints of each finger in a vector
     * @return null
     */
     matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
-      std::string palm_frame_name_, unsigned int total_joints_);
+      std::string palm_frame_name_, std::vector<int> joint_numbers_);
 
     /** DESTRUCTOR
     * @brief Default destructor for matricesCreator
@@ -107,6 +107,14 @@ namespace adaptive_grasping {
     */
     bool prepareKDL();
 
+    /** COMPUTEALLMATRICES
+    * @brief Function to compute all of the matrices J, G, T and H at once
+    *
+    * @param null
+    * @return null - but sets the private variables J, G, T and H
+    */
+    void computeAllMatrices();
+
   private:
 
     // ROS Node Handle for parsing parameters
@@ -119,10 +127,13 @@ namespace adaptive_grasping {
     std::string world_frame_name;
     std::string palm_frame_name;
 
+    // Number of joints of each finger
+    std::vector<int> joint_numbers;
+
     // Total number of joints of the hand
     unsigned int total_joints;
 
-    // Map of current contacts and transforms
+    // Map of current contacts and transforms (contact w.r.t. world and palm)
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>> contacts_map;
 
@@ -174,16 +185,16 @@ namespace adaptive_grasping {
     *
     * @param contact_pose
     *   the pose of the contacting link on the object in global frame
-    * @param object_pose
+    * @param object_pose_
     *   the pose of the object in global frame
     * @return Eigen::MatrixXd G_i the grasp matrix for the contact
     */
     Eigen::MatrixXd computeGrasp(Eigen::Affine3d contact_pose,
-      Eigen::Affine3d object_pose);
+      Eigen::Affine3d object_pose_);
 
     /** COMPUTEPOLECHANGE
     * @brief Function to compute palm-contact twist pole change matrix for a
-    * given contact location and palm-contact_pose
+    * given contact location and palm-contact pose
     *
     * @param contact_pose
     *   the pose of the contacting link on the object in global frame
@@ -207,17 +218,47 @@ namespace adaptive_grasping {
       int finger_id_);
 
     /** COMPUTEWHOLEJACOBIAN
-    * @brief Function to compute the whole block matrices J, G, T and H
+    * @brief Function to compute the whole block matricx J
     *
     * @param contacts_map_
     *   the needed details about contacts: link names, poses
     * @param joints_map_
     *   the needed details about contacting fingers: joint arrays
-    * @return null - but sets the private variables J, G, T and H
+    * @return null - but sets the private variable J
     */
     void computeWholeJacobian(std::map<int, std::tuple<std::string,
       Eigen::Affine3d, Eigen::Affine3d>> contacts_map_,
       std::map<int, sensor_msgs::JointState> joints_map_);
+
+    /** COMPUTEWHOLEGRASP
+    * @brief Function to compute the whole block matrix G
+    *
+    * @param contacts_map_
+    *   the needed details about contacts: link names, poses
+    * @return null - but sets the private variable G
+    */
+    void computeWholeGrasp(std::map<int, std::tuple<std::string,
+      Eigen::Affine3d, Eigen::Affine3d>> contacts_map_);
+
+    /** COMPUTEWHOLEPOLECHANGE
+    * @brief Function to compute the whole block matrix T
+    *
+    * @param contacts_map_
+    *   the needed details about contacts: link names, poses
+    * @return null - but sets the private variable T
+    */
+    void computeWholePoleChange(std::map<int, std::tuple<std::string,
+      Eigen::Affine3d, Eigen::Affine3d>> contacts_map_);
+
+    /** COMPUTEWHOLECONTACTSELECTION
+    * @brief Function to compute the whole block matrix H
+    *
+    * @param contacts_map_
+    *   the needed details about contacts: link names, poses
+    * @return null - but sets the private variable H
+    */
+    void computeWholeContactSelection(std::map<int, std::tuple<std::string,
+      Eigen::Affine3d, Eigen::Affine3d>> contacts_map_);
 
   };
 

@@ -9,15 +9,17 @@ using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
 matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
-  std::string palm_frame_name_, unsigned int total_joints_){
+  std::string palm_frame_name_, std::vector<int> joint_numbers_){
     // Set the basic contact selection matrix
     changeHandType(H_i_);
 
     // Set the frame names for world and palm
     changeFrameNames(world_frame_name_, palm_frame_name_);
 
-    // Set number of joints of the robotic hand
-    total_joints = total_joints_;
+    // Set number of joints of the robotic hand (total and for each finger)
+    joint_numbers = joint_numbers_;
+    total_joints = 0;
+    for(int i : joint_numbers_) total_joints += i;
 
     // Prepare KDL to get the robot kinematic tree
     prepareKDL();
@@ -74,6 +76,15 @@ bool matricesCreator::prepareKDL(){
   return true;
 }
 
+/* COMPUTEALLMATRICES */
+void matricesCreator::computeAllMatrices(){
+  // Compute matrices J, G, T and H
+  computeWholeJacobian(contacts_map, joints_map);
+  computeWholeGrasp(contacts_map);
+  computeWholePoleChange(contacts_map);
+  computeWholeContactSelection(contacts_map);
+}
+
 /* COMPUTEJACOBIAN */
 KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
   KDL::JntArray q_){
@@ -90,10 +101,10 @@ KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
 
 /* COMPUTEGRASP */
 Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
-  Eigen::Affine3d object_pose){
+  Eigen::Affine3d object_pose_){
     // Getting object-contact vector
     Eigen::Vector3d OC =
-      object_pose.translation() - contact_pose.translation();
+      object_pose_.translation() - contact_pose.translation();
 
     // Creating skew matrix
     Eigen::Matrix3d OC_hat;
@@ -188,7 +199,104 @@ void matricesCreator::computeWholeJacobian(std::map<int,
 
       // Compute the current row of the whole jacobian
       Eigen::MatrixXd J_i_row(6, total_joints);
+      for(int i = 1; i <= 5; i++){
+        if(i == current_finger){
+          // Insert J_i in correct position
+          J_i_row << J_i.data;
+        } else {
+          // Put zeros everywhere else
+          J_i_row << Eigen::MatrixXd::Zero(6, joint_numbers[i-1]);
+        }
+      }
 
-      // For loop to create the row
+      // Now, put the current finger's jacobian row into the whole jacobian
+      J << J_i_row;
+    }
+}
+
+/* COMPUTEWHOLEGRASP */
+void matricesCreator::computeWholeGrasp(std::map<int, std::tuple<std::string,
+  Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
+    // Creating an iterator for contacts_map
+    std::map<int, std::tuple<std::string, Eigen::Affine3d,
+      Eigen::Affine3d>>::iterator it_c;
+
+    // Resize the whole grasp MatrixXd
+    G.resize(6, 6 * contacts_map_.size());
+
+    // For each contact, compute G_i and compose into G
+    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+      // Compute the grasp matrix for the current contact
+      Eigen::MatrixXd G_i = computeGrasp(std::get<1>(it_c->second),
+        object_pose);
+
+      // Now, put the current grasp matrix into the whole grasp matrix
+      G << G_i;
+    }
+}
+
+/* COMPUTEWHOLEPOLECHANGE */
+void matricesCreator::computeWholePoleChange(std::map<int,
+  std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
+    // Creating an iterator for contacts_map
+    std::map<int, std::tuple<std::string, Eigen::Affine3d,
+      Eigen::Affine3d>>::iterator it_c;
+
+    // Resize the whole pole change MatrixXd
+    T.resize(6 * contacts_map_.size(), 6);
+
+    // For each contact, compute T_i and compose into T
+    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+      // Compute the twist pole change matrix from palm to current contact
+      Eigen::MatrixXd T_i = computePoleChange(std::get<1>(it_c->second),
+        std::get<2>(it_c->second));
+
+      // Now, put the current pole change into the whole pole change matrix
+      T << T_i;
+    }
+}
+
+/* COMPUTEWHOLECONTACTSELECTION */
+void matricesCreator::computeWholeContactSelection(std::map<int,
+  std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
+    // Creating an iterator for contacts_map
+    std::map<int, std::tuple<std::string, Eigen::Affine3d,
+      Eigen::Affine3d>>::iterator it_c;
+
+    // Resize the whole contact selection MatrixXd
+    H.resize(6 * contacts_map_.size(), 6 * contacts_map_.size());
+
+    // Index to put H_i in diagonal positions
+    int k = 1;
+
+    // For each contact, compute H_i (in world frame) and compose into H
+    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+      // Compute the local to world transform for H_i
+      Eigen::MatrixXd M_i(6, 6);
+      Eigen::MatrixXd R_i = std::get<1>(it_c->second).linear();
+      Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
+      M_i << R_i, O_3, R_i, O_3;
+
+      // Get the contact selection in world frames
+      Eigen::MatrixXd H_i_w = H_i * M_i;
+
+      // Compute the current row of the whole contact selection matrix
+      Eigen::MatrixXd H_i_row(H_i_w.rows(), 6 * contacts_map_.size());
+
+      for(int i = 1; i <= contacts_map_.size(); i++){
+        if(i == k){
+          // Insert J_i in correct position
+          H_i_row << H_i_w;
+        } else {
+          // Put zeros everywhere else
+          H_i_row << Eigen::MatrixXd::Zero(H_i_w.rows(), 6);
+        }
+      }
+
+      // Increment the index to shift through diagonal of H
+      k++;
+
+      // Now, put the current contact selection row into the whole contact sel.
+      H << H_i_row;
     }
 }
