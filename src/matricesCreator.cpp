@@ -9,12 +9,15 @@ using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
 matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
-  std::string palm_frame_name_){
+  std::string palm_frame_name_, unsigned int total_joints_){
     // Set the basic contact selection matrix
     changeHandType(H_i_);
 
     // Set the frame names for world and palm
     changeFrameNames(world_frame_name_, palm_frame_name_);
+
+    // Set number of joints of the robotic hand
+    total_joints = total_joints_;
 
     // Prepare KDL to get the robot kinematic tree
     prepareKDL();
@@ -41,7 +44,15 @@ void matricesCreator::changeFrameNames(std::string world_frame_name_,
 /* SETCONTACTSMAP */
 void matricesCreator::setContactsMap(std::map<int, std::tuple<std::string,
   Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
+    // Set the contacts map in the relative private variable
     contacts_map = contacts_map_;
+}
+
+/* SETJOINTSMAP */
+void matricesCreator::setJointsMap(std::map<int,
+  sensor_msgs::JointState> joints_map_){
+    // Set the joint states map in the relative private variable
+    joints_map = joints_map_;
 }
 
 /* SETOBJECTPOSE */
@@ -124,15 +135,60 @@ Eigen::MatrixXd matricesCreator::computePoleChange(Eigen::Affine3d contact_pose,
     return T_i;
 }
 
+/* GETFINGERJOINTS */
+KDL::JntArray matricesCreator::getFingerJoints(std::map<int,
+  sensor_msgs::JointState> joints_map_, int finger_id_){
+    // Get the finger joint state from the map
+    auto finder = joints_map_.find(finger_id_);
+    if(finder == joints_map_.end()){
+      // key not found
+      std::cerr << "Something went wrong! Coulding find joint states for "
+        "finger with id: " << finger_id_ << "!" << '\n';
+    }
+    sensor_msgs::JointState finger_state = finder->second;
+
+    // Create a joint array to convert into
+    auto q_length = finger_state.position.size();
+    KDL::JntArray temp_q = KDL::JntArray(q_length);
+
+    // Insert the values from sensor_msgs::JointState to KDL::JntArray
+    for(unsigned int i = 0; i < q_length; i++){
+        temp_q(i) = (double) finger_state.position[i];
+    }
+
+    // Finally return the resulting joint array
+    return temp_q;
+}
+
 /* COMPUTEWHOLEJACOBIAN */
-KDL::Jacobian matricesCreator::computeWholeJacobian(std::map<int, std::tuple<std::string,
-  Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
+void matricesCreator::computeWholeJacobian(std::map<int,
+  std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map_,
+  std::map<int, sensor_msgs::JointState> joints_map_){
     // Creating an iterator for contacts_map
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>>::iterator it_c;
-      
-    // For each contact, compute J_i, G_i and T_i and compose into J, G and T
-    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
 
+    // Resize the whole jacobian MatrixXd
+    J.resize(6 * contacts_map_.size(), total_joints);
+
+    // For each contact, compute J_i and compose into J
+    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+      // Getting the current finger
+      int current_finger = it_c->first;
+
+      // Creating the finger's kinematic chain from the tree
+      robot_kin_tree.getChain(palm_frame_name, std::get<0>(it_c->second),
+        finger_kin_chain);
+
+      // Get the joint array for the considered finger
+      finger_joint_array = getFingerJoints(joints_map, current_finger);
+
+      // Get the jacobian for the current chain in the obtained jntarray
+      KDL::Jacobian J_i = computeJacobian(finger_kin_chain, finger_joint_array);
+
+      // Compute the current row of the whole jacobian
+      Eigen::MatrixXd J_i_row(6, total_joints);
+
+      // For loop to create the row
     }
 }

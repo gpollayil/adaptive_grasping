@@ -12,6 +12,7 @@
 #include <kdl/chainjnttojacsolver.hpp>
 #include <Eigen/Dense>
 #include <ros/ros.h>
+#include <sensor_msgs/JointState.h>
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "matrices_creator"
@@ -36,10 +37,12 @@ namespace adaptive_grasping {
     *   the basic contact selection matrix of the hand (in local frames)
     * @param world_frame_name_, palm_frame_name_
     *   the names of global and palm frames
+    * @param total_joints_
+    *   the total number of hand joints
     * @return null
     */
     matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
-      std::string palm_frame_name_);
+      std::string palm_frame_name_, unsigned int total_joints_);
 
     /** DESTRUCTOR
     * @brief Default destructor for matricesCreator
@@ -72,11 +75,20 @@ namespace adaptive_grasping {
     * @brief Function to set the map that has details about contacts
     *
     * @param contacts_map_
-    *   the map containing int ids and transforms of contactinf fingers
+    *   the map containing int ids and transforms of contacting fingers
     * @return null
     */
     void setContactsMap(std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>> contacts_map_);
+
+    /** SETJOINTSMAP
+    * @brief Function to set the map that has details about finger jointstates
+    *
+    * @param joints_map_
+    *   the map containing int ids and jointstates of contacting fingers
+    * @return null
+    */
+    void setJointsMap(std::map<int, sensor_msgs::JointState> joints_map_);
 
     /** SETOBJECTPOSE
     * @brief Function to set the current object pose
@@ -107,12 +119,18 @@ namespace adaptive_grasping {
     std::string world_frame_name;
     std::string palm_frame_name;
 
+    // Total number of joints of the hand
+    unsigned int total_joints;
+
     // Map of current contacts and transforms
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>> contacts_map;
 
+    // Map of current joint states for fingers
+    std::map<int, sensor_msgs::JointState> joints_map;
+
     // Contacts jacobian
-    KDL::Jacobian J;
+    Eigen::MatrixXd J;
 
     // Grasp matrix
     Eigen::MatrixXd G;
@@ -176,15 +194,30 @@ namespace adaptive_grasping {
     Eigen::MatrixXd computePoleChange(Eigen::Affine3d contact_pose,
       Eigen::Affine3d pc_pose);
 
+    /** GETFINGERJOINTS
+    * @brief Function to get KDL::JntArray from joints map and finger id
+    *
+    * @param joints_map_
+    *   the needed details about contacting fingers: joint arrays
+    * @param finger_id_
+    *   the id of the finger
+    * @return KDL::JntArray q the joint array of the finger specified by id
+    */
+    KDL::JntArray getFingerJoints(std::map<int, sensor_msgs::JointState> joints_map_,
+      int finger_id_);
+
     /** COMPUTEWHOLEJACOBIAN
-    * @brief Function to compute the whole block jacobian for contacts
+    * @brief Function to compute the whole block matrices J, G, T and H
     *
     * @param contacts_map_
-    *   the needed details about contacts: link names, joint arrays, poses
-    * @return KDL::Jacobian J_i jacobian of chain in q_
+    *   the needed details about contacts: link names, poses
+    * @param joints_map_
+    *   the needed details about contacting fingers: joint arrays
+    * @return null - but sets the private variables J, G, T and H
     */
-    KDL::Jacobian computeWholeJacobian(std::map<int, std::tuple<std::string,
-      Eigen::Affine3d, Eigen::Affine3d>> contacts_map_);
+    void computeWholeJacobian(std::map<int, std::tuple<std::string,
+      Eigen::Affine3d, Eigen::Affine3d>> contacts_map_,
+      std::map<int, sensor_msgs::JointState> joints_map_);
 
   };
 
