@@ -154,7 +154,7 @@ add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
 # add_executable(${PROJECT_NAME}_node ${ADAPTIVE_SOURCE_FILES})
 
 #TESTS
-add_executable(${PROJECT_NAME}_contactState_test test/test_contact_state.cpp ${ADAPTIVE_SOURCE_FILES})
+add_executable(${PROJECT_NAME}_test_contactState test/test_contact_state.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_matricesCreator test/test_matrices_creator.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_contactPreserver test/test_contact_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
 
@@ -166,7 +166,7 @@ add_executable(${PROJECT_NAME}_test_contactPreserver test/test_contact_preserver
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(${PROJECT_NAME}_contactState_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
+add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -187,7 +187,7 @@ target_link_libraries(${PROJECT_NAME}_test_matricesCreator
 target_link_libraries(${PROJECT_NAME}_test_contactPreserver
    ${catkin_LIBRARIES}
 )
-target_link_libraries(${PROJECT_NAME}_contactState_test
+target_link_libraries(${PROJECT_NAME}_test_contactState
    ${catkin_LIBRARIES}
 )
 
