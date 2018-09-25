@@ -43,13 +43,22 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   // Resize Q to be of correct size
   Q.resize(H.rows(), x_d.norm());
 
+  // Print message for debug
+  if(DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
+
   // Now create the block matrix
   Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
   Q << H*J*S, H*T, NullMatrix-H*G.transpose();
 
+  // Print message for debug
+  if(DEBUG) std::cout << "Computed Q in contactPreserver!" << std::endl;
+
   // Compute a basis of the null space by using LU decomposition
   Eigen::FullPivLU<Eigen::MatrixXd> lu(Q);
   N = lu.kernel();
+
+  // Print message for debug
+  if(DEBUG) std::cout << "Computed N(Q) in contactPreserver!" << std::endl;
 
   // Finally, compute the reference motion that preserves the contacts
   Eigen::MatrixXd InverseBlock = (N.transpose()*A_tilde*N).inverse();
