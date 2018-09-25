@@ -147,7 +147,7 @@ Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
     G_i << I_3, O_3 - OC_hat, O_3, I_3;
 
     // Return the result
-    return G_i;
+    return G_i.transpose();
 }
 
 /* COMPUTEPOLECHANGE */
