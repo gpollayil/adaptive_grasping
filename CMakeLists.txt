@@ -153,7 +153,7 @@ add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
 add_executable(${PROJECT_NAME}_node ${ADAPTIVE_SOURCE_FILES})
 
 #TESTS
-add_executable(${PROJECT_NAME}_matricesCreator_test test/test_matrices_creator.cpp)
+add_executable(${PROJECT_NAME}_matricesCreator_test test/test_matrices_creator.cpp ${ADAPTIVE_SOURCE_FILES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

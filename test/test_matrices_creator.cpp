@@ -18,12 +18,14 @@ int main(int argc, char **argv)
     Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
     Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
 
-    Eigen::MatrixXd H_i;
+    Eigen::MatrixXd H_i(6, 6);
     H_i << I_3, O_3, O_3, I_3;
 
     std::string world_frame_name = "/world";
     std::string palm_frame_name = "/right_hand_palm_link";
     std::vector<int> joint_numbers = {5, 7, 7, 7, 7};
+
+    std::cout<<"Object matricesCreator being created!"<<std::endl;
 
     matricesCreator creator(H_i, world_frame_name, palm_frame_name, joint_numbers);
 
