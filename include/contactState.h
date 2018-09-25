@@ -9,9 +9,14 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <tf_conversions/tf_eigen.h>
+#include <sensor_msgs/JointState.h>
+
+// SERVICE INCLUDES
+#include "finger_fk/FingerJointsService.h"
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_state"
+#define DEBUG             1                       // prints out additional info
 
 /**
 * @brief This class is called by the adaptive_grasping method to get the
@@ -58,7 +63,8 @@ namespace adaptive_grasping {
     * @return void
     */
     void readValues(std::map<int, std::tuple<std::string, Eigen::Affine3d,
-      Eigen::Affine3d>>& input_map_);
+      Eigen::Affine3d>>& input_map_,
+        std::map<int, sensor_msgs::JointState>& input_map2_);
 
   private:
 
@@ -68,9 +74,13 @@ namespace adaptive_grasping {
     // The finger which has just touched (read via topic)
     int touching_finger;
 
-    // The vector containing info on all the fingers in collision
+    // The map containing info on all the fingers in collision
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>> contacts_map;
+
+    // The map containing the joint state of the touched fingers
+    // Here we suppose that the finger_fk finger_joints_service is running
+    std::map<int, sensor_msgs::JointState> joints_map;
 
     // Map for storing already read params from paramter server
     std::map<std::string, std::string> params_map;
@@ -79,8 +89,10 @@ namespace adaptive_grasping {
     std::map<int, std::string> link_names_map;
 
     // Node handle and subscriber for the subscriber to finger collision
+    // and the service client for finger_joints_service
     ros::NodeHandle node_contact_state;
     ros::Subscriber finger_col_sub;
+    ros::ServiceClient fj_client;
 
     /** HANDLECOLLISION
     * @brief Callback function to handle the touching topic (finger_col_sub)
