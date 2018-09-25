@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     std::cout<<"Object contactPreserver created!"<<std::endl;
 
     // Trying to reset basic private variables
-    Eigen::MatrixXd S_i = Eigen::MatrixXd::Identity(33, 1);
+    S_i = Eigen::MatrixXd::Identity(33, 1);
     preserver.changeHandType(S_i);
 
     // Creating needed variables for a contacts map
