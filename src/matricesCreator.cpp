@@ -23,6 +23,9 @@ matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_n
 
     // Prepare KDL to get the robot kinematic tree
     prepareKDL();
+
+    // Print message for debug
+    if(DEBUG) std::cout << "Built matricesCreator!" << std::endl;
 }
 
 /* DESTRUCTOR */
@@ -34,6 +37,9 @@ matricesCreator::~matricesCreator(){
 void matricesCreator::changeHandType(Eigen::MatrixXd H_i_){
   // Set the new basic contact selection matrix
   H_i = H_i_;
+
+  // Print message for debug
+  if(DEBUG) std::cout << "Changed hand type in matricesCreator!" << std::endl;
 }
 
 /* CHANGEFRAMENAMES */
@@ -41,6 +47,9 @@ void matricesCreator::changeFrameNames(std::string world_frame_name_,
   std::string palm_frame_name_){
     // Set the new frame names for world and palm
     world_frame_name = world_frame_name_; palm_frame_name = palm_frame_name_;
+
+    // Print message for debug
+    if(DEBUG) std::cout << "Changed frames in matricesCreator!" << std::endl;
 }
 
 /* SETCONTACTSMAP */
@@ -48,6 +57,9 @@ void matricesCreator::setContactsMap(std::map<int, std::tuple<std::string,
   Eigen::Affine3d, Eigen::Affine3d>> contacts_map_){
     // Set the contacts map in the relative private variable
     contacts_map = contacts_map_;
+
+    // Print message for debug
+    if(DEBUG) std::cout << "Contacts map set in matricesCreator!" << std::endl;
 }
 
 /* SETJOINTSMAP */
@@ -55,11 +67,17 @@ void matricesCreator::setJointsMap(std::map<int,
   sensor_msgs::JointState> joints_map_){
     // Set the joint states map in the relative private variable
     joints_map = joints_map_;
+
+    // Print message for debug
+    if(DEBUG) std::cout << "Joints map set in matricesCreator!" << std::endl;
 }
 
 /* SETOBJECTPOSE */
 void matricesCreator::setObjectPose(Eigen::Affine3d object_pose_){
   object_pose = object_pose_;
+
+  // Print message for debug
+  if(DEBUG) std::cout << "Object pose set in matricesCreator!" << std::endl;
 }
 
 /* PREPAREKDL */
@@ -74,6 +92,9 @@ bool matricesCreator::prepareKDL(){
     return false;
   }
   return true;
+
+  // Print message for debug
+  if(DEBUG) std::cout << "Finished KDL setup in matricesCreator!" << std::endl;
 }
 
 /* COMPUTEALLMATRICES */
@@ -83,6 +104,9 @@ void matricesCreator::computeAllMatrices(){
   computeWholeGrasp(contacts_map);
   computeWholePoleChange(contacts_map);
   computeWholeContactSelection(contacts_map);
+
+  // Print message for debug
+  if(DEBUG) std::cout << "Finished computing in matricesCreator!" << std::endl;
 }
 
 /* READALLMATRICES */
