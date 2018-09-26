@@ -5,9 +5,6 @@
 #include "matricesCreator.h"
 #include "contactPreserver.h"
 
-#define EXEC_NAMESPACE    "adaptive_grasping"
-#define CLASS_NAMESPACE   "adaptive_grasper"
-
 /**
 * @brief This class is created by the main of the adaptive_grasping_node: it
 * contains all the other classes: contact_state, matrix_creator,
