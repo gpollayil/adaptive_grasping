@@ -102,7 +102,8 @@ void contactState::iterateContacts(){
 
       // Getting all the needed transforms
       Eigen::Affine3d fing_aff = getTrasform(frame_world, frame_fing);
-      Eigen::Affine3d palm_aff = getTrasform(frame_fing, frame_palm);
+      Eigen::Affine3d palm_aff = getTrasform(frame_palm, frame_fing);
+      // CLARIFICATION: The transformation palm_aff is from palm to finger
 
       // Writing the correct tuple into the map
       std::tuple<std::string, Eigen::Affine3d,
