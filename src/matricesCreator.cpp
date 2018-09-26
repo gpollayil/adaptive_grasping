@@ -236,6 +236,9 @@ void matricesCreator::computeWholeJacobian(std::map<int,
     // Resize the whole jacobian MatrixXd
     J.resize(6 * contacts_map_.size(), total_joints);
 
+    // Index to go right blockwise on J
+    int k = 0;
+
     // For each contact, compute J_i and compose into J
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
       // Getting the current finger
@@ -251,20 +254,17 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       // Get the jacobian for the current chain in the obtained jntarray
       KDL::Jacobian J_i = computeJacobian(finger_kin_chain, finger_joint_array);
 
-      // Compute the current row of the whole jacobian
-      Eigen::MatrixXd J_i_row(6, total_joints);
-      for(int i = 1; i <= 5; i++){
-        if(i == current_finger){
-          // Insert J_i in correct position
-          J_i_row << J_i.data;
-        } else {
-          // Put zeros everywhere else
-          J_i_row << Eigen::MatrixXd::Zero(6, joint_numbers[i-1]);
-        }
-      }
+      // Find out the horizontal block position of J_i in J
+      int h = 0;
+      for(int z = 0; z <= (current_finger-1); z++) h += joint_numbers[z];
+      h = h - joint_numbers[current_finger-1];
 
-      // Now, put the current finger's jacobian row into the whole jacobian
-      J << J_i_row;
+      // Now, put the current jacobian into the whole Jacobian matrix
+      if(current_finger == 1) J.block<6, 5>(k, h) = J_i.data;
+      else J.block<6, 7>(k, h) = J_i.data;
+
+      // Increment the index k to go to next block
+      k += 6;
     }
 }
 
@@ -278,7 +278,7 @@ void matricesCreator::computeWholeGrasp(std::map<int, std::tuple<std::string,
     // Resize the whole grasp MatrixXd
     G.resize(6, 6 * contacts_map_.size());
 
-    // Index to go down blockwise on G
+    // Index to go right blockwise on G
     int k = 0;
 
     // For each contact, compute G_i and compose into G
@@ -305,6 +305,9 @@ void matricesCreator::computeWholePoleChange(std::map<int,
     // Resize the whole pole change MatrixXd
     T.resize(6 * contacts_map_.size(), 6);
 
+    // Index to go down blockwise on T
+    int k = 0;
+
     // For each contact, compute T_i and compose into T
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
       // Compute the twist pole change matrix from palm to current contact
@@ -312,7 +315,10 @@ void matricesCreator::computeWholePoleChange(std::map<int,
         std::get<2>(it_c->second));
 
       // Now, put the current pole change into the whole pole change matrix
-      T << T_i;
+      T.block<6, 6>(k, 0) = T_i;
+
+      // Increment the index k to go to next block
+      k += 6;
     }
 }
 
@@ -327,7 +333,7 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
     H.resize(6 * contacts_map_.size(), 6 * contacts_map_.size());
 
     // Index to put H_i in diagonal positions
-    int k = 1;
+    int k = 0;
 
     // For each contact, compute H_i (in world frame) and compose into H
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
@@ -340,23 +346,10 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
       // Get the contact selection in world frames
       Eigen::MatrixXd H_i_w = H_i * M_i;
 
-      // Compute the current row of the whole contact selection matrix
-      Eigen::MatrixXd H_i_row(H_i_w.rows(), 6 * contacts_map_.size());
-
-      for(int i = 1; i <= contacts_map_.size(); i++){
-        if(i == k){
-          // Insert J_i in correct position
-          H_i_row << H_i_w;
-        } else {
-          // Put zeros everywhere else
-          H_i_row << Eigen::MatrixXd::Zero(H_i_w.rows(), 6);
-        }
-      }
+      // Now, put the current contact selection into the whole diag. H matrix
+      H.block<6, 6>(k, k) = H_i_w;
 
       // Increment the index to shift through diagonal of H
-      k++;
-
-      // Now, put the current contact selection row into the whole contact sel.
-      H << H_i_row;
+      k += 6;
     }
 }
