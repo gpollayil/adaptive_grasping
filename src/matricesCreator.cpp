@@ -129,6 +129,12 @@ KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
     KDL::Jacobian J_i;
     jacobian_solver->JntToJac(q_, J_i);
 
+    // Print message for debug
+    if(DEBUG){
+      std::cout << "J_i =" << std::endl;
+      std::cout << J_i.data << std::endl;
+    }
+
     // Return result
     return J_i;
 }
@@ -149,6 +155,14 @@ Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
     Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
     Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
     G_i << I_3, O_3 - OC_hat, O_3, I_3;
+    /* CLARIFICATION: the above is the transpose of what is usually defined as
+    a grasp matrix G */
+
+    // Print message for debug
+    if(DEBUG){
+      std::cout << "Gi =" << std::endl;
+      std::cout << G_i.transpose() << std::endl;
+    }
 
     // Return the result
     return G_i.transpose();
@@ -175,6 +189,12 @@ Eigen::MatrixXd matricesCreator::computePoleChange(Eigen::Affine3d contact_pose,
     Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
     Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
     T_i << I_3, O_3 - PC_hat, O_3, I_3;
+
+    // Print message for debug
+    if(DEBUG){
+      std::cout << "T_i =" << std::endl;
+      std::cout << T_i << std::endl;
+    }
 
     // Return the result
     return T_i;
