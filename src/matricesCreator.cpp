@@ -288,7 +288,7 @@ void matricesCreator::computeWholeGrasp(std::map<int, std::tuple<std::string,
         object_pose);
 
       // Now, put the current grasp matrix into the whole grasp matrix
-      G.block<6, 6>(k, k) = G_i;
+      G.block<6, 6>(0, k) = G_i;
 
       // Increment the index k to go to next block
       k += 6;
