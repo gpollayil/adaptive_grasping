@@ -16,7 +16,7 @@
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_state"
-#define DEBUG             1                       // prints out additional info
+#define DEBUG             0                       // prints out additional info
 
 /**
 * @brief This class is called by the adaptive_grasping method to get the
