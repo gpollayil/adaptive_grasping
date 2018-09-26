@@ -41,7 +41,7 @@ void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_,
 /* PERFORMMINIMIZATION */
 Eigen::VectorXd contactPreserver::performMinimization(){
   // Resize Q to be of correct size
-  Q.resize(H.rows(), x_d.norm());
+  Q.resize(H.rows(), x_d.size());
 
   // Print message for debug
   if(DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
@@ -66,4 +66,18 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
   // Return contact preserving solution
   return x_ref;
+}
+
+/* PRINTALL */
+void contactPreserver::printAll(){
+  // Print to screen the main private variables
+  std::cout << "J =" << std::endl; std::cout << J << std::endl;
+  std::cout << "G =" << std::endl; std::cout << G << std::endl;
+  std::cout << "T =" << std::endl; std::cout << T << std::endl;
+  std::cout << "H =" << std::endl; std::cout << H << std::endl;
+  std::cout << "S =" << std::endl; std::cout << S << std::endl;
+  std::cout << "A_tilde =" << std::endl; std::cout << A_tilde << std::endl;
+  std::cout << "x_d =" << std::endl; std::cout << x_d << std::endl;
+  std::cout << "Q =" << std::endl; std::cout << Q << std::endl;
+  std::cout << "N =" << std::endl; std::cout << N << std::endl;
 }

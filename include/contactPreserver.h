@@ -81,6 +81,13 @@ namespace adaptive_grasping {
     */
     Eigen::VectorXd performMinimization();
 
+    /** PRINTALL
+    * @brief Function to print out to console all relevant variables
+    *
+    * @return null
+    */
+    void printAll();
+
   private:
     // Current contacts jacobian
     Eigen::MatrixXd J;
