@@ -1,5 +1,8 @@
 include "adaptiveGrasper.h"
 
+#define EXEC_NAMESPACE    "adaptive_grasping"
+#define CLASS_NAMESPACE   "adaptive_grasper"
+
 /**
 * @brief The following are functions of the class adaptiveGrasper.
 *

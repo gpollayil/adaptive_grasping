@@ -14,10 +14,6 @@
 // SERVICE INCLUDES
 #include "finger_fk/FingerJointsService.h"
 
-#define EXEC_NAMESPACE    "adaptive_grasping"
-#define CLASS_NAMESPACE   "contact_state"
-#define DEBUG             0                       // prints out additional info
-
 /**
 * @brief This class is called by the adaptive_grasping method to get the
 * state of the contacts (i.e. how many and which fingers are touching). This

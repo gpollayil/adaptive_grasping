@@ -4,11 +4,6 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-#define EXEC_NAMESPACE    "adaptive_grasping"
-#define CLASS_NAMESPACE   "contact_preserver"
-
-#define DEBUG             1   // print out additional info
-
 /**
 * @brief This class is called by the adaptive_grasping method to compute the
 * contact preserving reference motions.

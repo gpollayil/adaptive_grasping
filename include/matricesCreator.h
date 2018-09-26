@@ -14,11 +14,6 @@
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
 
-#define EXEC_NAMESPACE    "adaptive_grasping"
-#define CLASS_NAMESPACE   "matrices_creator"
-
-#define DEBUG             1   // print out additional info
-
 /**
 * @brief This class is called by the adaptive_grasping method to get the
 * contact jacobians, grasp matrices, contact selections and pole changes

@@ -1,5 +1,9 @@
 #include "contactState.h"
 
+#define EXEC_NAMESPACE    "adaptive_grasping"
+#define CLASS_NAMESPACE   "contact_state"
+#define DEBUG             0                       // prints out additional info
+
 /**
 * @brief The following are functions of the class contactState.
 *

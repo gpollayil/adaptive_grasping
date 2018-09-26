@@ -1,5 +1,9 @@
 #include "contactPreserver.h"
 
+#define EXEC_NAMESPACE    "adaptive_grasping"
+#define CLASS_NAMESPACE   "contact_preserver"
+#define DEBUG             1   // print out additional info
+
 /**
 * @brief The following are functions of the class contactPreserver.
 *
