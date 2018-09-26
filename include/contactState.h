@@ -107,6 +107,22 @@ namespace adaptive_grasping {
     */
     void handleCollision(const std_msgs::Int8::ConstPtr& msg);
 
+    /** ITERATECONTACTS
+    * @brief Auxiliary function to iterate and update the contacts_map
+    *
+    * @param Int8 null
+    * @return void (does operation on class variables)
+    */
+    void iterateContacts();
+
+    /** ITERATEJOINTS
+    * @brief Auxiliary function to iterate and update the joints_map
+    *
+    * @param Int8 null
+    * @return void (does operation on class variables)
+    */
+    void iterateJoints();
+
     /** GETTRANSFORM
     * @brief Class function to echo frame for the touching fingers
     *   which will be written an Eigen::Affine3d

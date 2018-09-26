@@ -77,11 +77,17 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
     joints_map[touching_finger] = empty_joints;
     contact_state_mutex.unlock();                           // mutex off
 
-    // Creating an iterator for contacts_map and for joints_map
-    std::map<int, std::tuple<std::string, Eigen::Affine3d,
-      Eigen::Affine3d>>::iterator it_c;
+    // Iteratively updating contacts_map and joints_map
+    iterateContacts();
+    iterateJoints();
+  }
+}
 
-    std::map<int, sensor_msgs::JointState>::iterator it_j;
+/* ITERATECONTACTS */
+void contactState::iterateContacts(){
+  // Creating an iterator for contacts_map
+  std::map<int, std::tuple<std::string, Eigen::Affine3d,
+    Eigen::Affine3d>>::iterator it_c;
 
     // Now with a loop echoing and saving all needed transforms in contacts_map
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
@@ -101,40 +107,43 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
       contact_state_mutex.lock();                             // mutex on
       contacts_map[touching_finger] = correct_tuple;
       contact_state_mutex.unlock();                           // mutex off
-
     }
+}
 
-    // Now with another loop echoing and saving all needed joints in joints_map
-    for(it_j = joints_map.begin(); it_j != joints_map.end(); ++it_j){
-      // Getting the joint state from service
-      sensor_msgs::JointState correct_joints;
+/* ITERATEJOINTS */
+void contactState::iterateJoints(){
+  // Creating an iterator for joints_map
+  std::map<int, sensor_msgs::JointState>::iterator it_j;
 
-      // Creating an srv with touching_finger id and filling up
-      if(DEBUG) ROS_INFO("The Finger Joint srv is being filled!");
-      finger_fk::FingerJointsService srv;
-      srv.request.finger_id = touching_finger;
+  // Now with another loop echoing and saving all needed joints in joints_map
+  for(it_j = joints_map.begin(); it_j != joints_map.end(); ++it_j){
+    // Getting the joint state from service
+    sensor_msgs::JointState correct_joints;
 
-      // Calling the service
-      if (fj_client.call(srv)) {
-        if(DEBUG){
-          ROS_INFO("The result is as follows:");
-          for(size_t i = 0; i < srv.response.joint_state.name.size(); i++) {
-            std::cout << i << ", " << srv.response.joint_state.name[i] << " : " <<
-              srv.response.joint_state.position[i] << ";" << std::endl;
-          }
+    // Creating an srv with touching_finger id and filling up
+    if(DEBUG) ROS_INFO("The Finger Joint srv is being filled!");
+    finger_fk::FingerJointsService srv;
+    srv.request.finger_id = touching_finger;
+
+    // Calling the service
+    if (fj_client.call(srv)) {
+      if(DEBUG){
+        ROS_INFO("The result is as follows:");
+        for(size_t i = 0; i < srv.response.joint_state.name.size(); i++) {
+          std::cout << i << ", " << srv.response.joint_state.name[i] << " : " <<
+            srv.response.joint_state.position[i] << ";" << std::endl;
         }
-      } else {
-        ROS_ERROR("Failed to call finger_joints_service");
       }
-
-      correct_joints = srv.response.joint_state;
-
-      // Writing the correct JointState into the map
-      contact_state_mutex.lock();                             // mutex on
-      joints_map[touching_finger] = correct_joints;
-      contact_state_mutex.unlock();                           // mutex off
-
+    } else {
+      ROS_ERROR("Failed to call finger_joints_service");
     }
+
+    correct_joints = srv.response.joint_state;
+
+    // Writing the correct JointState into the map
+    contact_state_mutex.lock();                             // mutex on
+    joints_map[touching_finger] = correct_joints;
+    contact_state_mutex.unlock();                           // mutex off
   }
 }
 
