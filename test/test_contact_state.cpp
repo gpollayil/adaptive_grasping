@@ -47,7 +47,37 @@ int main(int argc, char **argv)
 
       // Reading the values of the contact_state_obj
       contact_state_obj.readValues(contacts_map_test, joints_map_test);
-      
+
+      // Couting the variables
+      ROS_INFO("The present contact_state_obj is as follows:");
+
+      // Iterators
+      std::map<int, std::tuple<std::string, Eigen::Affine3d,
+        Eigen::Affine3d>>::iterator it_c;
+      std::map<int, sensor_msgs::JointState>::iterator it_j;
+
+      int id; std::string name; Eigen::Affine3d aff1; Eigen::Affine3d aff2;
+
+      // Printing out contacts map
+      ROS_INFO("contacts_map_test:");
+      for(it_c = contacts_map_test.begin(); it_c != contacts_map_test.end(); ++it_c){
+        id = it_c->first; name = std::get<0>(it_c->second);
+        aff1 = std::get<1>(it_c->second); aff2 = std::get<2>(it_c->second);
+        std::cout << "***********" << "\n" << id << "\n";
+        std::cout << "-----------" << "\n" << name << "\n";
+        std::cout << "-----------" << "\n" << aff1.matrix() << "\n";
+        std::cout << "-----------" << "\n" << aff2.matrix() << "\n";
+        std::cout << "***********" << "\n";
+      }
+
+      // Printing out contacts map
+      ROS_INFO("joints_map_test:");
+      for(it_j = joints_map_test.begin(); it_j != joints_map_test.end(); ++it_j){
+        std::cout << "***********" << "\n";
+        std::cout << it_j->first << "\n" << "-----------" << "\n" << it_j->second << "\n";
+        std::cout << "***********" << "\n";
+      }
+
     }
 
     return 0;
