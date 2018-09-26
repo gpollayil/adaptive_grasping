@@ -278,6 +278,9 @@ void matricesCreator::computeWholeGrasp(std::map<int, std::tuple<std::string,
     // Resize the whole grasp MatrixXd
     G.resize(6, 6 * contacts_map_.size());
 
+    // Index to go down blockwise on G
+    int k = 0;
+
     // For each contact, compute G_i and compose into G
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
       // Compute the grasp matrix for the current contact
@@ -285,7 +288,10 @@ void matricesCreator::computeWholeGrasp(std::map<int, std::tuple<std::string,
         object_pose);
 
       // Now, put the current grasp matrix into the whole grasp matrix
-      G << G_i;
+      G.block<6, 6>(k, k) = G_i;
+
+      // Increment the index k to go to next block
+      k += 6;
     }
 }
 
