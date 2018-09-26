@@ -309,7 +309,7 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
       Eigen::MatrixXd M_i(6, 6);
       Eigen::MatrixXd R_i = std::get<1>(it_c->second).linear();
       Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
-      M_i << R_i, O_3, R_i, O_3;
+      M_i << R_i, O_3, O_3, R_i;
 
       // Get the contact selection in world frames
       Eigen::MatrixXd H_i_w = H_i * M_i;
