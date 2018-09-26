@@ -63,6 +63,10 @@ int main(int argc, char **argv){
   std::string palm_frame_name = "/right_hand_palm_link";
   std::vector<int> joint_numbers = {5, 7, 7, 7, 7};
 
+  // For reading and couting
+  Eigen::MatrixXd read_J; Eigen::MatrixXd read_G;
+  Eigen::MatrixXd read_T; Eigen::MatrixXd read_H;
+
   // Creating object matricesCreator
   std::cout<<"Object matricesCreator being created!"<<std::endl;
   matricesCreator creator(H_i, world_frame_name, palm_frame_name, joint_numbers);
@@ -90,6 +94,18 @@ int main(int argc, char **argv){
     creator.setContactsMap(contacts_map_test);
     creator.setJointsMap(joints_map_test);
     creator.computeAllMatrices();
+
+    // Reading and couting the matrices
+    creator.readAllMatrices(read_J, read_G, read_T, read_H);
+    std::cout << "The created matrices are: " << std::endl;
+    std::cout << "J = " << "\n";
+    std::cout << read_J << "\n";
+    std::cout << "G = " << "\n";
+    std::cout << read_G << "\n";
+    std::cout << "T = " << "\n";
+    std::cout << read_T << "\n";
+    std::cout << "H = " << "\n";
+    std::cout << read_H << "\n";
   }
 
 }
