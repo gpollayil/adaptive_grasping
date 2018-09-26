@@ -104,10 +104,10 @@ bool matricesCreator::prepareKDL(){
 /* COMPUTEALLMATRICES */
 void matricesCreator::computeAllMatrices(){
   // Compute matrices J, G, T and H
-  computeWholeJacobian(contacts_map, joints_map);
   computeWholeGrasp(contacts_map);
   computeWholePoleChange(contacts_map);
   computeWholeContactSelection(contacts_map);
+  computeWholeJacobian(contacts_map, joints_map);
 
   // Print message for debug
   if(DEBUG) std::cout << "Finished computing in matricesCreator!" << std::endl;
@@ -239,6 +239,8 @@ void matricesCreator::computeWholeJacobian(std::map<int,
     // Index to go right blockwise on J
     int k = 0;
 
+    Eigen::MatrixXd J_i_temp;
+
     // For each contact, compute J_i and compose into J
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
       // Getting the current finger
@@ -254,14 +256,31 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       // Get the jacobian for the current chain in the obtained jntarray
       KDL::Jacobian J_i = computeJacobian(finger_kin_chain, finger_joint_array);
 
+      // Print message for debug
+      if(DEBUG) std::cout << "Computing the horizontal position for J_i in J"
+        " in matricesCreator!" << std::endl;
+
       // Find out the horizontal block position of J_i in J
       int h = 0;
       for(int z = 0; z <= (current_finger-1); z++) h += joint_numbers[z];
       h = h - joint_numbers[current_finger-1];
 
+      // Print message for debug
+      if(DEBUG) std::cout << "Put J_i in J in matricesCreator!" << std::endl;
+      if(DEBUG) std::cout << "Index k = " << k << "." << std::endl;
+      if(DEBUG) std::cout << "Index h = " << h << "." << std::endl;
+
       // Now, put the current jacobian into the whole Jacobian matrix
-      if(current_finger == 1) J.block<6, 5>(k, h) = J_i.data;
-      else J.block<6, 7>(k, h) = J_i.data;
+      J_i_temp = J_i.data;
+
+      // Print message for debug
+      if(DEBUG) std::cout << "KDL to Eigen in matricesCreator!" << std::endl;
+
+      if(current_finger == 1) J.block<6, 5>(k, h) = J_i_temp;
+      else J.block<6, 7>(k, h) = J_i_temp;
+
+      // Print message for debug
+      if(DEBUG) std::cout << "Done J_i in J in matricesCreator!" << std::endl;
 
       // Increment the index k to go to next block
       k += 6;
@@ -329,8 +348,9 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>>::iterator it_c;
 
-    // Resize the whole contact selection MatrixXd
-    H.resize(6 * contacts_map_.size(), 6 * contacts_map_.size());
+    // Resize and set to null the whole contact selection MatrixXd
+    H = Eigen::MatrixXd::Zero(6 * contacts_map_.size(),
+      6 * contacts_map_.size());
 
     // Index to put H_i in diagonal positions
     int k = 0;
