@@ -74,6 +74,10 @@ namespace adaptive_grasping {
     // The finger which has just touched (read via topic)
     int touching_finger;
 
+    // Transform listener and stamped transform for lookupTransform
+    tf::TransformListener tf_listener;
+    tf::StampedTransform stamped_transform;
+
     // The map containing info on all the fingers in collision
     std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>> contacts_map;

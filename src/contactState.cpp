@@ -13,8 +13,8 @@ contactState::contactState(std::string topic_name,
     std::map<std::string, std::string> params_map_){
   // The finger_id is 0 as there are no contacts yet
   touching_finger = 0;
-  // Subscribing to topic
-  finger_col_sub = node_contact_state.subscribe(topic_name, 1000,
+  // Subscribing to topic (queue is 1 for quick processing)
+  finger_col_sub = node_contact_state.subscribe(topic_name, 1,
     &contactState::handleCollision, this);
 
   // Initializing the service client
@@ -142,11 +142,9 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
 Eigen::Affine3d contactState::getTrasform(std::string frame1_name,
   std::string frame2_name){
     // tf echoing using input frame names
-    tf::TransformListener tf_listener;
-    tf::StampedTransform stamped_transform;
     try {
 		tf_listener.waitForTransform(std::string("/") + frame1_name,
-      std::string("/") + frame2_name, ros::Time(0), ros::Duration(10.0) );
+      std::string("/") + frame2_name, ros::Time(0), ros::Duration(1.0) );
 		tf_listener.lookupTransform(std::string("/") + frame1_name,
       std::string("/") + frame2_name, ros::Time(0), stamped_transform);
     } catch (tf::TransformException ex){
