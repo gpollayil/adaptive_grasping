@@ -149,13 +149,25 @@ KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
 
 /* TRANSFORMJACOBIAN */
 Eigen::MatrixXd matricesCreator::transformJacobian(KDL::Jacobian Jac){
+  // Debug message
+  if(DEBUG) std::cout << "transformJacobian: just entered!" << std::endl;
+
   // Compute the needed matrices for base change
   Eigen::MatrixXd R_p_w = Palm_to_World.linear();
-  Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);;
+  Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
+
+  // Debug message
+  if(DEBUG) std::cout << "transformJacobian: computed matrices!" << std::endl;
 
   // Compute the jacobian change of base matrix
-  Eigen::MatrixXd M_p_w;
+  Eigen::MatrixXd M_p_w(6, 6);
   M_p_w << R_p_w, O_3, O_3, R_p_w;
+
+  // Print matrices
+  if(DEBUG) std::cout << "transformJacobian: Jac transf matrix: " << std::endl;
+  if(DEBUG) std::cout << M_p_w << std::endl;
+  if(DEBUG) std::cout << "transformJacobian: the Jac matrix: " << std::endl;
+  if(DEBUG) std::cout << Jac.data << std::endl;
 
   // Perform the change of base and return
   return M_p_w * Jac.data;
@@ -303,6 +315,7 @@ void matricesCreator::computeWholeJacobian(std::map<int,
 
       // Now, put the current jacobian into the whole Jacobian matrix
       J_i_temp = transformJacobian(J_i);
+      // J_i_temp = J_i.data;
 
       // Print Eigen and a message for debug
       if(DEBUG) std::cout << "J_i_temp is: " << std::endl;
