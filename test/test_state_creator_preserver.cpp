@@ -59,8 +59,8 @@ int main(int argc, char **argv){
   Eigen::MatrixXd H_i(6, 6);
   H_i << I_3, O_3, O_3, I_3;
 
-  std::string world_frame_name = "/world";
-  std::string palm_frame_name = "/right_hand_palm_link";
+  std::string world_frame_name = "world";
+  std::string palm_frame_name = "right_hand_palm_link";
   std::vector<int> joint_numbers = {5, 7, 7, 7, 7};
 
   // For reading and couting
