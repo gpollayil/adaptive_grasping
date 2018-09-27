@@ -95,10 +95,11 @@ bool matricesCreator::prepareKDL(){
     ROS_ERROR("Failed to get robot kinematic tree!");
     return false;
   }
-  return true;
 
   // Print message for debug
   if(DEBUG) std::cout << "Finished KDL setup in matricesCreator!" << std::endl;
+
+  return true;
 }
 
 /* COMPUTEALLMATRICES */
@@ -126,17 +127,24 @@ KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
     jacobian_solver.reset(new KDL::ChainJntToJacSolver(chain));
 
     // Compute jacobian for q_
-    KDL::Jacobian J_i;
-    jacobian_solver->JntToJac(q_, J_i);
+    KDL::Jacobian Ja_i;
+    Ja_i.resize(chain.getNrOfJoints());     // This resizing is important!!!
+    jacobian_solver->JntToJac(q_, Ja_i);    // Without resizing this won't work
+
+    // Printing eventually the error code
+    int error_code = jacobian_solver->getError();
+    if(DEBUG) std::cout << "computeJacobian: In computing Jacobian: " <<
+      "the error code was " << jacobian_solver->strError(error_code) <<
+        "." << std::endl;
 
     // Print message for debug
     if(DEBUG){
-      std::cout << "J_i =" << std::endl;
-      std::cout << J_i.data << std::endl;
+      std::cout << "Ja_i =" << std::endl;
+      std::cout << Ja_i.data << std::endl;
     }
 
     // Return result
-    return J_i;
+    return Ja_i;
 }
 
 /* COMPUTEGRASP */
@@ -234,7 +242,7 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       Eigen::Affine3d>>::iterator it_c;
 
     // Resize the whole jacobian MatrixXd
-    J.resize(6 * contacts_map_.size(), total_joints);
+    J = Eigen::MatrixXd::Zero(6 * contacts_map_.size(), total_joints);
 
     // Index to go right blockwise on J
     int k = 0;
@@ -250,8 +258,16 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       robot_kin_tree.getChain(palm_frame_name, std::get<0>(it_c->second),
         finger_kin_chain);
 
+      // Printing current finger kinematic chain
+      if(DEBUG) std::cout << "Kinematic chain has: " <<
+        finger_kin_chain.getNrOfJoints() << " no. of joints." << std::endl;
+
       // Get the joint array for the considered finger
       finger_joint_array = getFingerJoints(joints_map, current_finger);
+
+      // Printing current finger joint array
+      if(DEBUG) std::cout << "Finger joint array is: " <<
+        finger_joint_array.data << std::endl;
 
       // Get the jacobian for the current chain in the obtained jntarray
       KDL::Jacobian J_i = computeJacobian(finger_kin_chain, finger_joint_array);
@@ -273,7 +289,9 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       // Now, put the current jacobian into the whole Jacobian matrix
       J_i_temp = J_i.data;
 
-      // Print message for debug
+      // Print Eigen and a message for debug
+      if(DEBUG) std::cout << "J_i_temp is: " << std::endl;
+      if(DEBUG) std::cout << J_i_temp << std::endl;
       if(DEBUG) std::cout << "KDL to Eigen in matricesCreator!" << std::endl;
 
       if(current_finger == 1) J.block<6, 5>(k, h) = J_i_temp;
