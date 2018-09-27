@@ -1,0 +1,38 @@
+right_arm:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+  joint_trajectory_controller:
+    type: position_controllers/JointTrajectoryController
+    joints:
+      - right_arm_a1_joint
+      - right_arm_a2_joint
+      - right_arm_e1_joint
+      - right_arm_a3_joint
+      - right_arm_a4_joint
+      - right_arm_a5_joint
+      - right_arm_a6_joint
+  # stiffness_trajectory_controller:
+  #   type: position_controllers/JointTrajectoryController
+  #   joints:
+  #     - right_arm_a1_joint_stiffness
+  #     - right_arm_a2_joint_stiffness
+  #     - right_arm_e1_joint_stiffness
+  #     - right_arm_a3_joint_stiffness
+  #     - right_arm_a4_joint_stiffness
+  #     - right_arm_a5_joint_stiffness
+  #     - right_arm_a6_joint_stiffness
+  # One Task Inverse Kinematics
+  one_task_inverse_kinematics:
+    type: lwr_controllers/OneTaskInverseKinematics
+    root_name: world
+    tip_name: right_arm_7_link
+
+right_hand:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+  joint_trajectory_controller:
+    type: position_controllers/JointTrajectoryController
+    joints:
+      - right_hand_synergy_joint
