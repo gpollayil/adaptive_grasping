@@ -147,6 +147,20 @@ KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
     return Ja_i;
 }
 
+/* TRANSFORMJACOBIAN */
+Eigen::MatrixXd matricesCreator::transformJacobian(KDL::Jacobian Jac){
+  // Compute the needed matrices for base change
+  Eigen::MatrixXd R_p_w = Palm_to_World.linear();
+  Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);;
+
+  // Compute the jacobian change of base matrix
+  Eigen::MatrixXd M_p_w;
+  M_p_w << R_p_w, O_3, O_3, R_p_w;
+
+  // Perform the change of base and return
+  return M_p_w * Jac.data;
+}
+
 /* COMPUTEGRASP */
 Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
   Eigen::Affine3d object_pose_){
@@ -184,6 +198,7 @@ Eigen::MatrixXd matricesCreator::computePoleChange(Eigen::Affine3d contact_pose,
 
     // Get the palm to world transformation
     Eigen::Affine3d P_to_W = (contact_pose * pc_pose.inverse()).inverse();
+    Palm_to_World = P_to_W;   // Stored for transformJacobian
 
     // Transform it into world coordinates
     Eigen::Vector3d PC_w = P_to_W.linear() * PC_p;
@@ -287,7 +302,7 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       if(DEBUG) std::cout << "Index h = " << h << "." << std::endl;
 
       // Now, put the current jacobian into the whole Jacobian matrix
-      J_i_temp = J_i.data;
+      J_i_temp = transformJacobian(J_i);
 
       // Print Eigen and a message for debug
       if(DEBUG) std::cout << "J_i_temp is: " << std::endl;

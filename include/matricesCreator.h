@@ -153,6 +153,9 @@ namespace adaptive_grasping {
     // Map of current joint states for fingers
     std::map<int, sensor_msgs::JointState> joints_map;
 
+    // Palm to World transform (set by compute pole change)
+    Eigen::Affine3d Palm_to_World;
+
     // Contacts jacobian
     Eigen::MatrixXd J;
 
@@ -191,6 +194,15 @@ namespace adaptive_grasping {
     * @return KDL::Jacobian J_i jacobian of chain in q_
     */
     KDL::Jacobian computeJacobian(KDL::Chain chain, KDL::JntArray q_);
+
+    /** TRANSFORMJACOBIAN
+    * @brief Function to express jacobian into world frames from palm frame
+    *
+    * @param Jac
+    *   the jacobian in palm frame
+    * @return KDL::Eigen::MatrixXd J_w the jacobian in world frame
+    */
+    Eigen::MatrixXd transformJacobian(KDL::Jacobian Jac);
 
     /** COMPUTEGRASP
     * @brief Function to compute grasp matrix for a given contact location and
