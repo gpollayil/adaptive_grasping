@@ -100,13 +100,17 @@ int main(int argc, char **argv){
   */
 
   // Creating needed variables
-  Eigen::MatrixXd S = Eigen::MatrixXd::Identity(33, 33);
+  // Eigen::MatrixXd S = Eigen::MatrixXd::Identity(33, 33);
+  Eigen::MatrixXd S = Eigen::MatrixXd::Ones(33, 1);
 
   // Creating needed variables for minimization
-  Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(45, 45);
-  A_tilde.block<6, 6>(39, 39) = 10 * Eigen::MatrixXd::Identity(6, 6);
+  // Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(45, 45);
+  // A_tilde.block<6, 6>(39, 39) = 10 * Eigen::MatrixXd::Identity(6, 6);
+  Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(13, 13);
+  A_tilde.block<6, 6>(7, 7) = 10 * Eigen::MatrixXd::Identity(6, 6);
 
-  Eigen::VectorXd x_d(45);
+  // Eigen::VectorXd x_d(45);
+  Eigen::VectorXd x_d(13);
   Eigen::VectorXd x_ref;
 
   // Creating object matricesCreator
@@ -140,10 +144,12 @@ int main(int argc, char **argv){
 
     // Setting grasp state
     preserver.setGraspState(read_J, read_G, read_T, read_H);
-    
+
     // Setting minimization parameters
-    x_d = Eigen::VectorXd::Zero(45);
-    x_d(35) = -0.05;
+    // x_d = Eigen::VectorXd::Zero(45);
+    // x_d(35) = -0.05;
+    x_d = Eigen::VectorXd::Zero(13);
+    x_d(3) = -0.05;
     preserver.setMinimizationParams(x_d, A_tilde);
 
     // Performing minimization
