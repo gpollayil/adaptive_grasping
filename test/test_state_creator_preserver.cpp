@@ -53,6 +53,29 @@ int main(int argc, char **argv){
   */
 
   // Creating needed variables
+  tf::TransformListener tf_listener;
+  tf::StampedTransform stamped_transform;
+
+  // Echoing the object pose and converting to Affine3d
+  ROS_INFO("Waiting to get the palm tf!!!");
+  try {
+  tf_listener.waitForTransform("/world", "/right_hand_palm_link",
+    ros::Time(0), ros::Duration(20.0) );
+  tf_listener.lookupTransform("/world", "/right_hand_palm_link",
+    ros::Time(0), stamped_transform);
+  } catch (tf::TransformException ex){
+    ROS_ERROR("%s",ex.what());
+    ros::Duration(1.0).sleep();
+  }
+
+  Eigen::Affine3d affine;
+  tf::Transform transform(stamped_transform.getRotation(),
+    stamped_transform.getOrigin());
+  tf::transformTFToEigen(transform, affine);
+  std::cout << "Palm translation is: " << affine.translation() << std::endl;
+  affine.pretranslate(Eigen::Vector3d(0, 0, 0.15));
+  std::cout << "Obj translation is: " << affine.translation() << std::endl;
+
   Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
   Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
 
@@ -79,6 +102,13 @@ int main(int argc, char **argv){
   // Creating needed variables
   Eigen::MatrixXd S = Eigen::MatrixXd::Identity(33, 33);
 
+  // Creating needed variables for minimization
+  Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(45, 45);
+  A_tilde.block<6, 6>(39, 39) = 10 * Eigen::MatrixXd::Identity(6, 6);
+
+  Eigen::VectorXd x_d(45);
+  Eigen::VectorXd x_ref;
+
   // Creating object matricesCreator
   std::cout<<"Object contactPreserver being created!"<<std::endl;
   contactPreserver preserver(S);
@@ -93,6 +123,7 @@ int main(int argc, char **argv){
     // Setting the contacts_map and joints_map in creator and computing matrices
     creator.setContactsMap(contacts_map_test);
     creator.setJointsMap(joints_map_test);
+    creator.setObjectPose(affine);
     creator.computeAllMatrices();
 
     // Reading and couting the matrices
@@ -106,6 +137,23 @@ int main(int argc, char **argv){
     std::cout << read_T << "\n";
     std::cout << "H = " << "\n";
     std::cout << read_H << "\n";
-  }
 
+    // // Setting grasp state
+    // preserver.setGraspState(read_J, read_G, read_T, read_H);
+    //
+    // // Setting minimization parameters
+    // x_d = Eigen::VectorXd::Zero(45);
+    // x_d(35) = -0.05;
+    // preserver.setMinimizationParams(x_d, A_tilde);
+    //
+    // // Performing minimization
+    // x_ref = preserver.performMinimization();
+    //
+    // // Print out all variables in contactPreserver
+    // preserver.printAll();
+    //
+    // // Print out the resulting motion
+    // std::cout << "Resulting reference motion x_ref is:" << std::endl;
+    // std::cout << x_ref << std::endl;
+  }
 }
