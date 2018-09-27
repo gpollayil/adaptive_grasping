@@ -138,22 +138,22 @@ int main(int argc, char **argv){
     std::cout << "H = " << "\n";
     std::cout << read_H << "\n";
 
-    // // Setting grasp state
-    // preserver.setGraspState(read_J, read_G, read_T, read_H);
-    //
-    // // Setting minimization parameters
-    // x_d = Eigen::VectorXd::Zero(45);
-    // x_d(35) = -0.05;
-    // preserver.setMinimizationParams(x_d, A_tilde);
-    //
-    // // Performing minimization
-    // x_ref = preserver.performMinimization();
-    //
-    // // Print out all variables in contactPreserver
-    // preserver.printAll();
-    //
-    // // Print out the resulting motion
-    // std::cout << "Resulting reference motion x_ref is:" << std::endl;
-    // std::cout << x_ref << std::endl;
+    // Setting grasp state
+    preserver.setGraspState(read_J, read_G, read_T, read_H);
+    
+    // Setting minimization parameters
+    x_d = Eigen::VectorXd::Zero(45);
+    x_d(35) = -0.05;
+    preserver.setMinimizationParams(x_d, A_tilde);
+
+    // Performing minimization
+    x_ref = preserver.performMinimization();
+
+    // Print out all variables in contactPreserver
+    preserver.printAll();
+
+    // Print out the resulting motion
+    std::cout << "Resulting reference motion x_ref is:" << std::endl;
+    std::cout << x_ref << std::endl;
   }
 }
