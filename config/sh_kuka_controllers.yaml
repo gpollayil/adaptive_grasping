@@ -22,11 +22,18 @@ right_arm:
   #     - right_arm_a4_joint_stiffness
   #     - right_arm_a5_joint_stiffness
   #     - right_arm_a6_joint_stiffness
+
   # One Task Inverse Kinematics
   one_task_inverse_kinematics:
     type: lwr_controllers/OneTaskInverseKinematics
     root_name: world
     tip_name: right_arm_7_link
+
+  # Twist Controller
+  twist_controller:
+    type: lwr_controllers/TwistController
+    root_name: world
+    tip_name: right_hand_palm_link
 
 right_hand:
   joint_state_controller:
