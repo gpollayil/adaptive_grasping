@@ -1,7 +1,13 @@
+## ARM CONTROLLERS ##
+
 right_arm:
+
+  # Joint State Controller
   joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 100
+
+  # Joint Trajectory Controller
   joint_trajectory_controller:
     type: position_controllers/JointTrajectoryController
     joints:
@@ -12,6 +18,8 @@ right_arm:
       - right_arm_a4_joint
       - right_arm_a5_joint
       - right_arm_a6_joint
+
+  # Stiffness Trajectory Controller
   # stiffness_trajectory_controller:
   #   type: position_controllers/JointTrajectoryController
   #   joints:
@@ -35,20 +43,32 @@ right_arm:
     root_name: world
     tip_name: right_arm_7_link
     pid_trans:
-      p: 20.0
+      p: 10.0
       i: 0.5
-      d: 0.0
+      d: 0.5
       i_clamp: 1.0
     pid_rot:
-      p: 0.5
-      i: 0.1
-      d: 0.0
+      p: 10.0
+      i: 0.5
+      d: 0.5
       i_clamp: 0.2
 
+  # Inverse Dynamics Controllers
+  inverse_dynamics_controller:
+    type: lwr_controllers/InverseDynamicsController
+    root_name: world
+    tip_name: right_arm_7_link
+
+## HAND CONTROLLERS ##
+
 right_hand:
+
+  # Joint State Controller
   joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 100
+
+  # Joint Trajectory Controller
   joint_trajectory_controller:
     type: position_controllers/JointTrajectoryController
     joints:
