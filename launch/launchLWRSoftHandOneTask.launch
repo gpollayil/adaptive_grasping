@@ -84,8 +84,8 @@
         </group>
 
 		<!-- spawn only desired controllers in current namespace -->
-		<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--stopped $(arg controllers) --shutdown-timeout 2"/>
-    <node name="controller_stopper" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_state_controller one_task_inverse_kinematics --shutdown-timeout 2"/>
+		<node name="controller_stopper" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--stopped $(arg controllers) --shutdown-timeout 2"/>
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_state_controller one_task_inverse_kinematics --shutdown-timeout 2"/>
   </group>
 
 	<!-- Hand Controllers -->

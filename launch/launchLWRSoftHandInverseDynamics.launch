@@ -13,7 +13,7 @@
 	<arg name="use_gazebo" default="true"/>
 
 	<!-- Set visualization tools -->
-	<arg name="use_rviz" default="false"/>
+	<arg name="use_rviz" default="true"/>
 
 	<!-- Set some controller args -->
 	<arg name="controllers" default="joint_trajectory_controller"/>
@@ -85,7 +85,7 @@
 
 		<!-- spawn only desired controllers in current namespace -->
 		<node name="controller_stopper" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--stopped $(arg controllers) --shutdown-timeout 2"/>
-    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_state_controller twist_controller --shutdown-timeout 2"/>
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_state_controller inverse_dynamics_controller --shutdown-timeout 2"/>
   </group>
 
 	<!-- Hand Controllers -->
