@@ -33,7 +33,17 @@ right_arm:
   twist_controller:
     type: lwr_controllers/TwistController
     root_name: world
-    tip_name: right_hand_palm_link
+    tip_name: right_arm_7_link
+    pid_trans:
+      p: 20.0
+      i: 0.5
+      d: 0.0
+      i_clamp: 1.0
+    pid_rot:
+      p: 0.5
+      i: 0.1
+      d: 0.0
+      i_clamp: 0.2
 
 right_hand:
   joint_state_controller:
