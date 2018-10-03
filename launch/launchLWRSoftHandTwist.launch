@@ -22,6 +22,9 @@
 	<arg name="right_arm_enabled" default="false"/>
   <arg name="right_hand_enabled" default="false"/>
 
+  <!-- Set verbosity level to debug -->
+  <env name ="ROSCONSOLE_CONFIG_FILE" value ="$(find adaptive_grasping)/config/rosconsole.conf"/>
+
 	<!-- LAUNCH IMPLEMENTATION -->
 
 	<!-- Load the urdf as robot_description to parameter server -->
