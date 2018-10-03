@@ -42,16 +42,6 @@ right_arm:
     type: lwr_controllers/TwistController
     root_name: world
     tip_name: right_arm_7_link
-    pid_trans:
-      p: 10.0
-      i: 0.5
-      d: 0.5
-      i_clamp: 1.0
-    pid_rot:
-      p: 10.0
-      i: 0.5
-      d: 0.5
-      i_clamp: 0.2
 
   # Inverse Dynamics Controllers
   inverse_dynamics_controller:
