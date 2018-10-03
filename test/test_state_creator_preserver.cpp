@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <ros/ros.h>
+#include <geometry_msgs/Twist.h>
 #include "contactState.h"
 #include "matricesCreator.h"
 #include "contactPreserver.h"
@@ -79,8 +80,11 @@ int main(int argc, char **argv){
   Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
   Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
 
+  // Soft finger contact constraint matrix
   Eigen::MatrixXd H_i(6, 6);
   H_i << I_3, O_3, O_3, I_3;
+  H_i(4, 4) = 0;
+  H_i(5, 5) = 0;
 
   std::string world_frame_name = "world";
   std::string palm_frame_name = "right_hand_palm_link";
@@ -118,6 +122,9 @@ int main(int argc, char **argv){
   contactPreserver preserver(S);
   std::cout<<"Object contactPreserver created!"<<std::endl;
 
+  ros::Publisher pub_cmd = nh.advertise<geometry_msgs::Twist>(
+    "right_arm/twist_controller/command", 1);
+
   while(ros::ok()){
     ros::spinOnce();
 
@@ -142,18 +149,24 @@ int main(int argc, char **argv){
     std::cout << "H = " << "\n";
     std::cout << read_H << "\n";
 
-    // Setting grasp state
-    preserver.setGraspState(read_J, read_G, read_T, read_H);
+    // THE FOLLOWING WILL BE DONE ONLY IF THE NEEDED MATRICES ARE != 0
+    x_ref = Eigen::VectorXd::Zero(x_d.size());
 
-    // Setting minimization parameters
-    // x_d = Eigen::VectorXd::Zero(45);
-    // x_d(35) = -0.05;
-    x_d = Eigen::VectorXd::Zero(13);
-    x_d(3) = -0.05;
-    preserver.setMinimizationParams(x_d, A_tilde);
+    if(read_J.innerSize() > 0 && read_G.innerSize() > 0 &&
+      read_T.innerSize() > 0 && read_H.innerSize() > 0){
+        // Setting grasp state
+        preserver.setGraspState(read_J, read_G, read_T, read_H);
 
-    // Performing minimization
-    x_ref = preserver.performMinimization();
+        // Setting minimization parameters
+        // x_d = Eigen::VectorXd::Zero(45);
+        // x_d(35) = -0.05;
+        x_d = Eigen::VectorXd::Zero(13);
+        x_d(3) = -0.05; x_d(5) = -0.1;
+        preserver.setMinimizationParams(x_d, A_tilde);
+
+        // Performing minimization
+        x_ref = preserver.performMinimization();
+    }
 
     // Print out all variables in contactPreserver
     preserver.printAll();
@@ -161,5 +174,13 @@ int main(int argc, char **argv){
     // Print out the resulting motion
     std::cout << "Resulting reference motion x_ref is:" << std::endl;
     std::cout << x_ref << std::endl;
+
+    // Converting to geometry_msgs the twist of the palm and publishing
+    geometry_msgs::Twist cmd_twist;
+    cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
+    cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
+    cmd_twist.linear.z = x_ref(3); cmd_twist.angular.z = x_ref(6);
+
+    pub_cmd.publish(cmd_twist);
   }
 }
