@@ -45,6 +45,9 @@ void robotCommander::setReferences(Eigen::VectorXd joints_ref_,
   this->palm_ref.linear.x = palm_ref_(0); this->palm_ref.angular.x = palm_ref_(3);
   this->palm_ref.linear.y = palm_ref_(1); this->palm_ref.angular.y = palm_ref_(4);
   this->palm_ref.linear.z = palm_ref_(2); this->palm_ref.angular.z = palm_ref_(5);
+
+  // Setting only starting previous time
+  this->prev_time = ros::Time::now();
 }
 
 /* GETJOINTSTATES */
@@ -57,5 +60,10 @@ void robotCommander::getJointStates(const sensor_msgs::JointStateConstPtr& msg){
 
 /* SENDREFTOHAND */
 void robotCommander::sendRefToHand(){
+  // Getting dt resolution for integration
+  this-> curr_time = ros::Time::now();
+  this->dt = this->curr_time - this->prev_time;
+  this->prev_time = this->curr_time;
 
+  // 
 }

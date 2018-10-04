@@ -72,7 +72,10 @@ namespace adaptive_grasping {
 
     // Basic variables
     ros::NodeHandle nh_rc;
-    ros::Subscriber joint_state_sub;          // For getting hand joint states
+    ros::Subscriber joint_state_sub;    // For getting hand joint states
+    ros::Time prev_time;
+    ros::Time curr_time;
+    ros::Duration dt;                   // Used to integrate hand joint speed
 
     // A mutual exclusion lock for the variables of this class
     std::mutex robot_commander_mutex;
@@ -94,6 +97,10 @@ namespace adaptive_grasping {
     // An action client for the hand and a publisher for the arm
     std::shared_ptr<actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>> act_hand;
     ros::Publisher pub_arm;
+
+    // The variables for sending trajectories to the hand
+    trajectory_msgs::JointTrajectoryPoint hand_point;
+    
 
     /** GETJOINTSTATES
     * @brief Private callback function to get and write joint states of the hand
