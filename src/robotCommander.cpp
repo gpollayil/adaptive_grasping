@@ -13,5 +13,10 @@ using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
 robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_){
+
+}
+
+/* DESTRUCTOR */
+robotCommander::~robotCommander(){
   
 }
