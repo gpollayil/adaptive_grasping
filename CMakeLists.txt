@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
 	geometry_msgs
+	actionlib
+	actionlib_msgs
   tf
   tf_conversions
 	kdl_parser
@@ -148,10 +150,11 @@ set(ADAPTIVE_SOURCE_FILES
 	src/contactState.cpp
 	src/matricesCreator.cpp
 	src/contactPreserver.cpp
+	src/robotCommander.cpp
 )
 
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
-# add_executable(${PROJECT_NAME}_node ${ADAPTIVE_SOURCE_FILES})
+add_executable(${PROJECT_NAME}_node ${ADAPTIVE_SOURCE_FILES})
 
 #TESTS
 add_executable(${PROJECT_NAME}_test_contactState test/test_contact_state.cpp ${ADAPTIVE_SOURCE_FILES})
@@ -167,6 +170,7 @@ add_executable(${PROJECT_NAME}_test_StateCreatorPreserver test/test_state_creato
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_test_StateCreatorPreserver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 
@@ -178,9 +182,9 @@ add_dependencies(${PROJECT_NAME}_test_StateCreatorPreserver ${${PROJECT_NAME}_EX
 target_link_libraries(${PROJECT_NAME}_tf_listener
    ${catkin_LIBRARIES}
 )
-# target_link_libraries(${PROJECT_NAME}_node
-#    ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}_node
+   ${catkin_LIBRARIES}
+)
 
 #TESTS
 target_link_libraries(${PROJECT_NAME}_test_matricesCreator
