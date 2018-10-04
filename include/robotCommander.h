@@ -3,6 +3,12 @@
 
 #include <Eigen/Dense>
 #include <geometry_msgs/Twist.h>
+#include "ros/ros.h"
+
+// Action Client
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
+#include <control_msgs/FollowJointTrajectoryAction.h>
 
 
 /**
@@ -50,6 +56,15 @@ namespace adaptive_grasping {
     */
     void setReferences(Eigen::VectorXd joints_ref_, Eigen::VectorXd palm_ref_);
 
+    /** MOVEHANDARM
+    * @brief Public function to move the hand and/or arm (if twist = 0, no arm)
+    * Executes the references previously set by setReferences function
+    *
+    * @param null
+    * @return null
+    */
+    void sendRefToArm();
+
   private:
 
     // The topic names for hand commanding and arm commanding
@@ -60,9 +75,27 @@ namespace adaptive_grasping {
     Eigen::VectorXd joints_ref;
     geometry_msgs::Twist palm_ref;
 
-    // 
+    // An action client for the hand and a publisher for the arm
+    std::shared_ptr<actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>> move;
+    ros::Publisher pub_cmd;
 
+    /** SENDREFTOHAND
+    * @brief Public function to close the hand with a given reference speed
+    *
+    * @param joints_ref_
+    *   the vector containing the hand joints' speeds to be given
+    * @return null
+    */
+    void sendRefToHand(Eigen::VectorXd joints_ref_);
 
+    /** SENDREFTOARM
+    * @brief Public function to move the palm of the arm, following a twist
+    *
+    * @param palm_ref_
+    *   the twist vector containing the reference motion of the palm
+    * @return null
+    */
+    void sendRefToArm(geometry_msgs::Twist palm_ref_);
 
   };
 
