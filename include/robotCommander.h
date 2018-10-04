@@ -67,6 +67,9 @@ namespace adaptive_grasping {
 
   private:
 
+    // Basic variables
+    ros::NodeHandle nh_rc;
+
     // The topic names for hand commanding and arm commanding
     std::string hand_topic;
     std::string arm_topic;
@@ -76,8 +79,8 @@ namespace adaptive_grasping {
     geometry_msgs::Twist palm_ref;
 
     // An action client for the hand and a publisher for the arm
-    std::shared_ptr<actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>> move;
-    ros::Publisher pub_cmd;
+    std::shared_ptr<actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>> act_hand;
+    ros::Publisher pub_arm;
 
     /** SENDREFTOHAND
     * @brief Public function to close the hand with a given reference speed
