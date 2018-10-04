@@ -1,8 +1,10 @@
 #ifndef ROBOT_COMMANDER_H
 #define ROBOT_COMMANDER_H
 
+#include <mutex>
 #include <Eigen/Dense>
 #include <geometry_msgs/Twist.h>
+#include <sensor_msgs/JointState.h>
 #include "ros/ros.h"
 
 // Action Client
@@ -35,7 +37,8 @@ namespace adaptive_grasping {
     *   the topic for commanding the arm
     * @return null
     */
-    robotCommander(std::string hand_topic_, std::string arm_topic_);
+    robotCommander(std::string hand_topic_, std::string arm_topic_,
+      std::vector<std::string> joint_names_vec_);
 
     /** DESTRUCTOR
     * @brief Default destructor for robotCommander
@@ -69,6 +72,13 @@ namespace adaptive_grasping {
 
     // Basic variables
     ros::NodeHandle nh_rc;
+    ros::Subscriber joint_state_sub;          // For getting hand joint states
+
+    // A mutual exclusion lock for the variables of this class
+    std::mutex robot_commander_mutex;
+
+    // A data structure containing the names of the hand joints in order
+    std::vector<std::string> joint_names_vec;
 
     // The topic names for hand commanding and arm commanding
     std::string hand_topic;
@@ -78,21 +88,32 @@ namespace adaptive_grasping {
     Eigen::VectorXd joints_ref;
     geometry_msgs::Twist palm_ref;
 
+    // A sensor message containing the latest available joints of the hand
+    sensor_msgs::JointState current_joints;
+
     // An action client for the hand and a publisher for the arm
     std::shared_ptr<actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>> act_hand;
     ros::Publisher pub_arm;
 
-    /** SENDREFTOHAND
-    * @brief Public function to close the hand with a given reference speed
+    /** GETJOINTSTATES
+    * @brief Private callback function to get and write joint states of the hand
     *
-    * @param joints_ref_
-    *   the vector containing the hand joints' speeds to be given
+    * @param null
     * @return null
     */
-    void sendRefToHand(Eigen::VectorXd joints_ref_);
+    void getJointStates(const sensor_msgs::JointStateConstPtr& msg);
+
+    /** SENDREFTOHAND
+    * @brief Private function to close the hand with a given reference speed
+    * The vector joints_ref set by setReferences will be executed
+    *
+    * @param null
+    * @return null
+    */
+    void sendRefToHand();
 
     /** SENDREFTOARM
-    * @brief Public function to move the palm of the arm, following a twist
+    * @brief Private function to move the palm of the arm, following a twist
     *
     * @param palm_ref_
     *   the twist vector containing the reference motion of the palm
