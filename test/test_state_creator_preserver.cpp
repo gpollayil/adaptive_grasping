@@ -4,6 +4,7 @@
 #include <iostream>
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Float64.h>
 #include "contactState.h"
 #include "matricesCreator.h"
 #include "contactPreserver.h"
@@ -36,7 +37,7 @@ int main(int argc, char **argv){
   link_names_map_test[4] = "right_hand_ring_distal_link";
   link_names_map_test[5] = "right_hand_little_distal_link";
   params_map_test["world_name"] = "world";
-  params_map_test["palm_name"] = "right_hand_palm_link";
+  params_map_test["palm_name"] = "right_arm_7_link";            // THIS IS NEEDED BECAUSE KUKA CONTROLLERS CANNOT HAVE AS TIP LINK A SOFTHAND'S ONE
   params_map_test["ee_name"] = "right_hand_ee_link";
 
   // Creating an object contact_state
@@ -87,7 +88,7 @@ int main(int argc, char **argv){
   H_i(5, 5) = 0;
 
   std::string world_frame_name = "world";
-  std::string palm_frame_name = "right_hand_palm_link";
+  std::string palm_frame_name = "right_arm_7_link";
   std::vector<int> joint_numbers = {5, 7, 7, 7, 7};
 
   // For reading and couting
@@ -105,7 +106,10 @@ int main(int argc, char **argv){
 
   // Creating needed variables
   // Eigen::MatrixXd S = Eigen::MatrixXd::Identity(33, 33);
-  Eigen::MatrixXd S = Eigen::MatrixXd::Ones(33, 1);
+  
+  // THIS IS THE SYNERGY MATRIX OF PISA IIT SH OCADO VERSION - AS IN URDF
+  Eigen::MatrixXd S(33, 1);
+  S << 2.042, 1.021, 1.021, 0.785, 0.785, -0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.4, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785;
 
   // Creating needed variables for minimization
   // Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(45, 45);
@@ -124,6 +128,8 @@ int main(int argc, char **argv){
 
   ros::Publisher pub_cmd = nh.advertise<geometry_msgs::Twist>(
     "right_arm/twist_controller/command", 1);
+  ros::Publisher pub_cmd_hand = nh.advertise<std_msgs::Float64>(
+    "right_hand/velocity_controller/command", 1);
 
   while(ros::ok()){
     ros::spinOnce();
@@ -161,6 +167,7 @@ int main(int argc, char **argv){
         // x_d = Eigen::VectorXd::Zero(45);
         // x_d(35) = -0.05;
         x_d = Eigen::VectorXd::Zero(13);
+        x_d(0) = 0.06; 
         x_d(3) = -0.05; x_d(5) = -0.1;
         preserver.setMinimizationParams(x_d, A_tilde);
 
@@ -181,6 +188,10 @@ int main(int argc, char **argv){
     cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
     cmd_twist.linear.z = x_ref(3); cmd_twist.angular.z = x_ref(6);
 
+    std_msgs::Float64 cmd_syn;
+    cmd_syn.data = float (x_ref(0));
+
     pub_cmd.publish(cmd_twist);
+    pub_cmd_hand.publish(cmd_syn);
   }
 }
