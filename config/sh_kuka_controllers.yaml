@@ -63,3 +63,8 @@ right_hand:
     type: position_controllers/JointTrajectoryController
     joints:
       - right_hand_synergy_joint
+
+  # Velocity Controller
+  velocity_controller:
+    type: soft_hand_controllers/VelocityController
+    joint: right_hand_synergy_joint
