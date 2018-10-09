@@ -9,6 +9,8 @@
 #include "matricesCreator.h"
 #include "contactPreserver.h"
 
+#define DEBUG   0
+
 using namespace adaptive_grasping;
 
 int main(int argc, char **argv){
@@ -75,17 +77,18 @@ int main(int argc, char **argv){
     stamped_transform.getOrigin());
   tf::transformTFToEigen(transform, affine);
   std::cout << "Palm translation is: " << affine.translation() << std::endl;
-  affine.pretranslate(Eigen::Vector3d(0, 0, 0.15));
+  affine.pretranslate(Eigen::Vector3d(0, 0, -0.15));
   std::cout << "Obj translation is: " << affine.translation() << std::endl;
 
   Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
   Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
 
-  // Soft finger contact constraint matrix
+  // Soft finger contact constraint matrix (comment out the 3rd and 4th line for fully constrianted)
   Eigen::MatrixXd H_i(6, 6);
   H_i << I_3, O_3, O_3, I_3;
-  H_i(4, 4) = 0;
-  H_i(5, 5) = 0;
+  // H_i(3, 3) = 0;
+  // H_i(4, 4) = 0;
+  // H_i(5, 5) = 0;
 
   std::string world_frame_name = "world";
   std::string palm_frame_name = "right_arm_7_link";
@@ -115,7 +118,7 @@ int main(int argc, char **argv){
   // Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(45, 45);
   // A_tilde.block<6, 6>(39, 39) = 10 * Eigen::MatrixXd::Identity(6, 6);
   Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(13, 13);
-  A_tilde.block<6, 6>(7, 7) = 10 * Eigen::MatrixXd::Identity(6, 6);
+  A_tilde.block<6, 6>(7, 7) = 100000 * Eigen::MatrixXd::Identity(6, 6);
 
   // Eigen::VectorXd x_d(45);
   Eigen::VectorXd x_d(13);
@@ -131,7 +134,34 @@ int main(int argc, char **argv){
   ros::Publisher pub_cmd_hand = nh.advertise<std_msgs::Float64>(
     "right_hand/velocity_controller/command", 1);
 
+  // Setting the ROS rate for the while as it is in the controller
+  ros::Rate rate(1000);
+
+  // For getting the period of the while loop
+  ros::Time initial_time; ros::Duration duration_loop;
+
+  // Command vars
+  geometry_msgs::Twist cmd_twist;
+  std_msgs::Float64 cmd_syn;
+
+  // For publishing null commands, creating null twist and synergy
+  geometry_msgs::Twist cmd_twist_null;
+  cmd_twist_null.linear.x = 0; cmd_twist_null.angular.x = 0;
+  cmd_twist_null.linear.y = 0; cmd_twist_null.angular.y = 0;
+  cmd_twist_null.linear.z = 0; cmd_twist_null.angular.z = 0;
+
+  std_msgs::Float64 cmd_syn_null;
+  cmd_syn_null.data = float (0.0);
+
   while(ros::ok()){
+    // Publishing null commands for avoiding the repetition of old refs while computing
+    // pub_cmd_hand.publish(cmd_syn_null);
+    // pub_cmd.publish(cmd_twist_null);
+
+    // Getting initial time
+    initial_time = ros::Time::now();
+
+    // Spinning once to process callbacks
     ros::spinOnce();
 
     // Reading the values of the contact_state_obj
@@ -145,15 +175,15 @@ int main(int argc, char **argv){
 
     // Reading and couting the matrices
     creator.readAllMatrices(read_J, read_G, read_T, read_H);
-    std::cout << "The created matrices are: " << std::endl;
-    std::cout << "J = " << "\n";
-    std::cout << read_J << "\n";
-    std::cout << "G = " << "\n";
-    std::cout << read_G << "\n";
-    std::cout << "T = " << "\n";
-    std::cout << read_T << "\n";
-    std::cout << "H = " << "\n";
-    std::cout << read_H << "\n";
+    if(DEBUG) std::cout << "The created matrices are: " << std::endl;
+    if(DEBUG) std::cout << "J = " << "\n";
+    if(DEBUG) std::cout << read_J << "\n";
+    if(DEBUG) std::cout << "G = " << "\n";
+    if(DEBUG) std::cout << read_G << "\n";
+    if(DEBUG) std::cout << "T = " << "\n";
+    if(DEBUG) std::cout << read_T << "\n";
+    if(DEBUG) std::cout << "H = " << "\n";
+    if(DEBUG) std::cout << read_H << "\n";
 
     // THE FOLLOWING WILL BE DONE ONLY IF THE NEEDED MATRICES ARE != 0
     x_ref = Eigen::VectorXd::Zero(x_d.size());
@@ -167,8 +197,8 @@ int main(int argc, char **argv){
         // x_d = Eigen::VectorXd::Zero(45);
         // x_d(35) = -0.05;
         x_d = Eigen::VectorXd::Zero(13);
-        x_d(0) = 0.06; 
-        x_d(3) = -0.05; x_d(5) = -0.1;
+        x_d(0) = 0.1; 
+        x_d(3) = -0.01; x_d(5) = -0.00;
         preserver.setMinimizationParams(x_d, A_tilde);
 
         // Performing minimization
@@ -176,22 +206,29 @@ int main(int argc, char **argv){
     }
 
     // Print out all variables in contactPreserver
-    preserver.printAll();
+    if(DEBUG) preserver.printAll();
 
     // Print out the resulting motion
-    std::cout << "Resulting reference motion x_ref is:" << std::endl;
-    std::cout << x_ref << std::endl;
+    if(DEBUG){
+      std::cout << "Resulting reference motion x_ref is:" << std::endl;
+      std::cout << x_ref << std::endl;
+    }
 
     // Converting to geometry_msgs the twist of the palm and publishing
-    geometry_msgs::Twist cmd_twist;
     cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
     cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
     cmd_twist.linear.z = x_ref(3); cmd_twist.angular.z = x_ref(6);
 
-    std_msgs::Float64 cmd_syn;
     cmd_syn.data = float (x_ref(0));
 
-    pub_cmd.publish(cmd_twist);
+    // Getting computation time and couting
+    duration_loop = ros::Time::now() - initial_time;
+    std::cout << "The computation time was " << duration_loop.toSec() << "s." << std::endl;
+
     pub_cmd_hand.publish(cmd_syn);
+    pub_cmd.publish(cmd_twist);
+
+    // Rate
+    rate.sleep();
   }
 }
