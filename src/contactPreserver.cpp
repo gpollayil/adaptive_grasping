@@ -71,7 +71,11 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   Eigen::VectorXd x_ref = N*InverseBlock*N.transpose()*A_tilde*x_d;
 
   // Return contact preserving solution
-  return x_ref;
+  // return x_ref;
+  
+  // For debugging purpouses (real line is above)
+  Eigen::VectorXd null_vec_debug = -N.col(0);
+  return null_vec_debug;
 }
 
 /* PRINTALL */

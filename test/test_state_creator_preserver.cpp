@@ -118,7 +118,7 @@ int main(int argc, char **argv){
   // Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(45, 45);
   // A_tilde.block<6, 6>(39, 39) = 10 * Eigen::MatrixXd::Identity(6, 6);
   Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(13, 13);
-  A_tilde.block<6, 6>(7, 7) = 100000 * Eigen::MatrixXd::Identity(6, 6);
+  A_tilde.block<6, 6>(7, 7) = 10000 * Eigen::MatrixXd::Identity(6, 6);
 
   // Eigen::VectorXd x_d(45);
   Eigen::VectorXd x_d(13);
@@ -198,7 +198,7 @@ int main(int argc, char **argv){
         // x_d(35) = -0.05;
         x_d = Eigen::VectorXd::Zero(13);
         x_d(0) = 0.1; 
-        x_d(3) = -0.01; x_d(5) = -0.00;
+        x_d(3) = -0.01; x_d(5) = -0.1;
         preserver.setMinimizationParams(x_d, A_tilde);
 
         // Performing minimization
@@ -206,13 +206,11 @@ int main(int argc, char **argv){
     }
 
     // Print out all variables in contactPreserver
-    if(DEBUG) preserver.printAll();
+    preserver.printAll();
 
     // Print out the resulting motion
-    if(DEBUG){
-      std::cout << "Resulting reference motion x_ref is:" << std::endl;
-      std::cout << x_ref << std::endl;
-    }
+    std::cout << "Resulting reference motion x_ref is:" << std::endl;
+    std::cout << x_ref << std::endl;
 
     // Converting to geometry_msgs the twist of the palm and publishing
     cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
@@ -223,7 +221,7 @@ int main(int argc, char **argv){
 
     // Getting computation time and couting
     duration_loop = ros::Time::now() - initial_time;
-    std::cout << "The computation time was " << duration_loop.toSec() << "s." << std::endl;
+    std::cout << "The computation time was " << duration_loop.toNSec() << "s." << std::endl;
 
     pub_cmd_hand.publish(cmd_syn);
     pub_cmd.publish(cmd_twist);
