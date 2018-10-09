@@ -153,10 +153,16 @@ int main(int argc, char **argv){
   std_msgs::Float64 cmd_syn_null;
   cmd_syn_null.data = float (0.0);
 
+  // Trial twist
+  // geometry_msgs::Twist trial_twist;
+  // trial_twist.linear.x = 0; trial_twist.angular.x = 0;
+  // trial_twist.linear.y = 0; trial_twist.angular.y = 0;
+  // trial_twist.linear.z = 0; trial_twist.angular.z = 0;
+
   while(ros::ok()){
     // Publishing null commands for avoiding the repetition of old refs while computing
-    // pub_cmd_hand.publish(cmd_syn_null);
-    // pub_cmd.publish(cmd_twist_null);
+    pub_cmd_hand.publish(cmd_syn_null);
+    pub_cmd.publish(cmd_twist_null);
 
     // Getting initial time
     initial_time = ros::Time::now();
@@ -206,18 +212,20 @@ int main(int argc, char **argv){
     }
 
     // Print out all variables in contactPreserver
-    preserver.printAll();
+    // preserver.printAll();
 
     // Print out the resulting motion
     std::cout << "Resulting reference motion x_ref is:" << std::endl;
     std::cout << x_ref << std::endl;
 
-    // Converting to geometry_msgs the twist of the palm and publishing
-    cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
-    cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
-    cmd_twist.linear.z = x_ref(3); cmd_twist.angular.z = x_ref(6);
+    double scaling = 1.0;
 
-    cmd_syn.data = float (x_ref(0));
+    // Converting to geometry_msgs the twist of the palm and publishing
+    cmd_twist.linear.x = scaling*x_ref(1); cmd_twist.angular.x = scaling*x_ref(4);
+    cmd_twist.linear.y = scaling*x_ref(2); cmd_twist.angular.y = scaling*x_ref(5);
+    cmd_twist.linear.z = scaling*x_ref(3); cmd_twist.angular.z = scaling*x_ref(6);
+
+    cmd_syn.data = float (scaling*x_ref(0));
 
     // Getting computation time and couting
     duration_loop = ros::Time::now() - initial_time;
@@ -225,6 +233,9 @@ int main(int argc, char **argv){
 
     pub_cmd_hand.publish(cmd_syn);
     pub_cmd.publish(cmd_twist);
+
+    // Sleeping for some time in order to execute the command before cancelling
+    ros::Duration(0.005).sleep();
 
     // Rate
     rate.sleep();

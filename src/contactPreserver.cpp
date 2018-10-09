@@ -74,7 +74,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   // return x_ref;
   
   // For debugging purpouses (real line is above)
-  Eigen::VectorXd null_vec_debug = -N.col(0);
+  Eigen::VectorXd null_vec_debug = N.col(0);
   return null_vec_debug;
 }
 
