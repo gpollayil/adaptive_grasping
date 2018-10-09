@@ -2,7 +2,7 @@
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_preserver"
-#define DEBUG             1   // print out additional info
+#define DEBUG             0   // print out additional info
 
 /**
 * @brief The following are functions of the class contactPreserver.
@@ -66,6 +66,8 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
   // Finally, compute the reference motion that preserves the contacts
   Eigen::MatrixXd InverseBlock = (N.transpose()*A_tilde*N).inverse();
+  if(DEBUG) std::cout << "Lambda = " << std::endl; 
+  if(DEBUG) std::cout << InverseBlock*N.transpose()*A_tilde*x_d << "." << std::endl;
   Eigen::VectorXd x_ref = N*InverseBlock*N.transpose()*A_tilde*x_d;
 
   // Return contact preserving solution
