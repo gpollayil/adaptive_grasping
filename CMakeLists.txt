@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
 	geometry_msgs
+  trajectory_msgs
 	actionlib
 	actionlib_msgs
   tf
@@ -161,6 +162,8 @@ add_executable(${PROJECT_NAME}_test_contactState test/test_contact_state.cpp ${A
 add_executable(${PROJECT_NAME}_test_matricesCreator test/test_matrices_creator.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_contactPreserver test/test_contact_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_StateCreatorPreserver test/test_state_creator_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
+
+set_target_properties(${PROJECT_NAME}_test_StateCreatorPreserver PROPERTIES COMPILE_FLAGS "-o0")
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

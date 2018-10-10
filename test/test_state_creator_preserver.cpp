@@ -3,15 +3,92 @@
 
 #include <iostream>
 #include <ros/ros.h>
+#include <kdl_parser/kdl_parser.hpp>
 #include <geometry_msgs/Twist.h>
+#include <sensor_msgs/JointState.h>
+#include <trajectory_msgs/JointTrajectory.h>
 #include <std_msgs/Float64.h>
 #include "contactState.h"
 #include "matricesCreator.h"
 #include "contactPreserver.h"
+#include <utils/pseudo_inversion.h>
+#include <ros/subscribe_options.h>
 
 #define DEBUG   0
 
 using namespace adaptive_grasping;
+
+// GLOBAL VARIABLES
+sensor_msgs::JointState::ConstPtr full_joint_state;	  // a msg where the subscriber will save the joint states
+KDL::Tree robot_kin_tree;
+KDL::Chain robot_kin_chain;
+
+/**********************************************************************************************
+ JOINTS EXTRACT
+**********************************************************************************************/
+Eigen::VectorXd jointsExtract(){
+  // Creating the vector to be returned
+  Eigen::VectorXd vector_js(8);
+
+  // Finding the states of arm and hand and pushing back
+  int index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_arm_a1_joint") - full_joint_state->name.begin();
+	vector_js(0) = full_joint_state->position[index];
+
+  index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_arm_a2_joint") - full_joint_state->name.begin();
+	vector_js(1) = full_joint_state->position[index];
+
+  index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_arm_e1_joint") - full_joint_state->name.begin();
+	vector_js(2) = full_joint_state->position[index];
+
+  index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_arm_a3_joint") - full_joint_state->name.begin();
+	vector_js(3) = full_joint_state->position[index];
+
+  index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_arm_a4_joint") - full_joint_state->name.begin();
+	vector_js(4) = full_joint_state->position[index];
+
+  index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_arm_a5_joint") - full_joint_state->name.begin();
+	vector_js(5) = full_joint_state->position[index];
+
+  index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_arm_a6_joint") - full_joint_state->name.begin();
+	vector_js(6) = full_joint_state->position[index];
+
+  index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_hand_synergy_joint") - full_joint_state->name.begin();
+	vector_js(7) = full_joint_state->position[index];
+
+  return vector_js;
+}
+
+/**********************************************************************************************
+ SUBSCRIBER CALLBACK
+**********************************************************************************************/
+void getJointStates(const sensor_msgs::JointState::ConstPtr &msg){
+	// Storing the message into another global message variable
+	ROS_DEBUG_STREAM("GOT JOINTSTATE MSG: STARTING TO SAVE!");
+	full_joint_state = msg;
+	ROS_WARN_STREAM("SAVED JOINTSTATE MSG!");
+}
+
+/**********************************************************************************************
+ SET KDL
+**********************************************************************************************/
+bool setKDL(ros::NodeHandle node){
+  // Load robot description from ROS parameter server
+  std::string robot_description_string;
+  node.param("robot_description", robot_description_string, std::string());
+
+  // Get kinematic tree from robot description
+  if (!kdl_parser::treeFromString(robot_description_string, robot_kin_tree)){
+    ROS_ERROR("Failed to get robot kinematic tree!");
+    return false;
+  }
+
+  // Getting chain
+  robot_kin_tree.getChain("world", "right_arm_7_link", robot_kin_chain);
+}
+
+/**********************************************************************************************
+ MAIN
+**********************************************************************************************/
 
 int main(int argc, char **argv){
 
@@ -134,6 +211,42 @@ int main(int argc, char **argv){
   ros::Publisher pub_cmd_hand = nh.advertise<std_msgs::Float64>(
     "right_hand/velocity_controller/command", 1);
 
+  ros::Publisher pub_cmd_jt = nh.advertise<trajectory_msgs::JointTrajectory>(
+    "right_arm/joint_trajectory_controller/command", 1);
+  ros::Publisher pub_cmd_hand_jt = nh.advertise<trajectory_msgs::JointTrajectory>(
+    "right_hand/joint_trajectory_controller/command", 1);
+
+  // Creating trajectory messages
+  trajectory_msgs::JointTrajectoryPoint tmp_point;
+  
+  trajectory_msgs::JointTrajectory arm_traj;
+  arm_traj.joint_names.push_back("right_arm_a1_joint"); arm_traj.joint_names.push_back("right_arm_a2_joint");
+  arm_traj.joint_names.push_back("right_arm_e1_joint"); arm_traj.joint_names.push_back("right_arm_a3_joint");
+  arm_traj.joint_names.push_back("right_arm_a4_joint"); arm_traj.joint_names.push_back("right_arm_a5_joint");
+  arm_traj.joint_names.push_back("right_arm_a6_joint");
+
+  trajectory_msgs::JointTrajectory hand_traj;
+  hand_traj.joint_names.push_back("right_hand_synergy_joint");
+
+  // The subscriber for saving joint states
+	// ros::SubscribeOptions joint_state_so = ros::SubscribeOptions::create<sensor_msgs::JointState>("joint_states", 
+	// 	1, getJointStates, ros::VoidPtr(), nh.getCallbackQueue());
+	// ros::Subscriber js_sub = nh.subscribe(joint_state_so);
+  ros::Subscriber js_sub = nh.subscribe("joint_states", 1, getJointStates);
+  ROS_WARN_STREAM("The subsciber subscribed to " << js_sub.getTopic() << ".");
+
+  // Setting KDL and solver
+  if(!setKDL(nh)) ROS_ERROR_STREAM("Could not initialize KDL!");
+  KDL::Jacobian arm_jac; arm_jac.resize(robot_kin_chain.getNrOfJoints());
+  KDL::ChainJntToJacSolver jacobian_solver(robot_kin_chain);
+  KDL::JntArray arm_js; arm_js.resize(robot_kin_chain.getNrOfJoints());
+  Eigen::MatrixXd arm_jac_pinv;
+
+  // The current joints state and required arm velocity
+  Eigen::VectorXd curr_js;              // Used to get both js of arm and hand using jointsExtract()
+  Eigen::VectorXd req_jvel;             // Required arm joint vel to follow twist
+  ros::Duration dt(0.001, 0);
+
   // Setting the ROS rate for the while as it is in the controller
   ros::Rate rate(1000);
 
@@ -159,16 +272,18 @@ int main(int argc, char **argv){
   // trial_twist.linear.y = 0; trial_twist.angular.y = 0;
   // trial_twist.linear.z = 0; trial_twist.angular.z = 0;
 
+  // Waiting for a message in joint states
+  full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", nh);
+
+  // Spinning once to process callbacks
+  ros::spinOnce();
+
   while(ros::ok()){
-    // Publishing null commands for avoiding the repetition of old refs while computing
-    pub_cmd_hand.publish(cmd_syn_null);
-    pub_cmd.publish(cmd_twist_null);
+    // Spinning once to process callbacks
+    ros::spinOnce();
 
     // Getting initial time
     initial_time = ros::Time::now();
-
-    // Spinning once to process callbacks
-    ros::spinOnce();
 
     // Reading the values of the contact_state_obj
     contact_state_obj.readValues(contacts_map_test, joints_map_test);
@@ -211,6 +326,30 @@ int main(int argc, char **argv){
         x_ref = preserver.performMinimization();
     }
 
+    // Getting current joint states
+    curr_js = jointsExtract();
+
+    // Getting the current jacobian and its pseudoinv
+    arm_js.data = curr_js.head(7);
+    jacobian_solver.JntToJac(arm_js, arm_jac);
+    pseudo_inverse(arm_jac.data, arm_jac_pinv);
+
+    // Getting required arm joint velocities
+    req_jvel = arm_jac_pinv * x_ref.segment(1, 6);
+
+    // Integrating to get next position command
+    tmp_point.positions.clear();
+    arm_traj.points.clear();
+    for(int j = 0; j < robot_kin_chain.getNrOfJoints(); j++){
+      tmp_point.positions.push_back(curr_js(j) + (req_jvel(j) * dt.toSec()));
+    }
+    arm_traj.points.push_back(tmp_point);
+
+    tmp_point.positions.clear();
+    hand_traj.points.clear();
+    tmp_point.positions.push_back(curr_js(7) + (x_ref(0) * dt.toSec()));
+    hand_traj.points.push_back(tmp_point);
+
     // Print out all variables in contactPreserver
     // preserver.printAll();
 
@@ -218,24 +357,27 @@ int main(int argc, char **argv){
     std::cout << "Resulting reference motion x_ref is:" << std::endl;
     std::cout << x_ref << std::endl;
 
-    double scaling = 1.0;
-
     // Converting to geometry_msgs the twist of the palm and publishing
-    cmd_twist.linear.x = scaling*x_ref(1); cmd_twist.angular.x = scaling*x_ref(4);
-    cmd_twist.linear.y = scaling*x_ref(2); cmd_twist.angular.y = scaling*x_ref(5);
-    cmd_twist.linear.z = scaling*x_ref(3); cmd_twist.angular.z = scaling*x_ref(6);
+    // double scaling = -1.0;
+    // cmd_twist.linear.x = scaling*x_ref(1); cmd_twist.angular.x = scaling*x_ref(4);
+    // cmd_twist.linear.y = scaling*x_ref(2); cmd_twist.angular.y = scaling*x_ref(5);
+    // cmd_twist.linear.z = scaling*x_ref(3); cmd_twist.angular.z = scaling*x_ref(6);
 
-    cmd_syn.data = float (scaling*x_ref(0));
+    // cmd_syn.data = float (scaling*x_ref(0));
 
     // Getting computation time and couting
     duration_loop = ros::Time::now() - initial_time;
     std::cout << "The computation time was " << duration_loop.toNSec() << "s." << std::endl;
 
-    pub_cmd_hand.publish(cmd_syn);
-    pub_cmd.publish(cmd_twist);
+    // pub_cmd_hand.publish(cmd_syn);
+    // pub_cmd.publish(cmd_twist);
 
     // Sleeping for some time in order to execute the command before cancelling
-    ros::Duration(0.005).sleep();
+    // ros::Duration(0.0001).sleep();
+
+    // Publishing null commands for avoiding the repetition of old refs while computing
+    // pub_cmd_hand.publish(cmd_syn_null);
+    // pub_cmd.publish(cmd_twist_null);
 
     // Rate
     rate.sleep();
