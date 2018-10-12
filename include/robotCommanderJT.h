@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <vector>
+#include <array>
 #include <boost/scoped_ptr.hpp>
 #include <Eigen/Dense>
 #include <sensor_msgs/JointState.h>
@@ -19,6 +20,9 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
+
+// Service Includes
+#include "adaptive_grasping/velCommand.h"
 
 
 /**
@@ -61,6 +65,7 @@ namespace adaptive_grasping {
     // Basic variables
     ros::NodeHandle nh_rc;
     ros::Subscriber joint_state_sub;    // For getting hand joint states
+    ros::ServiceServer rc_jt_server;    // For getting velocity requests and sending trajectory to robot
     ros::Time prev_time;
     ros::Time curr_time;
     ros::Duration dt;                   // Used to integrate hand joint speed
@@ -116,7 +121,7 @@ namespace adaptive_grasping {
     /** EXTRACTJOINTS
     * @brief Private function to write the needed joint states to a vector
     *
-    * @param null
+    * @param msg
     * @return Eigen::VectorXd contains kuka's and hand joints in order
     */
     Eigen::VectorXd extractJoints();
@@ -128,6 +133,16 @@ namespace adaptive_grasping {
     * @return bool success
     */
     bool setKDL();
+
+    /** PERFORMROBOTCOMMAND
+    * @brief Private callback function of the main service of robotCommander
+    *
+    * @param req
+    * @param res
+    * @return null
+    */
+    bool performRobotCommand(adaptive_grasping::velCommand::Request &req,
+        adaptive_grasping::velCommand::Response &res);
 
   };
 
