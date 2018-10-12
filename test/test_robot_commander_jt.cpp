@@ -32,8 +32,13 @@ int main(int argc, char** argv){
     joint_names_vec.push_back("right_arm_a6_joint");
     joint_names_vec.push_back("right_hand_synergy_joint");
 
+    ros::Duration header_dur(0, 1000000);
+    ros::Duration exec_wait_dur(10, 0);
+    ros::Duration dt(1, 0);
+
     // Creating the commander class
-    adaptive_grasping::robotCommanderJT robot_commander(hand_topic, arm_topic, joint_names_vec);
+    adaptive_grasping::robotCommanderJT robot_commander(hand_topic, arm_topic, joint_names_vec,
+        header_dur, exec_wait_dur, dt);
 	
 	// Success message
 	ROS_INFO("The Robot Commander JT Server ready to process requests!");

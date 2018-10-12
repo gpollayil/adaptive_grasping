@@ -12,6 +12,7 @@
 #include <kdl/jntarray.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
+#include <urdf/model.h>
 #include <utils/pseudo_inversion.h>
 #include <ros/subscribe_options.h>
 #include "ros/ros.h"
@@ -50,7 +51,8 @@ namespace adaptive_grasping {
     * @return null
     */
     robotCommanderJT(std::string hand_topic_, std::string arm_topic_,
-      std::vector<std::string> joint_names_vec_);
+      std::vector<std::string> joint_names_vec_, ros::Duration header_dur_, 
+      ros::Duration exec_wait_dur_, ros::Duration dt_);
 
     /** DESTRUCTOR
     * @brief Default destructor for robotCommander
@@ -68,6 +70,8 @@ namespace adaptive_grasping {
     ros::ServiceServer rc_jt_server;    // For getting velocity requests and sending trajectory to robot
     ros::Time prev_time;
     ros::Time curr_time;
+    ros::Duration header_dur;           // For the headers of the trajectories
+    ros::Duration exec_wait_dur;        // For waiting for result of joint traj controllers
     ros::Duration dt;                   // Used to integrate hand joint speed
 
     // A mutual exclusion lock for the variables of this class
@@ -110,6 +114,21 @@ namespace adaptive_grasping {
     boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
     Eigen::MatrixXd arm_jac_pinv;
 
+    // The joint velocities to be executed on robot
+    Eigen::VectorXd q_dot_arm;
+    float q_dot_hand;
+
+    // URDF model and joints
+    urdf::Model urdf;
+    urdf::JointConstSharedPtr urdf_joint;
+
+    // A structure for saving joint limits
+    struct limits_ {
+        KDL::JntArray min;
+        KDL::JntArray max;
+        KDL::JntArray velocity;
+    } joint_limits;
+
     /** GETJOINTSTATES
     * @brief Private callback function to get and write joint states of the hand
     *
@@ -143,6 +162,15 @@ namespace adaptive_grasping {
     */
     bool performRobotCommand(adaptive_grasping::velCommand::Request &req,
         adaptive_grasping::velCommand::Response &res);
+    
+    /** INTEGRATEANDEXECUTE
+    * @brief    Private function to integrate the joint velocities and execute through
+    *           joint trajectory controller
+    *
+    * @param null
+    * @return bool success
+    */
+    bool integrateAndExecute();
 
   };
 
