@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf_conversions
 	kdl_parser
 	finger_fk
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -64,12 +65,11 @@ find_package(catkin REQUIRED COMPONENTS
 #   Message2.msg
 # )
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+# Generate services in the 'srv' folder
+add_service_files(
+  FILES
+  velCommand.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -79,11 +79,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#    DEPENDENCIES
-#    std_msgs
-#		 geometry_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -117,7 +116,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES adaptive_grasping
-CATKIN_DEPENDS roscpp rospy std_msgs
+CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -152,6 +151,7 @@ set(ADAPTIVE_SOURCE_FILES
 	src/matricesCreator.cpp
 	src/contactPreserver.cpp
 	src/robotCommander.cpp
+  src/robotCommanderJT.cpp
 )
 
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
@@ -163,7 +163,7 @@ add_executable(${PROJECT_NAME}_test_matricesCreator test/test_matrices_creator.c
 add_executable(${PROJECT_NAME}_test_contactPreserver test/test_contact_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_StateCreatorPreserver test/test_state_creator_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
 
-set_target_properties(${PROJECT_NAME}_test_StateCreatorPreserver PROPERTIES COMPILE_FLAGS "-o0")
+#set_target_properties(${PROJECT_NAME}_test_StateCreatorPreserver PROPERTIES COMPILE_FLAGS "-o0")
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
