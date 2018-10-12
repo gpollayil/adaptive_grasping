@@ -16,10 +16,10 @@
 	<arg name="use_moveit" default="true"/>
 
 	<!-- Set usage of other utils -->
-	<arg name="use_other_utils" default="true"/>
+	<arg name="use_other_utils" default="false"/>
 
 	<!-- Set visualization tools -->
-	<arg name="use_rviz" default="false"/>
+	<arg name="use_rviz" default="true"/>
 
 	<!-- Set true if real robot is connected -->
 	<arg name="right_arm_enabled" default="false"/>
