@@ -14,6 +14,9 @@
 #include <utils/pseudo_inversion.h>
 #include <ros/subscribe_options.h>
 
+// Service Includes
+#include "adaptive_grasping/velCommand.h"
+
 // Action Client
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
@@ -71,6 +74,25 @@ void getJointStates(const sensor_msgs::JointState::ConstPtr &msg){
 	ROS_DEBUG_STREAM("GOT JOINTSTATE MSG: STARTING TO SAVE!");
 	full_joint_state = msg;
 	ROS_WARN_STREAM("SAVED JOINTSTATE MSG!");
+}
+
+/**********************************************************************************************
+ COMPUTE SYNERGY MATRIX
+**********************************************************************************************/
+Eigen::MatrixXd computeSynergyMatrix(){
+	// Using the full joint state to compute the ratios
+  Eigen::MatrixXd Syn(33, 1);
+
+  // Copying the values of the joints
+  int index = find (full_joint_state->name.begin(),full_joint_state->name.end(), "right_hand_thumb_abd_joint") - full_joint_state->name.begin();
+	for(int j = 0; j < 33; j++){
+    Syn(j) = full_joint_state->position[index + j];
+  }
+
+  // Dividing by synergy value to find the Matrix
+  Syn = Syn / full_joint_state->position[index - 1];
+
+  return Syn;
 }
 
 /**********************************************************************************************
@@ -196,6 +218,8 @@ int main(int argc, char **argv){
   Eigen::MatrixXd S(33, 1);
   S << 2.042, 1.021, 1.021, 0.785, 0.785, -0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.4, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785;
 
+  // Synergy matrix not constant????!!!!
+
   // Creating needed variables for minimization
   // Eigen::MatrixXd A_tilde = Eigen::MatrixXd::Identity(45, 45);
   // A_tilde.block<6, 6>(39, 39) = 10 * Eigen::MatrixXd::Identity(6, 6);
@@ -279,6 +303,9 @@ int main(int argc, char **argv){
   // trial_twist.linear.x = 0; trial_twist.angular.x = 0;
   // trial_twist.linear.y = 0; trial_twist.angular.y = 0;
   // trial_twist.linear.z = 0; trial_twist.angular.z = 0;
+
+  // Creating a service client for robot commander
+  ros::ServiceClient client_rc = nh.serviceClient<adaptive_grasping::velCommand>("rc_jt_service");
 
   // Waiting for a message in joint states
   full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", nh);
@@ -366,49 +393,75 @@ int main(int argc, char **argv){
     // Getting initial time
     initial_time = ros::Time::now();
 
-    // // Reading the values of the contact_state_obj
-    // contact_state_obj.readValues(contacts_map_test, joints_map_test);
+    // Reading the values of the contact_state_obj
+    contact_state_obj.readValues(contacts_map_test, joints_map_test);
 
-    // // Setting the contacts_map and joints_map in creator and computing matrices
-    // creator.setContactsMap(contacts_map_test);
-    // creator.setJointsMap(joints_map_test);
-    // creator.setObjectPose(affine);
-    // creator.computeAllMatrices();
+    // Setting the contacts_map and joints_map in creator and computing matrices
+    S = computeSynergyMatrix();
+    ROS_DEBUG_STREAM("The synergy matrix : \n" << S << ".");
+    creator.setContactsMap(contacts_map_test);
+    creator.setJointsMap(joints_map_test);
+    creator.setObjectPose(affine);
+    creator.computeAllMatrices();
+    preserver.changeHandType(S);
 
-    // // Reading and couting the matrices
-    // creator.readAllMatrices(read_J, read_G, read_T, read_H);
-    // if(DEBUG) std::cout << "The created matrices are: " << std::endl;
-    // if(DEBUG) std::cout << "J = " << "\n";
-    // if(DEBUG) std::cout << read_J << "\n";
-    // if(DEBUG) std::cout << "G = " << "\n";
-    // if(DEBUG) std::cout << read_G << "\n";
-    // if(DEBUG) std::cout << "T = " << "\n";
-    // if(DEBUG) std::cout << read_T << "\n";
-    // if(DEBUG) std::cout << "H = " << "\n";
-    // if(DEBUG) std::cout << read_H << "\n";
+    // Reading and couting the matrices
+    creator.readAllMatrices(read_J, read_G, read_T, read_H);
+    if(DEBUG) std::cout << "The created matrices are: " << std::endl;
+    if(DEBUG) std::cout << "J = " << "\n";
+    if(DEBUG) std::cout << read_J << "\n";
+    if(DEBUG) std::cout << "G = " << "\n";
+    if(DEBUG) std::cout << read_G << "\n";
+    if(DEBUG) std::cout << "T = " << "\n";
+    if(DEBUG) std::cout << read_T << "\n";
+    if(DEBUG) std::cout << "H = " << "\n";
+    if(DEBUG) std::cout << read_H << "\n";
 
-    // // THE FOLLOWING WILL BE DONE ONLY IF THE NEEDED MATRICES ARE != 0
-    // x_ref = Eigen::VectorXd::Zero(x_d.size());
+    // THE FOLLOWING WILL BE DONE ONLY IF THE NEEDED MATRICES ARE != 0
+    x_ref = Eigen::VectorXd::Zero(x_d.size());
 
-    // if(read_J.innerSize() > 0 && read_G.innerSize() > 0 &&
-    //   read_T.innerSize() > 0 && read_H.innerSize() > 0){
-    //     // Setting grasp state
-    //     preserver.setGraspState(read_J, read_G, read_T, read_H);
+    if(read_J.innerSize() > 0 && read_G.innerSize() > 0 &&
+      read_T.innerSize() > 0 && read_H.innerSize() > 0){
+        // Setting grasp state
+        preserver.setGraspState(read_J, read_G, read_T, read_H);
 
-    //     // Setting minimization parameters
-    //     // x_d = Eigen::VectorXd::Zero(45);
-    //     // x_d(35) = -0.05;
-    //     x_d = Eigen::VectorXd::Zero(13);
-    //     x_d(0) = 0.1;
-    //     x_d(3) = -0.01; x_d(5) = -0.1;
-    //     preserver.setMinimizationParams(x_d, A_tilde);
+        // Setting minimization parameters
+        // x_d = Eigen::VectorXd::Zero(45);
+        // x_d(35) = -0.05;
+        x_d = Eigen::VectorXd::Zero(13);
+        x_d(0) = 0.1;
+        x_d(3) = -0.01; x_d(5) = -0.1;
+        preserver.setMinimizationParams(x_d, A_tilde);
 
-    //     // Performing minimization
-    //     x_ref = preserver.performMinimization();
+        // Performing minimization
+        x_ref = preserver.performMinimization();
+    }
+
+    double scale = -0.1;
+    double diff_scale = 1.0;
+    x_ref = scale * x_ref;
+
+    if(DEBUG) std::cout << "x_ref = " << "\n";
+    if(DEBUG) std::cout << x_ref << "\n";
+
+    // Filling and calling robot commander service
+    // adaptive_grasping::velCommand command;
+    // command.request.x_ref.push_back(diff_scale * x_ref(2));
+    // command.request.x_ref.push_back(diff_scale * x_ref(1));
+    // command.request.x_ref.push_back(diff_scale * x_ref(3));
+    // command.request.x_ref.push_back(diff_scale * x_ref(4));
+    // command.request.x_ref.push_back(diff_scale * x_ref(5));
+    // command.request.x_ref.push_back(diff_scale * x_ref(6));
+    // command.request.x_ref.push_back(x_ref(0));
+
+    // if(client_rc.call(command)){
+    //   ROS_INFO_STREAM("Success!!!!");
+    // } else {
+    //   ROS_INFO_STREAM("Failed!!!!");
     // }
 
     // Getting current joint states
-    curr_js = jointsExtract();
+    // curr_js = jointsExtract();
 
     // // Getting the current jacobian and its pseudoinv
     // arm_js.data = curr_js.head(7);
@@ -419,40 +472,40 @@ int main(int argc, char **argv){
     // req_jvel = arm_jac_pinv * x_ref.segment(1, 6);
 
     // Integrating to get next position command
-    arm_traj.header.stamp = ros::Time::now() + ros::Duration(0, 150000000);
-    tmp_point.positions.clear();
-    arm_traj.points.clear();
-    tmp_point.positions.push_back(curr_js(0) + res);
-    tmp_point.positions.push_back(curr_js(1) + res);
-    tmp_point.positions.push_back(curr_js(2) + res);
-    tmp_point.positions.push_back(curr_js(3) + res);
-    tmp_point.positions.push_back(curr_js(4) + res);
-    tmp_point.positions.push_back(curr_js(5) + res);
-    tmp_point.positions.push_back(curr_js(6) + res);
-    tmp_point.time_from_start = ros::Duration(2, 0);
-    arm_traj.points.push_back(tmp_point);
+    // arm_traj.header.stamp = ros::Time::now() + ros::Duration(0, 150000000);
+    // tmp_point.positions.clear();
+    // arm_traj.points.clear();
+    // tmp_point.positions.push_back(curr_js(0) + res);
+    // tmp_point.positions.push_back(curr_js(1) + res);
+    // tmp_point.positions.push_back(curr_js(2) + res);
+    // tmp_point.positions.push_back(curr_js(3) + res);
+    // tmp_point.positions.push_back(curr_js(4) + res);
+    // tmp_point.positions.push_back(curr_js(5) + res);
+    // tmp_point.positions.push_back(curr_js(6) + res);
+    // tmp_point.time_from_start = ros::Duration(2, 0);
+    // arm_traj.points.push_back(tmp_point);
 
-    hand_traj.header.stamp = ros::Time::now() + ros::Duration(0, 150000000);
-    tmp_point.positions.clear();
-    hand_traj.points.clear();
-    tmp_point.positions.push_back(curr_js(7) + res);
-    tmp_point.time_from_start = ros::Duration(2, 0);
-    hand_traj.points.push_back(tmp_point);
+    // hand_traj.header.stamp = ros::Time::now() + ros::Duration(0, 150000000);
+    // tmp_point.positions.clear();
+    // hand_traj.points.clear();
+    // tmp_point.positions.push_back(curr_js(7) + res);
+    // tmp_point.time_from_start = ros::Duration(2, 0);
+    // hand_traj.points.push_back(tmp_point);
 
-    // Setting goal msgs
-    arm_goalmsg.trajectory = arm_traj;
-    hand_goalmsg.trajectory = hand_traj;
+    // // Setting goal msgs
+    // arm_goalmsg.trajectory = arm_traj;
+    // hand_goalmsg.trajectory = hand_traj;
 
-    // Publishing to joint traj controllers
-    arm_client.sendGoal(arm_goalmsg);
-    hand_client.sendGoal(hand_goalmsg);
+    // // Publishing to joint traj controllers
+    // arm_client.sendGoal(arm_goalmsg);
+    // hand_client.sendGoal(hand_goalmsg);
 
-    if(!arm_client.waitForResult(ros::Duration(10, 0))){
-  		ROS_WARN_STREAM("The arm is taking too much time to close! \n");
-  	}
-    if(!hand_client.waitForResult(ros::Duration(10, 0))){
-  		ROS_WARN_STREAM("The hand is taking too much time to close! \n");
-  	}
+    // if(!arm_client.waitForResult(ros::Duration(10, 0))){
+  	// 	ROS_WARN_STREAM("The arm is taking too much time to close! \n");
+  	// }
+    // if(!hand_client.waitForResult(ros::Duration(10, 0))){
+  	// 	ROS_WARN_STREAM("The hand is taking too much time to close! \n");
+  	// }
 
     // Print out all variables in contactPreserver
     // preserver.printAll();
@@ -462,19 +515,19 @@ int main(int argc, char **argv){
     // std::cout << x_ref << std::endl;
 
     // Converting to geometry_msgs the twist of the palm and publishing
-    // double scaling = -1.0;
-    // cmd_twist.linear.x = scaling*x_ref(1); cmd_twist.angular.x = scaling*x_ref(4);
-    // cmd_twist.linear.y = scaling*x_ref(2); cmd_twist.angular.y = scaling*x_ref(5);
-    // cmd_twist.linear.z = scaling*x_ref(3); cmd_twist.angular.z = scaling*x_ref(6);
+    double scaling = 1.0;
+    cmd_twist.linear.x = scaling*x_ref(1); cmd_twist.angular.x = scaling*x_ref(4);
+    cmd_twist.linear.y = scaling*x_ref(2); cmd_twist.angular.y = scaling*x_ref(5);
+    cmd_twist.linear.z = scaling*x_ref(3); cmd_twist.angular.z = scaling*x_ref(6);
 
-    // cmd_syn.data = float (scaling*x_ref(0));
+    cmd_syn.data = float (scaling*x_ref(0));
 
     // Getting computation time and couting
     duration_loop = ros::Time::now() - initial_time;
     std::cout << "The computation time was " << duration_loop.toNSec() << "s." << std::endl;
 
-    // pub_cmd_hand.publish(cmd_syn);
-    // pub_cmd.publish(cmd_twist);
+    pub_cmd_hand.publish(cmd_syn);
+    pub_cmd.publish(cmd_twist);
 
     // Sleeping for some time in order to execute the command before cancelling
     // ros::Duration(0.0001).sleep();
