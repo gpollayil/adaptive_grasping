@@ -153,7 +153,7 @@ Eigen::MatrixXd matricesCreator::transformJacobian(KDL::Jacobian Jac){
   if(DEBUG) std::cout << "transformJacobian: just entered!" << std::endl;
 
   // Compute the needed matrices for base change
-  Eigen::MatrixXd R_p_w = Palm_to_World.linear();
+  Eigen::MatrixXd R_p_w = Palm_to_World.rotation();
   Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
 
   // Debug message
@@ -178,7 +178,12 @@ Eigen::MatrixXd matricesCreator::computeGrasp(Eigen::Affine3d contact_pose,
   Eigen::Affine3d object_pose_){
     // Getting object-contact vector
     Eigen::Vector3d OC =
-      object_pose_.translation() - contact_pose.translation();
+      contact_pose.translation() - object_pose_.translation();
+
+    // For debugging
+    ROS_DEBUG_STREAM("Contact translation: \n" << contact_pose.translation() << ".");
+    ROS_DEBUG_STREAM("Object translation: \n" << object_pose_.translation() << ".");
+    ROS_DEBUG_STREAM("So OC is: \n" << OC << ".");
 
     // Creating skew matrix
     Eigen::Matrix3d OC_hat;
@@ -213,7 +218,11 @@ Eigen::MatrixXd matricesCreator::computePoleChange(Eigen::Affine3d contact_pose,
     Palm_to_World = P_to_W;   // Stored for transformJacobian
 
     // Transform it into world coordinates
-    Eigen::Vector3d PC_w = P_to_W.linear() * PC_p;
+    Eigen::Vector3d PC_w = P_to_W.rotation() * PC_p;
+
+    // For debugging
+    ROS_DEBUG_STREAM("PC in P is: \n" << PC_p << ".");
+    ROS_DEBUG_STREAM("PC in W is: \n" << PC_w << ".");
 
     // Creating the skew matrix
     Eigen::Matrix3d PC_hat;
@@ -405,7 +414,7 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
       // Compute the local to world transform for H_i
       Eigen::MatrixXd M_i(6, 6);
-      Eigen::MatrixXd R_i = std::get<1>(it_c->second).linear();
+      Eigen::MatrixXd R_i = std::get<1>(it_c->second).rotation();
       Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
       M_i << R_i, O_3, O_3, R_i;
 
