@@ -14,6 +14,9 @@
 #include <utils/pseudo_inversion.h>
 #include <ros/subscribe_options.h>
 
+// For RViz Visualization
+#include <visualization_msgs/Marker.h>
+
 // Service Includes
 #include "adaptive_grasping/velCommand.h"
 
@@ -73,7 +76,7 @@ void getJointStates(const sensor_msgs::JointState::ConstPtr &msg){
 	// Storing the message into another global message variable
 	ROS_DEBUG_STREAM("GOT JOINTSTATE MSG: STARTING TO SAVE!");
 	full_joint_state = msg;
-	ROS_WARN_STREAM("SAVED JOINTSTATE MSG!");
+	ROS_DEBUG_STREAM("SAVED JOINTSTATE MSG!");
 }
 
 /**********************************************************************************************
@@ -181,8 +184,26 @@ int main(int argc, char **argv){
     stamped_transform.getOrigin());
   tf::transformTFToEigen(transform, affine);
   std::cout << "Palm translation is: " << affine.translation() << std::endl;
-  affine.pretranslate(Eigen::Vector3d(0, 0, -0.15));
+  affine.pretranslate(Eigen::Vector3d(0.08, 0, -0.08));
   std::cout << "Obj translation is: " << affine.translation() << std::endl;
+  Eigen::Vector3d obj_trans = affine.translation();
+
+  // Publishing the object to RViz
+  ros::Publisher marker_pub = nh.advertise<visualization_msgs::Marker>("object_marker", 1);
+  uint32_t shape = visualization_msgs::Marker::SPHERE;
+  visualization_msgs::Marker obj_marker;
+  obj_marker.header.frame_id = "/world";
+  obj_marker.header.stamp = ros::Time::now();
+  obj_marker.ns = "adaptive_grasping";
+  obj_marker.id = 0;
+  obj_marker.type = shape;
+  obj_marker.action = visualization_msgs::Marker::ADD;
+  obj_marker.pose.position.x = obj_trans(0); obj_marker.pose.position.y = obj_trans(1);
+  obj_marker.pose.position.z = obj_trans(2);
+  obj_marker.scale.x = 0.05; obj_marker.scale.y = 0.05; obj_marker.scale.z = 0.05;
+  obj_marker.color.r = 0.0f; obj_marker.color.g = 1.0f; obj_marker.color.b = 0.0f; obj_marker.color.a = 1.0f;
+  obj_marker.lifetime = ros::Duration(0);
+  marker_pub.publish(obj_marker);
 
   Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
   Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
@@ -280,7 +301,7 @@ int main(int argc, char **argv){
   ros::Duration dt_cont(0.01, 0);
 
   // Setting the ROS rate for the while as it is in the controller
-  ros::Rate rate(1);
+  ros::Rate rate(1000);
 
   // For getting the period of the while loop
   ros::Time initial_time; ros::Duration duration_loop;
@@ -390,6 +411,9 @@ int main(int argc, char **argv){
     // Spinning once to process callbacks
     ros::spinOnce();
 
+    // Publishing the marker
+    marker_pub.publish(obj_marker);
+
     // Getting initial time
     initial_time = ros::Time::now();
 
@@ -407,15 +431,15 @@ int main(int argc, char **argv){
 
     // Reading and couting the matrices
     creator.readAllMatrices(read_J, read_G, read_T, read_H);
-    if(DEBUG) std::cout << "The created matrices are: " << std::endl;
-    if(DEBUG) std::cout << "J = " << "\n";
-    if(DEBUG) std::cout << read_J << "\n";
-    if(DEBUG) std::cout << "G = " << "\n";
-    if(DEBUG) std::cout << read_G << "\n";
-    if(DEBUG) std::cout << "T = " << "\n";
-    if(DEBUG) std::cout << read_T << "\n";
-    if(DEBUG) std::cout << "H = " << "\n";
-    if(DEBUG) std::cout << read_H << "\n";
+    ROS_DEBUG_STREAM("The created matrices are: ");
+    ROS_DEBUG_STREAM("J = " << "\n");
+    ROS_DEBUG_STREAM(read_J << "\n");
+    ROS_DEBUG_STREAM("G = " << "\n");
+    ROS_DEBUG_STREAM(read_G << "\n");
+    ROS_DEBUG_STREAM("T = " << "\n");
+    ROS_DEBUG_STREAM(read_T << "\n");
+    ROS_DEBUG_STREAM("H = " << "\n");
+    ROS_DEBUG_STREAM(read_H << "\n");
 
     // THE FOLLOWING WILL BE DONE ONLY IF THE NEEDED MATRICES ARE != 0
     x_ref = Eigen::VectorXd::Zero(x_d.size());
@@ -435,16 +459,25 @@ int main(int argc, char **argv){
 
         // Performing minimization
         x_ref = preserver.performMinimization();
+
+        ROS_DEBUG_STREAM("Performed Minimization!!!");
     }
 
+    // Scaling all
     double scale = -0.1;
-    double diff_scale = 1.0;
     x_ref = scale * x_ref;
 
-    if(DEBUG) std::cout << "x_ref = " << "\n";
-    if(DEBUG) std::cout << x_ref << "\n";
+    // Scaling only palm twist
+    double lin_scaling = 1;
+    x_ref(1) = lin_scaling*x_ref(1); x_ref(4) = lin_scaling*x_ref(4);
+    x_ref(2) = lin_scaling*x_ref(2); x_ref(5) = lin_scaling*x_ref(5);
+    x_ref(3) = lin_scaling*x_ref(3); x_ref(6) = lin_scaling*x_ref(6);
+
+    std::cout << "x_ref = " << "\n";
+    std::cout << x_ref << "\n";
 
     // Filling and calling robot commander service
+    // double diff_scale = 1.0;
     // adaptive_grasping::velCommand command;
     // command.request.x_ref.push_back(diff_scale * x_ref(2));
     // command.request.x_ref.push_back(diff_scale * x_ref(1));
@@ -515,16 +548,15 @@ int main(int argc, char **argv){
     // std::cout << x_ref << std::endl;
 
     // Converting to geometry_msgs the twist of the palm and publishing
-    double scaling = 1.0;
-    cmd_twist.linear.x = scaling*x_ref(1); cmd_twist.angular.x = scaling*x_ref(4);
-    cmd_twist.linear.y = scaling*x_ref(2); cmd_twist.angular.y = scaling*x_ref(5);
-    cmd_twist.linear.z = scaling*x_ref(3); cmd_twist.angular.z = scaling*x_ref(6);
+    cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
+    cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
+    cmd_twist.linear.z = x_ref(3) + 0.01; cmd_twist.angular.z = x_ref(6);
 
-    cmd_syn.data = float (scaling*x_ref(0));
+    cmd_syn.data = float (x_ref(0));
 
     // Getting computation time and couting
     duration_loop = ros::Time::now() - initial_time;
-    std::cout << "The computation time was " << duration_loop.toNSec() << "s." << std::endl;
+    ROS_DEBUG_STREAM("The computation time was " << duration_loop.toSec() << "s.");
 
     pub_cmd_hand.publish(cmd_syn);
     pub_cmd.publish(cmd_twist);
@@ -537,6 +569,6 @@ int main(int argc, char **argv){
     // pub_cmd.publish(cmd_twist_null);
 
     // Rate
-    // rate.sleep();
+    rate.sleep();
   }
 }
