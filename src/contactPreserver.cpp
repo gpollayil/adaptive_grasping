@@ -1,4 +1,5 @@
 #include "contactPreserver.h"
+#include "ros/ros.h"
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_preserver"
@@ -26,6 +27,7 @@ contactPreserver::~contactPreserver(){
 void contactPreserver::changeHandType(Eigen::MatrixXd S_){
   // Set the new synergy matrix
   S = S_;
+  ROS_DEBUG_STREAM("Changed the Synergy Matrix inside contact preserver!!!");
 }
 
 /* SETGRASPSTATE */
@@ -60,6 +62,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   // Compute a basis of the null space by using LU decomposition
   Eigen::FullPivLU<Eigen::MatrixXd> lu(Q);
   N = lu.kernel();
+  ROS_DEBUG_STREAM("N(Q) = \n" << N << ".");
 
   // Print message for debug
   if(DEBUG) std::cout << "Computed N(Q) in contactPreserver!" << std::endl;

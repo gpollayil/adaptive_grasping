@@ -15,7 +15,7 @@ using namespace adaptive_grasping;
 matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
   std::string palm_frame_name_, std::vector<int> joint_numbers_){
     // Set the basic contact selection matrix
-    changeHandType(H_i_);
+    changeContactType(H_i_);
 
     // Set the frame names for world and palm
     changeFrameNames(world_frame_name_, palm_frame_name_);
@@ -37,8 +37,8 @@ matricesCreator::~matricesCreator(){
   // Do nothing
 }
 
-/* CHANGEHANDTYPE */
-void matricesCreator::changeHandType(Eigen::MatrixXd H_i_){
+/* CHANGECONTACTTYPE */
+void matricesCreator::changeContactType(Eigen::MatrixXd H_i_){
   // Set the new basic contact selection matrix
   H_i = H_i_;
 
@@ -112,6 +112,7 @@ void matricesCreator::computeAllMatrices(){
 
   // Print message for debug
   if(DEBUG) std::cout << "Finished computing in matricesCreator!" << std::endl;
+  ROS_DEBUG_STREAM("Finished computing in matricesCreator!");
 }
 
 /* READALLMATRICES */

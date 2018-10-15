@@ -49,14 +49,14 @@ namespace adaptive_grasping {
     */
     ~matricesCreator();
 
-    /** CHANGEHANDTYPE
+    /** CHANGECONTACTTYPE
     * @brief Function to eventually change the hand type (set new H_i)
     *
     * @param H_i_
     *   the new contact selection matrix
     * @return null
     */
-    void changeHandType(Eigen::MatrixXd H_i_);
+    void changeContactType(Eigen::MatrixXd H_i_);
 
     /** CHANGEFRAMENAMES
     * @brief Function to eventually change the world and palm frame names

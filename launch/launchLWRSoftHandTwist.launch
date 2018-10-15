@@ -19,7 +19,7 @@
 	<arg name="use_other_utils" default="false"/>
 
 	<!-- Set visualization tools -->
-	<arg name="use_rviz" default="false"/>
+	<arg name="use_rviz" default="true"/>
 
 	<!-- Set some controller args -->
 	<arg name="controllers" default="joint_trajectory_controller"/>
@@ -54,6 +54,8 @@
 
 	<!-- Joint and robot state publishers of the full robot description -->
 	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+		<!-- FOR INCREASING THE RATE OF PUBLISHING OF JOINT STATES -->
+		<rosparam param="rate">1000</rosparam>
 		<!-- FOR USING JOINT STATE PUBLISER FOR GETTING FINGER JOINT STATES -->
 		<rosparam param="source_list">[/right_arm/joint_states,/right_hand/joint_states]</rosparam>
 		<!-- FOR USING FINGER FK PACKAGE FOR GETTING FINGER JOINT STATES -->

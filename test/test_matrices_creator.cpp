@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     std::cout<<"Object matricesCreator created!"<<std::endl;
 
     // Trying to reset basic private variables
-    creator.changeHandType(H_i);
+    creator.changeContactType(H_i);
     creator.changeFrameNames(world_frame_name, palm_frame_name);
 
     // Creating needed variables for a contacts map
