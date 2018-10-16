@@ -550,7 +550,7 @@ int main(int argc, char **argv){
     // Converting to geometry_msgs the twist of the palm and publishing
     cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
     cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
-    cmd_twist.linear.z = x_ref(3) + 0.01; cmd_twist.angular.z = x_ref(6);
+    cmd_twist.linear.z = x_ref(3); cmd_twist.angular.z = x_ref(6);
 
     cmd_syn.data = float (x_ref(0));
 
