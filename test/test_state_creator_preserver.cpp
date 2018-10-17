@@ -167,6 +167,8 @@ int main(int argc, char **argv){
   tf::TransformListener tf_listener;
   tf::StampedTransform stamped_transform;
 
+  sleep(2.0);
+
   // Echoing the object pose and converting to Affine3d
   ROS_INFO("Waiting to get the palm tf!!!");
   try {
@@ -208,12 +210,14 @@ int main(int argc, char **argv){
   Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
   Eigen::MatrixXd I_3 = Eigen::MatrixXd::Identity(3, 3);
 
-  // Soft finger contact constraint matrix (comment out the 3rd and 4th line for fully constrianted)
-  Eigen::MatrixXd H_i(6, 6);
-  H_i << I_3, O_3, O_3, I_3;
-  // H_i(3, 3) = 0;
-  // H_i(4, 4) = 0;
-  // H_i(5, 5) = 0;
+  // Fully constrained contact matrix
+  // Eigen::MatrixXd H_i(6, 6);
+  // H_i << I_3, O_3, O_3, I_3;
+
+  // Position constrained contact matrix
+  Eigen::MatrixXd H_i(3, 6);
+  H_i << I_3, O_3;
+
 
   std::string world_frame_name = "world";
   std::string palm_frame_name = "right_arm_7_link";
@@ -232,12 +236,26 @@ int main(int argc, char **argv){
       FOR CONTACT_PRESERVER
   */
 
+  // The subscriber for saving joint states
+	// ros::SubscribeOptions joint_state_so = ros::SubscribeOptions::create<sensor_msgs::JointState>("joint_states",
+	// 	1, getJointStates, ros::VoidPtr(), nh.getCallbackQueue());
+	// ros::Subscriber js_sub = nh.subscribe(joint_state_so);
+  ros::Subscriber js_sub = nh.subscribe("joint_states", 1, getJointStates);
+  ROS_WARN_STREAM("The subsciber subscribed to " << js_sub.getTopic() << ".");
+
+  // Waiting for a message in joint states
+  full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", nh);
+
+  // Spinning once to process callbacks
+  ros::spinOnce();
+
   // Creating needed variables
   // Eigen::MatrixXd S = Eigen::MatrixXd::Identity(33, 33);
 
   // THIS IS THE SYNERGY MATRIX OF PISA IIT SH OCADO VERSION - AS IN URDF
   Eigen::MatrixXd S(33, 1);
-  S << 2.042, 1.021, 1.021, 0.785, 0.785, -0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.4, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785;
+  S = computeSynergyMatrix();
+  // S << 2.042, 1.021, 1.021, 0.785, 0.785, -0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.2, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785, 0.4, 0.785, 0.785, 0.785, 0.785, 0.785, 0.785;
 
   // Synergy matrix not constant????!!!!
 
@@ -279,13 +297,6 @@ int main(int argc, char **argv){
 
   trajectory_msgs::JointTrajectory hand_traj;
   hand_traj.joint_names.push_back("right_hand_synergy_joint");
-
-  // The subscriber for saving joint states
-	// ros::SubscribeOptions joint_state_so = ros::SubscribeOptions::create<sensor_msgs::JointState>("joint_states",
-	// 	1, getJointStates, ros::VoidPtr(), nh.getCallbackQueue());
-	// ros::Subscriber js_sub = nh.subscribe(joint_state_so);
-  ros::Subscriber js_sub = nh.subscribe("joint_states", 1, getJointStates);
-  ROS_WARN_STREAM("The subsciber subscribed to " << js_sub.getTopic() << ".");
 
   // Setting KDL and solver
   if(!setKDL(nh)) ROS_ERROR_STREAM("Could not initialize KDL!");
@@ -432,14 +443,10 @@ int main(int argc, char **argv){
     // Reading and couting the matrices
     creator.readAllMatrices(read_J, read_G, read_T, read_H);
     ROS_DEBUG_STREAM("The created matrices are: ");
-    ROS_DEBUG_STREAM("J = " << "\n");
-    ROS_DEBUG_STREAM(read_J << "\n");
-    ROS_DEBUG_STREAM("G = " << "\n");
-    ROS_DEBUG_STREAM(read_G << "\n");
-    ROS_DEBUG_STREAM("T = " << "\n");
-    ROS_DEBUG_STREAM(read_T << "\n");
-    ROS_DEBUG_STREAM("H = " << "\n");
-    ROS_DEBUG_STREAM(read_H << "\n");
+    ROS_DEBUG_STREAM("\nJ = " << "\n" << read_J << "\n");
+    ROS_INFO_STREAM("\nG = " << "\n" << read_G << "\n");
+    ROS_INFO_STREAM("\nT = " << "\n" << read_T << "\n");
+    ROS_DEBUG_STREAM("\nH = " << "\n" << read_H << "\n");
 
     // THE FOLLOWING WILL BE DONE ONLY IF THE NEEDED MATRICES ARE != 0
     x_ref = Eigen::VectorXd::Zero(x_d.size());
@@ -464,7 +471,7 @@ int main(int argc, char **argv){
     }
 
     // Scaling all
-    double scale = -0.1;
+    double scale = 0.08;
     x_ref = scale * x_ref;
 
     // Scaling only palm twist
