@@ -405,11 +405,12 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
       Eigen::Affine3d>>::iterator it_c;
 
     // Resize and set to null the whole contact selection MatrixXd
-    H = Eigen::MatrixXd::Zero(6 * contacts_map_.size(),
+    H = Eigen::MatrixXd::Zero(H_i.rows() * contacts_map_.size(),
       6 * contacts_map_.size());
 
-    // Index to put H_i in diagonal positions
+    // Indexes to put H_i in diagonal positions
     int k = 0;
+    int h = 0;
 
     // For each contact, compute H_i (in world frame) and compose into H
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
@@ -423,9 +424,10 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
       Eigen::MatrixXd H_i_w = H_i * M_i;
 
       // Now, put the current contact selection into the whole diag. H matrix
-      H.block<6, 6>(k, k) = H_i_w;
+      H.block(k, h, H_i.rows(), 6) = H_i_w;
 
-      // Increment the index to shift through diagonal of H
-      k += 6;
+      // Increment the indexes to shift through diagonal of H
+      k += H_i.rows();
+      h += 6;
     }
 }
