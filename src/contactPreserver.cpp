@@ -62,7 +62,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   // Compute a basis of the null space by using LU decomposition
   Eigen::FullPivLU<Eigen::MatrixXd> lu(Q);
   N = lu.kernel();
-  ROS_DEBUG_STREAM("N(Q) = \n" << N << ".");
+  ROS_INFO_STREAM("N(Q) = \n" << N << ".");
 
   // Print message for debug
   if(DEBUG) std::cout << "Computed N(Q) in contactPreserver!" << std::endl;
