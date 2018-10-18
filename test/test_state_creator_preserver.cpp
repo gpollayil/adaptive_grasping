@@ -444,8 +444,8 @@ int main(int argc, char **argv){
     creator.readAllMatrices(read_J, read_G, read_T, read_H);
     ROS_DEBUG_STREAM("The created matrices are: ");
     ROS_DEBUG_STREAM("\nJ = " << "\n" << read_J << "\n");
-    ROS_INFO_STREAM("\nG = " << "\n" << read_G << "\n");
-    ROS_INFO_STREAM("\nT = " << "\n" << read_T << "\n");
+    ROS_DEBUG_STREAM("\nG = " << "\n" << read_G << "\n");
+    ROS_DEBUG_STREAM("\nT = " << "\n" << read_T << "\n");
     ROS_DEBUG_STREAM("\nH = " << "\n" << read_H << "\n");
 
     // THE FOLLOWING WILL BE DONE ONLY IF THE NEEDED MATRICES ARE != 0
@@ -460,8 +460,8 @@ int main(int argc, char **argv){
         // x_d = Eigen::VectorXd::Zero(45);
         // x_d(35) = -0.05;
         x_d = Eigen::VectorXd::Zero(13);
-        x_d(0) = 0.1;
-        x_d(3) = -0.01; x_d(5) = -0.1;
+        x_d(0) = 0.1; x_d(1) = 0.01;
+        x_d(3) = -0.01; x_d(5) = -0.05;
         preserver.setMinimizationParams(x_d, A_tilde);
 
         // Performing minimization
@@ -471,7 +471,7 @@ int main(int argc, char **argv){
     }
 
     // Scaling all
-    double scale = 0.08;
+    double scale = 1.0;
     x_ref = scale * x_ref;
 
     // Scaling only palm twist
