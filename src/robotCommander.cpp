@@ -21,8 +21,7 @@ robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_,
   this->joint_names_vec = joint_names_vec_;
 
   // Initializing the action client and the publisher
-  this->act_hand = std::make_shared<actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>>
-    (this->hand_topic, true);
+  this->pub_hand = nh_rc.advertise<std_msgs::Float64>(this->hand_topic , 1);
   this->pub_arm = nh_rc.advertise<geometry_msgs::Twist>(this->arm_topic , 1);
 
   // Initializing subscriber to joint states
@@ -36,10 +35,10 @@ robotCommander::~robotCommander(){
 }
 
 /* SETREFERENCES */
-void robotCommander::setReferences(Eigen::VectorXd joints_ref_,
+void robotCommander::setReferences(Eigen::VectorXd hand_ref_,
   Eigen::VectorXd palm_ref_){
   // Setting the joint reference
-  this->joints_ref = joints_ref_;
+  this->hand_ref = hand_ref_;
 
   // Converting palm_ref_ to geometry_msgs Twist and setting
   this->palm_ref.linear.x = palm_ref_(0); this->palm_ref.angular.x = palm_ref_(3);
@@ -48,22 +47,4 @@ void robotCommander::setReferences(Eigen::VectorXd joints_ref_,
 
   // Setting only starting previous time
   this->prev_time = ros::Time::now();
-}
-
-/* GETJOINTSTATES */
-void robotCommander::getJointStates(const sensor_msgs::JointStateConstPtr& msg){
-  // Writing the msg in the private var while using mutual exclusion
-  robot_commander_mutex.lock();
-  this->current_joints = *msg;
-  robot_commander_mutex.unlock();
-}
-
-/* SENDREFTOHAND */
-void robotCommander::sendRefToHand(){
-  // Getting dt resolution for integration
-  this-> curr_time = ros::Time::now();
-  this->dt = this->curr_time - this->prev_time;
-  this->prev_time = this->curr_time;
-
-  // 
 }

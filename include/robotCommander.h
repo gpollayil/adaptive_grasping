@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <Eigen/Dense>
+#include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/JointState.h>
 #include "ros/ros.h"
@@ -32,7 +33,7 @@ namespace adaptive_grasping {
     * @brief Default constructor for robotCommander
     *
     * @param hand_topic_
-    *   the topic for commanding the hand closure
+    *   the topic for commanding the hand
     * @param arm_topic_
     *   the topic for commanding the arm
     * @return null
@@ -49,24 +50,24 @@ namespace adaptive_grasping {
     ~robotCommander();
 
     /** SETREFERENCES
-    * @brief Public function to set the references of palm and hand joints
+    * @brief Public function to set the twist references of palm and the speed of hand joints
     *
-    * @param joints_ref_
+    * @param hand_ref_
     *   the vector containing the hand joints' speeds
     * @param palm_ref_ (must be 6d)
     *   the vector containing the reference twist for the palm
     * @return null
     */
-    void setReferences(Eigen::VectorXd joints_ref_, Eigen::VectorXd palm_ref_);
+    void setReferences(Eigen::VectorXd hand_ref_, Eigen::VectorXd palm_ref_);
 
-    /** MOVEHANDARM
+    /** COMMANDROBOT
     * @brief Public function to move the hand and/or arm (if twist = 0, no arm)
     * Executes the references previously set by setReferences function
     *
     * @param null
     * @return null
     */
-    void sendRefToArm();
+    void commandRobot();
 
   private:
 
@@ -88,14 +89,14 @@ namespace adaptive_grasping {
     std::string arm_topic;
 
     // The commanded values given by contactPreserver (divided)
-    Eigen::VectorXd joints_ref;
+    Eigen::VectorXd hand_ref;
     geometry_msgs::Twist palm_ref;
 
     // A sensor message containing the latest available joints of the hand
     sensor_msgs::JointState current_joints;
 
-    // An action client for the hand and a publisher for the arm
-    std::shared_ptr<actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>> act_hand;
+    // Publishers to hand and arm controllers
+    ros::Publisher pub_hand;
     ros::Publisher pub_arm;
 
     // The variables for sending trajectories to the hand
@@ -109,24 +110,6 @@ namespace adaptive_grasping {
     * @return null
     */
     void getJointStates(const sensor_msgs::JointStateConstPtr& msg);
-
-    /** SENDREFTOHAND
-    * @brief Private function to close the hand with a given reference speed
-    * The vector joints_ref set by setReferences will be executed
-    *
-    * @param null
-    * @return null
-    */
-    void sendRefToHand();
-
-    /** SENDREFTOARM
-    * @brief Private function to move the palm of the arm, following a twist
-    *
-    * @param palm_ref_
-    *   the twist vector containing the reference motion of the palm
-    * @return null
-    */
-    void sendRefToArm(geometry_msgs::Twist palm_ref_);
 
   };
 
