@@ -460,7 +460,8 @@ int main(int argc, char **argv){
         // x_d = Eigen::VectorXd::Zero(45);
         // x_d(35) = -0.05;
         x_d = Eigen::VectorXd::Zero(13);
-        x_d(0) = 0.1; x_d(1) = 0.01;
+        x_d(0) = 0.1; 
+        // x_d(1) = 0.01;
         x_d(3) = -0.01; x_d(5) = -0.05;
         preserver.setMinimizationParams(x_d, A_tilde);
 
