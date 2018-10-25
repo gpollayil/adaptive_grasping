@@ -13,32 +13,35 @@ using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
 robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_){
-  // Storing the topic strings
-  this->hand_topic = hand_topic_; this->arm_topic = arm_topic_;
+    // Initializing service server
+    this->rc_server = this->nh_rc.advertiseService("rc_service", &robotCommander::performRobotCommand, this);
 
-  // Initializing the action client and the publisher
-  this->pub_hand = nh_rc.advertise<std_msgs::Float64>(this->hand_topic , 1);
-  this->pub_arm = nh_rc.advertise<geometry_msgs::Twist>(this->arm_topic , 1);
-
-  // Resizing the Eigen Vector
+    // Storing the topic strings
+    this->hand_topic = hand_topic_; this->arm_topic = arm_topic_;
+    
+    // Initializing the action client and the publisher
+    this->pub_hand = nh_rc.advertise<std_msgs::Float64>(this->hand_topic , 1);
+    this->pub_arm = nh_rc.advertise<geometry_msgs::Twist>(this->arm_topic , 1);
+    
+    // Resizing the Eigen Vector
     this->x_ref.resize(7);
 }
 
 /* DESTRUCTOR */
 robotCommander::~robotCommander(){
-  // Nothing to do here
+    // Nothing to do here
 }
 
 /* SETREFERENCES */
 void robotCommander::setReferences(Eigen::VectorXd hand_ref_,
-  Eigen::VectorXd palm_ref_){
-  // Setting the joint reference
-  this->hand_ref = hand_ref_;
+    Eigen::VectorXd palm_ref_){
+    // Setting the joint reference
+    this->hand_ref = hand_ref_;
 
-  // Converting palm_ref_ to geometry_msgs Twist and setting
-  this->palm_ref.linear.x = palm_ref_(0); this->palm_ref.angular.x = palm_ref_(3);
-  this->palm_ref.linear.y = palm_ref_(1); this->palm_ref.angular.y = palm_ref_(4);
-  this->palm_ref.linear.z = palm_ref_(2); this->palm_ref.angular.z = palm_ref_(5);
+    // Converting palm_ref_ to geometry_msgs Twist and setting
+    this->palm_ref.linear.x = palm_ref_(0); this->palm_ref.angular.x = palm_ref_(3);
+    this->palm_ref.linear.y = palm_ref_(1); this->palm_ref.angular.y = palm_ref_(4);
+    this->palm_ref.linear.z = palm_ref_(2); this->palm_ref.angular.z = palm_ref_(5);
 }
 
 /* PERFORMROBOTCOMMAND */

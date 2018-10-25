@@ -17,11 +17,11 @@
 int main(int argc, char** argv){
 
 	// Initializing ROS node
-	ros::init(argc, argv, "robot_commander_jt_server");
+	ros::init(argc, argv, "robot_commander_server");
 	ros::NodeHandle rc_jt_serv_nh;
 
-    std::string hand_topic = "/right_hand/joint_trajectory_controller/follow_joint_trajectory/";
-    std::string arm_topic = "/right_arm/joint_trajectory_controller/follow_joint_trajectory/";
+    std::string hand_topic = "/right_hand/velocity_controller/command/";
+    std::string arm_topic = "/right_arm/twist_controller/command/";
 
     // Creating the commander class
     adaptive_grasping::robotCommander robot_commander(hand_topic, arm_topic);

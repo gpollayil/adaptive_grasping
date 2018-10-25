@@ -337,7 +337,7 @@ int main(int argc, char **argv){
   // trial_twist.linear.z = 0; trial_twist.angular.z = 0;
 
   // Creating a service client for robot commander
-  ros::ServiceClient client_rc = nh.serviceClient<adaptive_grasping::velCommand>("rc_jt_service");
+  ros::ServiceClient client_rc = nh.serviceClient<adaptive_grasping::velCommand>("rc_service");
 
   // Waiting for a message in joint states
   full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", nh);
@@ -556,18 +556,33 @@ int main(int argc, char **argv){
     // std::cout << x_ref << std::endl;
 
     // Converting to geometry_msgs the twist of the palm and publishing
-    cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
-    cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
-    cmd_twist.linear.z = x_ref(3); cmd_twist.angular.z = x_ref(6);
+    // cmd_twist.linear.x = x_ref(1); cmd_twist.angular.x = x_ref(4);
+    // cmd_twist.linear.y = x_ref(2); cmd_twist.angular.y = x_ref(5);
+    // cmd_twist.linear.z = x_ref(3); cmd_twist.angular.z = x_ref(6);
 
-    cmd_syn.data = float (x_ref(0));
+    // cmd_syn.data = float (x_ref(0));
 
     // Getting computation time and couting
     duration_loop = ros::Time::now() - initial_time;
     ROS_DEBUG_STREAM("The computation time was " << duration_loop.toSec() << "s.");
 
-    pub_cmd_hand.publish(cmd_syn);
-    pub_cmd.publish(cmd_twist);
+    // pub_cmd_hand.publish(cmd_syn);
+    // pub_cmd.publish(cmd_twist);
+
+    adaptive_grasping::velCommand command;
+    command.request.x_ref.push_back(x_ref(0));
+    command.request.x_ref.push_back(x_ref(1));
+    command.request.x_ref.push_back(x_ref(2));
+    command.request.x_ref.push_back(x_ref(3));
+    command.request.x_ref.push_back(x_ref(4));
+    command.request.x_ref.push_back(x_ref(5));
+    command.request.x_ref.push_back(x_ref(6));
+
+    if(client_rc.call(command)){
+      ROS_INFO_STREAM("Success!!!!");
+    } else {
+      ROS_INFO_STREAM("Failed!!!!");
+    }
 
     // Sleeping for some time in order to execute the command before cancelling
     // ros::Duration(0.0001).sleep();
