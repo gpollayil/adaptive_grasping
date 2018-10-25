@@ -1,6 +1,7 @@
 #ifndef ADAPTIVE_GRASPER_H
 #define ADAPTIVE_GRASPER_H
 
+#include <ros/ros.h>
 #include "contactState.h"
 #include "matricesCreator.h"
 #include "contactPreserver.h"
@@ -34,7 +35,7 @@ namespace adaptive_grasping {
     */
     ~adaptiveGrasper();
 
-    /** GETPARAMSOFYAML
+    /** GETPARAMOFYAML
     * @brief Class function to get a single param from parameter server
     *
     * @param  param_name: name of the parameter to be parsed
