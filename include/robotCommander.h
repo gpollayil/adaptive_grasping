@@ -13,6 +13,8 @@
 #include <actionlib/client/terminal_state.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 
+// Service Includes
+#include "adaptive_grasping/velCommand.h"
 
 /**
 * @brief This class is called by the adaptive_grasping method to close the
@@ -38,8 +40,7 @@ namespace adaptive_grasping {
     *   the topic for commanding the arm
     * @return null
     */
-    robotCommander(std::string hand_topic_, std::string arm_topic_,
-      std::vector<std::string> joint_names_vec_);
+    robotCommander(std::string hand_topic_, std::string arm_topic_);
 
     /** DESTRUCTOR
     * @brief Default destructor for robotCommander
@@ -48,17 +49,6 @@ namespace adaptive_grasping {
     * @return null
     */
     ~robotCommander();
-
-    /** SETREFERENCES
-    * @brief Public function to set the twist references of palm and the speed of hand joints
-    *
-    * @param hand_ref_
-    *   the vector containing the hand joints' speeds
-    * @param palm_ref_ (must be 6d)
-    *   the vector containing the reference twist for the palm
-    * @return null
-    */
-    void setReferences(Eigen::VectorXd hand_ref_, Eigen::VectorXd palm_ref_);
 
     /** COMMANDROBOT
     * @brief Public function to move the hand and/or arm (if twist = 0, no arm)
@@ -73,20 +63,21 @@ namespace adaptive_grasping {
 
     // Basic variables
     ros::NodeHandle nh_rc;
-    ros::Subscriber joint_state_sub;    // For getting hand joint states
-    ros::Time prev_time;
-    ros::Time curr_time;
-    ros::Duration dt;                   // Used to integrate hand joint speed
+    ros::ServiceServer rc_server;       // For getting velocity requests and commanding the robot
 
     // A mutual exclusion lock for the variables of this class
     std::mutex robot_commander_mutex;
 
-    // A data structure containing the names of the hand joints in order
-    std::vector<std::string> joint_names_vec;
+    // A sensor message and an Eigen vector containing the latest available joints of the hand
+    sensor_msgs::JointState::ConstPtr full_joint_state;
+    Eigen::VectorXd current_joints_vector;
 
     // The topic names for hand commanding and arm commanding
     std::string hand_topic;
     std::string arm_topic;
+
+    // The commanded values given by contactPreserver (where service msg is saved)
+    Eigen::VectorXd x_ref;
 
     // The commanded values given by contactPreserver (divided)
     Eigen::VectorXd hand_ref;
@@ -99,17 +90,30 @@ namespace adaptive_grasping {
     ros::Publisher pub_hand;
     ros::Publisher pub_arm;
 
-    // The variables for sending trajectories to the hand
-    trajectory_msgs::JointTrajectoryPoint hand_point;
-    
+    // Command vars: messages to be published
+    geometry_msgs::Twist cmd_twist;
+    std_msgs::Float64 cmd_syn;
 
-    /** GETJOINTSTATES
-    * @brief Private callback function to get and write joint states of the hand
+    /** PERFORMROBOTCOMMAND
+    * @brief Private callback function of the main service of robotCommander
     *
-    * @param null
+    * @param req
+    * @param res
     * @return null
     */
-    void getJointStates(const sensor_msgs::JointStateConstPtr& msg);
+    bool performRobotCommand(adaptive_grasping::velCommand::Request &req,
+        adaptive_grasping::velCommand::Response &res);
+
+    /** SETREFERENCES
+    * @brief Private function to set the twist references of palm and the speed of hand joints
+    *
+    * @param hand_ref_
+    *   the vector containing the hand joints' speeds
+    * @param palm_ref_ (must be 6d)
+    *   the vector containing the reference twist for the palm
+    * @return null
+    */
+    void setReferences(Eigen::VectorXd hand_ref_, Eigen::VectorXd palm_ref_);
 
   };
 
