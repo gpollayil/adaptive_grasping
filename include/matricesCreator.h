@@ -27,8 +27,16 @@ namespace adaptive_grasping {
 
   public:
 
-    /** CONSTRUCTOR
+    /** DEFAULT CONSTRUCTOR
     * @brief Default constructor for matricesCreator
+    *
+    * @param null
+    * @return null
+    */
+    matricesCreator();
+
+    /** CONSTRUCTOR
+    * @brief Overloaded constructor for matricesCreator
     *
     * @param H_i_
     *   the basic contact selection matrix of the hand (in local frames)
@@ -48,6 +56,23 @@ namespace adaptive_grasping {
     * @return null
     */
     ~matricesCreator();
+
+    // A boolean for checking if the object has been initialized
+    bool initialized = false;
+
+    /** INITIALIZE
+    * @brief A public function for initializing the object
+    *
+    * @param H_i_
+    *   the basic contact selection matrix of the hand (in local frames)
+    * @param world_frame_name_, palm_frame_name_
+    *   the names of global and palm frames
+    * @param joint_numbers_
+    *   the number of joints of each finger in a vector
+    * @return null
+    */
+    bool initialize(Eigen::MatrixXd H_i_, std::string world_frame_name_,
+      std::string palm_frame_name_, std::vector<int> joint_numbers_);
 
     /** CHANGECONTACTTYPE
     * @brief Function to eventually change the hand type (set new H_i)

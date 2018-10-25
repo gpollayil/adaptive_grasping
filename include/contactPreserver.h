@@ -16,8 +16,16 @@ namespace adaptive_grasping {
 
   public:
 
-    /** CONSTRUCTOR
+    /** DEFAULT CONSTRUCTOR
     * @brief Default constructor for contactPreserver
+    *
+    * @param null
+    * @return null
+    */
+    contactPreserver();
+
+    /** CONSTRUCTOR
+    * @brief Overloaded constructor for contactPreserver
     *
     * @param S_
     *   the synergy matrix of the hand (if hand fully actuated S = I)
@@ -32,6 +40,18 @@ namespace adaptive_grasping {
     * @return null
     */
     ~contactPreserver();
+
+    // A boolean for checking if the object has been initialized
+    bool initialized = false;
+
+    /** INITIALIZE
+    * @brief Private function to initialize the object
+    *
+    * @param S_
+    *   the synergy matrix of the hand (if hand fully actuated S = I)
+    * @return null
+    */
+    bool initialize(Eigen::MatrixXd S_);
 
     /** CHANGEHANDTYPE
     * @brief Function to eventually change the hand type (set new S)

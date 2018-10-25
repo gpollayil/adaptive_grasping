@@ -28,12 +28,16 @@ namespace adaptive_grasping {
 
   public:
 
-    // public typedefs ???
-    //typedef boost::shared_ptr<contactState> Ptr;
-    //typedef boost::shared_ptr<const contactState> ConstPtr;
+    /** DEFAULT CONSTRUCTOR
+    * @brief Default constructor for contactState
+    *
+    * @param null
+    * @return null
+    */
+    contactState();
 
     /** CONSTRUCTOR
-    * @brief Default constructor for contactState
+    * @brief Overloaded constructor for contactState
     *
     * @param name of the topic where finger touch ids are published
     * @param a map containing correspondance id -> link_name
@@ -51,6 +55,21 @@ namespace adaptive_grasping {
     * @return null
     */
     ~contactState();
+
+    // A boolean for checking if the object has been initialized
+    bool initialized = false;
+
+    /** INITIALIZE
+    * @brief Private function to initialize the object
+    *
+    * @param name of the topic where finger touch ids are published
+    * @param a map containing correspondance id -> link_name
+    * @param a map containing params that the main parsed from parameter server
+    * @return bool initialized status
+    */
+    bool intialize(std::string topic_name,
+      std::map<int, std::string> link_names_map_,
+        std::map<std::string, std::string> params_map_);
 
     /** READVALUES
     * @brief Class function to read the private variables

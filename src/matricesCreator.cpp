@@ -14,6 +14,18 @@ using namespace adaptive_grasping;
 /* CONSTRUCTOR */
 matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
   std::string palm_frame_name_, std::vector<int> joint_numbers_){
+    // Initializing the object
+    initialized = initialize(H_i_, world_frame_name_, palm_frame_name_, joint_numbers_);
+}
+
+/* DESTRUCTOR */
+matricesCreator::~matricesCreator(){
+  // Do nothing
+}
+
+/* INITIALIZE */
+bool matricesCreator::initialize(Eigen::MatrixXd H_i_, std::string world_frame_name_,
+  std::string palm_frame_name_, std::vector<int> joint_numbers_){
     // Set the basic contact selection matrix
     changeContactType(H_i_);
 
@@ -30,11 +42,6 @@ matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_n
 
     // Print message for debug
     if(DEBUG) std::cout << "Built matricesCreator!" << std::endl;
-}
-
-/* DESTRUCTOR */
-matricesCreator::~matricesCreator(){
-  // Do nothing
 }
 
 /* CHANGECONTACTTYPE */

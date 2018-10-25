@@ -15,18 +15,8 @@ using namespace adaptive_grasping;
 contactState::contactState(std::string topic_name,
   std::map<int, std::string> link_names_map_,
     std::map<std::string, std::string> params_map_){
-  // The finger_id is 0 as there are no contacts yet
-  touching_finger = 0;
-  // Subscribing to topic (queue is 1 for quick processing)
-  finger_col_sub = node_contact_state.subscribe(topic_name, 1,
-    &contactState::handleCollision, this);
-
-  // Initializing the service client
-  fj_client = node_contact_state.serviceClient<finger_fk::FingerJointsService>("fj_service");
-
-  // Constructing the maps
-  this->params_map = params_map_;
-  this->link_names_map = link_names_map_;
+    // Initialize the object
+    this->initialized = intialize(topic_name, link_names_map_, params_map_);
 }
 
 /* DESTRUCTOR */
@@ -43,7 +33,26 @@ void contactState::readValues(std::map<int, std::tuple<std::string,
     input_map_ = contacts_map;
     input_map2_ = joints_map;
     contact_state_mutex.unlock();                           // mutex off
-  }
+}
+
+/* INITIALIZE */
+bool contactState::intialize(std::string topic_name,
+  std::map<int, std::string> link_names_map_,
+    std::map<std::string, std::string> params_map_){
+    // The finger_id is 0 as there are no contacts yet
+    touching_finger = 0;
+
+    // Subscribing to topic (queue is 1 for quick processing)
+    finger_col_sub = node_contact_state.subscribe(topic_name, 1,
+      &contactState::handleCollision, this);
+
+    // Initializing the service client
+    fj_client = node_contact_state.serviceClient<finger_fk::FingerJointsService>("fj_service");
+
+    // Constructing the maps
+    this->params_map = params_map_;
+    this->link_names_map = link_names_map_;
+}
 
 /* HANDLECOLLISION */
 void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){

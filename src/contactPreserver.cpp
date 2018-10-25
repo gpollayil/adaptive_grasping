@@ -14,13 +14,19 @@ using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
 contactPreserver::contactPreserver(Eigen::MatrixXd S_){
-  // Set the synergy matrix
-  changeHandType(S_);
+  // Initializing the object
+  initialized = initialize(S_);
 }
 
 /* DESTRUCTOR */
 contactPreserver::~contactPreserver(){
   // Nothing to do
+}
+
+/* INITIALIZE */
+bool contactPreserver::initialize(Eigen::MatrixXd S_){
+  // Set the synergy matrix
+  changeHandType(S_);
 }
 
 /* CHANGEHANDTYPE */
