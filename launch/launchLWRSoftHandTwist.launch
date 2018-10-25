@@ -66,7 +66,10 @@
 
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
-    <!-- Loads joint controller configurations from YAML file to parameter server -->
+    <!-- Loads adaptive grasping configurations from YAML file to parameter server -->
+    <!-- <rosparam command="load" file="$(find adaptive_grasping)/config/adaptive_params.yaml"/> -->
+
+	<!-- Loads joint controller configurations from YAML file to parameter server -->
     <rosparam command="load" file="$(find adaptive_grasping)/config/sh_kuka_controllers.yaml"/>
 
     <!-- Loads HW configurations from YAML file to parameter server -->

@@ -13,7 +13,6 @@ adaptive_grasping:
   # The following map contains other necessary params for adaptive_grasping
   params_map:
     world_name: "world"
-    # palm_name: "right_hand_palm_link"
     palm_name: "right_arm_7_link"
     ee_name: "right_hand_ee_link"
     joints_num: [5, 7, 7, 7, 7]
