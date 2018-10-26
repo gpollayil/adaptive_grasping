@@ -150,7 +150,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::map<int, std::string>& par
 
     // Creating temporary map and filling it up
     std::map<int, std::string> tmp_param;
-    for(auto it : param[param_name]){
+    for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = params[param_name].begin(); it != params[param_name].end(); ++it){
         tmp_param[it->first] = it->second;
     }
 
@@ -180,7 +180,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::map<std::string, std::stri
 
     // Creating temporary map and filling it up
     std::map<std::string, std::string> tmp_param;
-    for(auto it : param[param_name]){
+    for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = params[param_name].begin(); it != params[param_name].end(); ++it){
         tmp_param[it->first] = it->second;
     }
 
@@ -216,7 +216,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     // Filling up the matrix
     Eigen::MatrixXd current_row(1, matrix_cols);
     for(auto it : params[param_name]){
-        
+
     }
 
     // Copy the temporary map into the input map and return
