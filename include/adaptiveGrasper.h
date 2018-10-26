@@ -55,21 +55,22 @@ namespace adaptive_grasping {
     */
     bool initialize(std::vector<std::string> param_names);
 
-    /** PARSEPARAMS
-    * @brief Class function to get a single param from parameter server
-    *
-    * @param names_vector containing the names of all parameters needed
-    * @return bool = true if success
-    */
-    bool parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<std::string> param_names);
-
   private:
 
     // ROS elements
-    ros::NodeHandle ad_nh;
+    ros::NodeHandle ag_nh;
+    ros::Subscriber js_sub;
 
     // XMLRPC elements
     XmlRpc::XmlRpcValue adaptive_params;
+
+    // Elements needed for construction of the main objects
+    std::string touch_topic_name;                       // Contains the name of the topic where touch ids are published (for Contact State)
+    std::map<int, std::string> link_names_map;          // Contains the correspondance between ids and link names (for Contact State)
+    std::map<std::string, std::string> params_map;      // Contains mainly frame names (for Contact State)
+    std::vector<int> joint_numbers;                     // Contains the number of links of each finger (for Matrix Creator)
+    Eigen::MatrixXd H_i;                                // Contains contact selection matrix H (for Matrix Creator)
+    Eigen::MatrixXd S;                                  // Contains the synergy matrix (for Contact Preserver)
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
@@ -80,6 +81,21 @@ namespace adaptive_grasping {
     // A contactPreserver element to compute contact preserving motions
     contactPreserver my_contact_preserver;
 
+    /** PARSEPARAMS
+    * @brief Class function to get a single param from parameter server
+    *
+    * @param names_vector containing the names of all parameters needed
+    * @return bool = true if success
+    */
+    bool parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<std::string> param_names);
+
+    /** GETJOINTSANDCOMPUTESYN
+    * @brief Callback function to get the joint states and compute the synergy matrix
+    *
+    * @param msg
+    * @return null
+    */
+    void getJointsAndComputeSyn(const sensor_msgs::JointState::ConstPtr &msg);
 
   };
 

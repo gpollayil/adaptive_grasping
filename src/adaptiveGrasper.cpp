@@ -23,8 +23,12 @@ adaptiveGrasper::~adaptiveGrasper(){
 
 /* INITIALIZE */
 bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
+    // Subscribe to joint states
+    this->js_sub = this->ag_nh.subscribe("joint_states", 1, &adaptiveGrasper::getJointsAndComputeSyn, this);
+    ROS_WARN_STREAM("The subsciber subscribed to " << js_sub.getTopic() << ".");
+
     // Starting to parse the needed elements from parameter server
-    this->initialized = this->ad_nh.getParam("adaptive_grasping", this->adaptive_params);
+    this->initialized = this->ag_nh.getParam("adaptive_grasping", this->adaptive_params);
     if(this->initialized == false){
         ROS_ERROR_STREAM("adaptiveGrasper::initialize could not find the needed params");
     }
@@ -33,5 +37,13 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
 
 /* PARSEPARAMS */
 bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<std::string> param_names){
-    
+    // Starting to parse and save all needed single parameters
+    parseParameter(params_xml, this->touch_topic_name, param_names[0]);
+    parseParameter(params_xml, this->link_names_map, param_names[1]);
+    parseParameter(params_xml, this->params_map, param_names[2]);
+    parseParameter(params_xml, this->joint_numbers, param_names[3]);
+    parseParameter(params_xml, this->H_i, param_names[4]);
+    parseParameter(params_xml, this->S, param_names[5]);
+
+
 }
