@@ -2,14 +2,15 @@
 #define ADAPTIVE_GRASPER_H
 
 #include <ros/ros.h>
+#include <XmlRpcValue.h>
+#include <utils/parsing_utilities.h>
 #include "contactState.h"
 #include "matricesCreator.h"
 #include "contactPreserver.h"
 
 /**
 * @brief This class is created by the main of the adaptive_grasping_node: it
-* contains all the other classes: contact_state, matrix_creator,
-* contact_preserver and robot_commander
+* contains all the other classes: contact_state, matrix_creator and contact_preserver
 *
 */
 
@@ -27,6 +28,14 @@ namespace adaptive_grasping {
     */
     adaptiveGrasper();
 
+    /** OVERLOADED CONSTRUCTOR
+    * @brief Overloaded constructor for adaptiveGrasper
+    *
+    * @param names_vector containing the names of all parameters needed
+    * @return null
+    */
+    adaptiveGrasper(std::vector<std::string> param_names);
+
     /** DESTRUCTOR
     * @brief Default destructor for adaptiveGrasper
     *
@@ -35,24 +44,32 @@ namespace adaptive_grasping {
     */
     ~adaptiveGrasper();
 
-    /** GETPARAMOFYAML
-    * @brief Class function to get a single param from parameter server
+    // A boolean for checking if the object has been initialized
+    bool initialized = false;
+
+    /** INITIALIZE
+    * @brief Public function for initializing the object
     *
-    * @param  param_name: name of the parameter to be parsed
-    * @param  default_param_name: default to be saved if param not found
+    * @param names_vector containing the names of all parameters needed
     * @return bool = true if success
     */
-    bool getParamOfYaml(std::string param_name, std::string default_param_name);
+    bool initialize(std::vector<std::string> param_names);
 
     /** PARSEPARAMS
     * @brief Class function to get a single param from parameter server
     *
-    * @param  nh: node handle
+    * @param names_vector containing the names of all parameters needed
     * @return bool = true if success
     */
-    bool parseParams(ros::NodeHandle nh);
+    bool parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<std::string> param_names);
 
   private:
+
+    // ROS elements
+    ros::NodeHandle ad_nh;
+
+    // XMLRPC elements
+    XmlRpc::XmlRpcValue adaptive_params;
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
@@ -62,8 +79,6 @@ namespace adaptive_grasping {
 
     // A contactPreserver element to compute contact preserving motions
     contactPreserver my_contact_preserver;
-
-    // A robotCommander element for passing references to robot
 
 
   };
