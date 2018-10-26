@@ -19,6 +19,6 @@ bool parseStringParameter(XmlRpc::XmlRpcValue& params, std::string& param, std::
 
 bool parseVectorParameter(XmlRpc::XmlRpcValue& params, std::vector<double>& param, std::string param_name, int min_size = 0);
 
-bool parseMapParameter(XmlRpc::XmlRpcValue& params, std::map< std::string, std::string >& param, std::string param_name, std::vector< std::string > names_list);
+bool parseMapParameter(XmlRpc::XmlRpcValue& params, std::map<int, std::string>& param, std::string param_name, std::vector< std::string > names_list);
 
 #endif //PARSING_UTILS_H
