@@ -8,6 +8,9 @@
 #include "matricesCreator.h"
 #include "contactPreserver.h"
 
+// Service Includes
+#include "adaptive_grasping/velCommand.h"
+
 /**
 * @brief This class is created by the main of the adaptive_grasping_node: it
 * contains all the other classes: contact_state, matrix_creator and contact_preserver
@@ -59,10 +62,12 @@ namespace adaptive_grasping {
 
     // ROS elements
     ros::NodeHandle ag_nh;
-    ros::Subscriber js_sub;
+    ros::Subscriber js_sub;                               // Subscriber to joint states
+    ros::ServiceClient client_rc;                         // Service client to robot commander
+    double spin_rate;                                     // Rate at which the adaptive grasper should run
 
     // Message variables
-    sensor_msgs::JointState::ConstPtr full_joint_state;	  // a msg where the subscriber will save the joint states
+    sensor_msgs::JointState::ConstPtr full_joint_state;	  // A msg where the subscriber will save the joint states
 
     // XMLRPC elements
     XmlRpc::XmlRpcValue adaptive_params;
@@ -77,6 +82,9 @@ namespace adaptive_grasping {
     std::vector<int> joint_numbers;                     // Contains the number of links of each finger (for Matrix Creator)
     Eigen::MatrixXd H_i;                                // Contains contact selection matrix H (for Matrix Creator)
     Eigen::MatrixXd S;                                  // Contains the synergy matrix (for Contact Preserver)
+    Eigen::MatrixXd A_tilde;                            // Contains the weigth matrix (for Contact Preserver)
+    Eigen::VectorXd x_d;                                // Contains the desired x motion (for Contact Preserver)
+    Eigen::VectorXd x_ref;                              // Contains the result of minimization x reference (from Contact Preserver)
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
