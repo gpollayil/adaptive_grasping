@@ -61,8 +61,14 @@ namespace adaptive_grasping {
     ros::NodeHandle ag_nh;
     ros::Subscriber js_sub;
 
+    // Message variables
+    sensor_msgs::JointState::ConstPtr full_joint_state;	  // a msg where the subscriber will save the joint states
+
     // XMLRPC elements
     XmlRpc::XmlRpcValue adaptive_params;
+
+    // A mutual exclusion lock for the variables of this class
+    std::mutex adaptive_grasper_mutex;
 
     // Elements needed for construction of the main objects
     std::string touch_topic_name;                       // Contains the name of the topic where touch ids are published (for Contact State)
