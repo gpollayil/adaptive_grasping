@@ -3,7 +3,7 @@
 
 #include <ros/ros.h>
 #include <XmlRpcValue.h>
-#include <utils/parsing_utilities.h>
+#include "utils/parsing_utilities.h"
 #include "contactState.h"
 #include "matricesCreator.h"
 #include "contactPreserver.h"
