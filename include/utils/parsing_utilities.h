@@ -175,12 +175,12 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::map<std::string, std::stri
         return false;
     }
 
-    // Make sure that the parameter is of the correct type
+    // Make sure that the parameter is of the correct type and getting length
     ROS_ASSERT(params[param_name].getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
     // Creating temporary map and filling it up
     std::map<std::string, std::string> tmp_param;
-    for(XmlRpc::XmlRpcValue::TypeStruct::const_iterator it = params[param_name].begin(); it != params[param_name].end(); ++it){
+    for(auto it = params[param_name].begin(); it != params[param_name].end(); ++it){
         tmp_param[it->first] = it->second;
     }
 
