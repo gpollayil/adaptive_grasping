@@ -204,24 +204,18 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     ROS_ASSERT(params[param_name].getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
     // Resizing matrix param to correct dimensions
-    ROS_WARN_STREAM("Going to get sizes from params.");
     int matrix_rows = params[param_name].size();
-    ROS_WARN_STREAM("The no of rows is " << matrix_rows << ".");
     int matrix_cols = params[param_name][0].size();
     ROS_WARN_STREAM("The H matrix should be " << matrix_rows << "x" << matrix_cols << ".");
     param.resize(matrix_rows, matrix_cols);
 
-    // Row position index for block assignment
-    int y = 0;
-
     // Filling up the matrix row wise
     Eigen::MatrixXd current_row(1, matrix_cols);
-    for(auto it : params[param_name]){
+    for(int i = 0; i < matrix_rows; i++){
         for(int j = 0; j < matrix_cols; j++){
-            current_row(0, j) = (double) it.second[j];
+            current_row(i, j) = (double) params[param_name][i][j];
         }
-        param.block(y, 0, current_row.rows(), current_row.cols()) = current_row;
-        y++;
+        param.block(i, 0, current_row.rows(), current_row.cols()) = current_row;
     }
 
     // Copy the temporary map into the input map and return
