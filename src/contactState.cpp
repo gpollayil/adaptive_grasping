@@ -11,6 +11,11 @@
 
 using namespace adaptive_grasping;
 
+/* DEFAULT CONSTRUCTOR */
+contactState::contactState(){
+    // Nothing to do here
+}
+
 /* CONSTRUCTOR */
 contactState::contactState(std::string topic_name,
   std::map<int, std::string> link_names_map_,

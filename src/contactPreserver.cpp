@@ -12,6 +12,11 @@
 
 using namespace adaptive_grasping;
 
+/* DEFAULT CONSTRUCTOR */
+contactPreserver::contactPreserver(){
+  // Nothing to do here
+}
+
 /* CONSTRUCTOR */
 contactPreserver::contactPreserver(Eigen::MatrixXd S_){
   // Initializing the object

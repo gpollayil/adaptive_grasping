@@ -11,6 +11,11 @@
 
 using namespace adaptive_grasping;
 
+/* DEFAULT CONSTRUCTOR */
+matricesCreator::matricesCreator(){
+    // Nothing to do here
+}
+
 /* CONSTRUCTOR */
 matricesCreator::matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
   std::string palm_frame_name_, std::vector<int> joint_numbers_){

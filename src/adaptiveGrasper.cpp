@@ -10,6 +10,11 @@
 
 using namespace adaptive_grasping;
 
+/* CONSTRUCTOR */
+adaptiveGrasper::adaptiveGrasper(){
+    // Nothing to do here
+}
+
 /* OVERLOADED CONSTRUCTOR */
 adaptiveGrasper::adaptiveGrasper(std::vector<std::string> param_names){
     // Building the object
@@ -29,6 +34,9 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
 
     // Waiting for a message in joint states
     this->full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", this->ag_nh);
+
+    // Initializing the client to robot commander
+    this->client_rc = this->ag_nh.serviceClient<adaptive_grasping::velCommand>("rc_service");
 
     // Starting to parse the needed elements from parameter server
     ROS_WARN_STREAM("adaptiveGrasper::initialize STARTING TO PARSE THE NEEDED VARIABLES!");
@@ -55,6 +63,14 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     parseParameter(params_xml, this->params_map, param_names[2]);
     parseParameter(params_xml, this->joint_numbers, param_names[3]);
     parseParameter(params_xml, this->H_i, param_names[4]);
+    parseParameter(params_xml, this->A_tilde, param_names[5]);
+
+    // x_d (vector) needs to be parsed differently using the parsing function for matrix
+    Eigen::MatrixXd temp_x_d;
+    parseParameter(params_xml, temp_x_d, param_names[6]);
+    this->x_d = temp_x_d.transpose().col(0);
+
+    parseParameter(params_xml, this->spin_rate, param_names[7]);
 }
 
 /* GETJOINTSANDCOMPUTESYN */
