@@ -133,7 +133,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/adaptive_grasping.cpp
+#   src/parsing_utilities.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -147,6 +147,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/adaptive_grasping_node.cpp)
 
 set(ADAPTIVE_SOURCE_FILES
+  src/parsing_utilities.cpp
 	src/contactState.cpp
 	src/matricesCreator.cpp
 	src/contactPreserver.cpp
