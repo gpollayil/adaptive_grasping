@@ -2,6 +2,7 @@
 #define PARSING_UTILS_H
 
 #include <XmlRpcValue.h>
+#include <XmlRpcException.h>
 #include <Eigen/Dense>
 #include "ros/ros.h"
 

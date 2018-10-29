@@ -206,14 +206,24 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     // Resizing matrix param to correct dimensions
     int matrix_rows = params[param_name].size();
     int matrix_cols = params[param_name][0].size();
-    ROS_WARN_STREAM("The H matrix should be " << matrix_rows << "x" << matrix_cols << ".");
+    ROS_DEBUG_STREAM("The " << param_name << " matrix should be " << matrix_rows << "x" << matrix_cols << ".");
     param.resize(matrix_rows, matrix_cols);
 
     // Filling up the matrix row wise
     Eigen::MatrixXd current_row(1, matrix_cols);
     for(int i = 0; i < matrix_rows; i++){
         for(int j = 0; j < matrix_cols; j++){
-            current_row(i, j) = (double) params[param_name][i][j];
+            try{
+                if(params[param_name][i][j].getType() == XmlRpc::XmlRpcValue::TypeInt){
+                    current_row(0, j) = (int) params[param_name][i][j];
+                } else if(params[param_name][i][j].getType() == XmlRpc::XmlRpcValue::TypeDouble){
+                    current_row(0, j) = (double) params[param_name][i][j];
+                } else {
+                    ROS_ERROR_STREAM("Unexpected type found as element in parsed matrix " << param_name << ".");
+                }
+            }catch(XmlRpc::XmlRpcException except){
+                ROS_WARN_STREAM("Exception has the message: " << except.getMessage() << " and code : " << except.getCode() << ".");
+            }
         }
         param.block(i, 0, current_row.rows(), current_row.cols()) = current_row;
     }
