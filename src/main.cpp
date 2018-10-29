@@ -35,10 +35,16 @@ int main(int argc, char** argv){
     param_names.push_back("spin_rate");
 
     adaptive_grasper.initialize(param_names);
-	
-	// Success message
-	ROS_INFO("The Adaptive Grasper has started spinning!");
+
+    // Starting message
+	ROS_INFO("The Adaptive Grasper is starting to spin!");
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
+
+    // Starting to run the algorithm
+    adaptive_grasper.spinGrasper();
+
+    // Success message
+	ROS_INFO("Terminating Adaptive Grasper!");
 
 	// Spin
 	ros::spin();
