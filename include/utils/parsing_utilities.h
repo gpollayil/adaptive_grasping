@@ -213,10 +213,17 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     int matrix_cols = params[param_name].begin()->second.size();
     param.resize(matrix_rows, matrix_cols);
 
+    // Row position index for block assignment
+    int y = 1;
+
     // Filling up the matrix
     Eigen::MatrixXd current_row(1, matrix_cols);
     for(auto it : params[param_name]){
-
+        std::array current_row_array = (std::array) it->second;
+        for(int j = 0; j < matrix_cols; j++){
+            current_row(1, j) = current_row_array[j];
+        }
+        param.block(y, 1, current_row.rows(), current_row.cols()) = current_row;
     }
 
     // Copy the temporary map into the input map and return
