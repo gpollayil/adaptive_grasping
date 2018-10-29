@@ -25,9 +25,14 @@ adaptiveGrasper::~adaptiveGrasper(){
 bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     // Subscribe to joint states
     this->js_sub = this->ag_nh.subscribe("joint_states", 1, &adaptiveGrasper::getJointsAndComputeSyn, this);
-    ROS_WARN_STREAM("The subsciber subscribed to " << js_sub.getTopic() << ".");
+    ROS_WARN_STREAM("adaptiveGrasper::initialize THE SUBSCRIBER SUBSCRIBED TO " << js_sub.getTopic() << ".");
+
+    // Waiting for a message in joint states
+    this->full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", this->ag_nh);
 
     // Starting to parse the needed elements from parameter server
+    ROS_WARN_STREAM("adaptiveGrasper::initialize STARTING TO PARSE THE NEEDED VARIABLES!");
+
     this->initialized = this->ag_nh.getParam("adaptive_grasping", this->adaptive_params);
     if(this->initialized == false){
         ROS_ERROR_STREAM("adaptiveGrasper::initialize could not find the needed params");
@@ -35,6 +40,8 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->initialized = this->parseParams(this->adaptive_params, param_names);
 
     // Building the main objects
+    ROS_WARN_STREAM("adaptiveGrasper::initialize STARTING TO BUILD THE OBJECTS!");
+
     this->my_contact_state.intialize(this->touch_topic_name, this->link_names_map, this->params_map);
     this->my_matrices_creator.initialize(this->H_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
