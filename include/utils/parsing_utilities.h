@@ -181,7 +181,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::map<std::string, std::stri
     // Creating temporary map and filling it up
     std::map<std::string, std::string> tmp_param;
     for(auto it = params[param_name].begin(); it != params[param_name].end(); ++it){
-        tmp_param[it->first] = it->second;
+        tmp_param[(std::string) it->first] = (std::string) it->second;
     }
 
     // Check is the temporary map is empty
