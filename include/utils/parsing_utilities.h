@@ -220,7 +220,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     Eigen::MatrixXd current_row(1, matrix_cols);
     for(auto it : params[param_name]){
         for(int j = 0; j < matrix_cols; j++){
-            current_row(1, j) = (double) params[param_name]->second[i];
+            current_row(1, j) = (double) it.second[j];
         }
         param.block(y, 1, current_row.rows(), current_row.cols()) = current_row;
     }
