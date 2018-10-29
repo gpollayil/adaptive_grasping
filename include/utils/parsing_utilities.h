@@ -216,12 +216,11 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     // Row position index for block assignment
     int y = 1;
 
-    // Filling up the matrix
+    // Filling up the matrix row wise
     Eigen::MatrixXd current_row(1, matrix_cols);
     for(auto it : params[param_name]){
-        std::array current_row_array = (std::array) it->second;
         for(int j = 0; j < matrix_cols; j++){
-            current_row(1, j) = current_row_array[j];
+            current_row(1, j) = (double) params[param_name]->second[i];
         }
         param.block(y, 1, current_row.rows(), current_row.cols()) = current_row;
     }
