@@ -53,6 +53,8 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->my_contact_state.intialize(this->touch_topic_name, this->link_names_map, this->params_map);
     this->my_matrices_creator.initialize(this->H_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
+
+    ROS_WARN_STREAM("adaptiveGrasper::initialize FINISHED BUILDING THE OBJECTS!");
 }
 
 /* PARSEPARAMS */
@@ -91,4 +93,22 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
 
     // Dividing by synergy value to find the Matrix
     this->S = Syn / this->full_joint_state->position[index - 1];
+}
+
+/* SPINGRASPER */
+void adaptiveGrasper::spinGrasper(){
+    // Setting the ROS rate
+    ros::Rate rate(this->spin_rate);
+
+    // Starting the ROS loop
+    while(ros::ok()){
+        // Spinning once to process callbacks
+        ros::spinOnce();
+
+        // Reading the values from contact state
+        this->my_contact_state.readValues(this->read_contacts_map, this->read_joints_map);
+
+        // Setting the contacts map and joints map in creator
+        
+    }
 }

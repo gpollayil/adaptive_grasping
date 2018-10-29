@@ -58,6 +58,14 @@ namespace adaptive_grasping {
     */
     bool initialize(std::vector<std::string> param_names);
 
+    /** SPINGRASPER
+    * @brief Public function to run the adaptive loop
+    *
+    * @param null
+    * @return null
+    */
+    void spinGrasper();
+
   private:
 
     // ROS elements
@@ -94,6 +102,10 @@ namespace adaptive_grasping {
 
     // A contactPreserver element to compute contact preserving motions
     contactPreserver my_contact_preserver;
+
+    // The maps written by contact state
+    std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> read_contacts_map;
+    std::map<int, sensor_msgs::JointState> read_joints_map;
 
     /** PARSEPARAMS
     * @brief Class function to get a single param from parameter server
