@@ -210,7 +210,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
 
     // Resizing matrix param to correct dimensions
     int matrix_rows = params[param_name].size();
-    int matrix_cols = params[param_name].begin().size();
+    int matrix_cols = params[param_name].begin()->second.size();
     param.resize(matrix_rows, matrix_cols);
 
     // Filling up the matrix
