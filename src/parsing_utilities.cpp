@@ -207,11 +207,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     ROS_WARN_STREAM("Going to get sizes from params.");
     int matrix_rows = params[param_name].size();
     ROS_WARN_STREAM("The no of rows is " << matrix_rows << ".");
-    auto it = params[param_name].begin(); ++it;
-    ROS_WARN_STREAM("Iterator done.");
-    auto first_row = (std::array) it->second;
-    ROS_WARN_STREAM("Array done.");
-    int matrix_cols = first_row.size();
+    int matrix_cols = params[param_name][0].size();
     ROS_WARN_STREAM("The H matrix should be " << matrix_rows << "x" << matrix_cols << ".");
     param.resize(matrix_rows, matrix_cols);
 
