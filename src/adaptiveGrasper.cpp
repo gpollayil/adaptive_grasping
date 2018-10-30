@@ -128,6 +128,29 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     parseParameter(params_xml, this->scaling, param_names[9]);
 }
 
+/* SETCOMMANDANDSEND */
+bool adaptiveGrasper::setCommandAndSend(Eigen::VectorXd ref_vec, adaptive_grasping::velCommand comm){
+    // Clearing the previous service file
+    comm.request.x_ref.clear();
+    
+    // Filling up the request
+    comm.request.x_ref.push_back(ref_vec(0));
+    comm.request.x_ref.push_back(ref_vec(1));
+    comm.request.x_ref.push_back(ref_vec(2));
+    comm.request.x_ref.push_back(ref_vec(3));
+    comm.request.x_ref.push_back(ref_vec(4));
+    comm.request.x_ref.push_back(ref_vec(5));
+    comm.request.x_ref.push_back(ref_vec(6));
+
+    if(this->client_rc.call(comm)){
+      if(DEBUG) ROS_INFO_STREAM("adaptiveGrasper::setCommandAndSend Success!");
+      return true;
+    } else {
+      if(DEBUG) ROS_INFO_STREAM("adaptiveGrasper::setCommandAndSend Failed!");
+      return false;
+    }
+}
+
 /* GETJOINTSANDCOMPUTESYN */
 void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::ConstPtr &msg){
     // Storing the message into another global message variable
@@ -215,7 +238,15 @@ void adaptiveGrasper::spinGrasper(){
             if(DEBUG) ROS_DEBUG_STREAM("adaptiveGrasper::spinGrasper Performed Minimization!!!");
         }
 
+        // Scaling the reference and sending to the robot commander
+        this->x_ref = this->scaling * this->x_ref;
+        ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
 
-        
+        if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
+            ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander!");
+        }
+
+        // Rate
+        rate.sleep();
     }
 }

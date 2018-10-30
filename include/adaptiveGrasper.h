@@ -141,6 +141,9 @@ namespace adaptive_grasping {
     Eigen::MatrixXd read_J; Eigen::MatrixXd read_G;
     Eigen::MatrixXd read_T; Eigen::MatrixXd read_H;
 
+    // The service file to be sent to the robot commander server
+    adaptive_grasping::velCommand ref_command;
+
     /** PARSEPARAMS
     * @brief Class function to get a single param from parameter server
     *
@@ -148,6 +151,15 @@ namespace adaptive_grasping {
     * @return bool = true if success
     */
     bool parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<std::string> param_names);
+
+    /** SETCOMMANDANDSEND
+    * @brief Class function to clear the service file, push back the new ref and send to robot commander
+    *
+    * @param ref_vec eigen::vector of reference motions
+    * @param comm the service file to be filled and sent
+    * @return bool = true if success
+    */
+    bool setCommandAndSend(Eigen::VectorXd ref_vec, adaptive_grasping::velCommand comm);
 
     /** GETJOINTSANDCOMPUTESYN
     * @brief Callback function to get the joint states and compute the synergy matrix
