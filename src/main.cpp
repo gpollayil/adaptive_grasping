@@ -13,6 +13,9 @@
 // CLASS INCLUDES
 #include "adaptiveGrasper.h"
 
+// DEFINES
+#define DEBUG       1       // Prints out additional info
+
 
 int main(int argc, char** argv){
 
@@ -33,18 +36,23 @@ int main(int argc, char** argv){
     param_names.push_back("a_tilde_matrix");
     param_names.push_back("x_d");
     param_names.push_back("spin_rate");
+    param_names.push_back("object_topic_name");
+    param_names.push_back("scaling");
 
     adaptive_grasper.initialize(param_names);
 
+    // Printing the parsed parameters
+    if(DEBUG) adaptive_grasper.printParsed();
+
     // Starting message
-	ROS_INFO("The Adaptive Grasper is starting to spin!");
+	ROS_INFO("\nThe Adaptive Grasper is starting to spin!");
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
 
     // Starting to run the algorithm
     adaptive_grasper.spinGrasper();
 
     // Success message
-	ROS_INFO("Terminating Adaptive Grasper!");
+	ROS_INFO("\nTerminating Adaptive Grasper!");
 
 	// Spin
 	ros::spin();
