@@ -58,6 +58,30 @@ namespace adaptive_grasping {
     */
     bool initialize(std::vector<std::string> param_names);
 
+    /** PRINTPARSED
+    * @brief Public function for printing the parsed data
+    *
+    * @param null
+    * @return null
+    */
+    void printParsed();
+
+    /** PRINTCONTACTSINFO
+    * @brief Public function for printing the contacts data
+    *
+    * @param null
+    * @return null
+    */
+    void printContactsInfo();
+
+    /** PRINTOBJECTPOSE
+    * @brief Public function for printing the object pose
+    *
+    * @param null
+    * @return null
+    */
+    void printObjectPose();
+
     /** SPINGRASPER
     * @brief Public function to run the adaptive loop
     *
@@ -71,6 +95,7 @@ namespace adaptive_grasping {
     // ROS elements
     ros::NodeHandle ag_nh;
     ros::Subscriber js_sub;                               // Subscriber to joint states
+    ros::Subscriber op_sub;                               // Subscriber to object pose
     ros::ServiceClient client_rc;                         // Service client to robot commander
     double spin_rate;                                     // Rate at which the adaptive grasper should run
 
@@ -93,6 +118,8 @@ namespace adaptive_grasping {
     Eigen::MatrixXd A_tilde;                            // Contains the weigth matrix (for Contact Preserver)
     Eigen::VectorXd x_d;                                // Contains the desired x motion (for Contact Preserver)
     Eigen::VectorXd x_ref;                              // Contains the result of minimization x reference (from Contact Preserver)
+    std::string object_topic_name;                      // Contains the name of the topic where the object poses are published (for Matrix Creator)
+    double scaling;                                     // Contains the scaling factor for x reference
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
@@ -106,6 +133,13 @@ namespace adaptive_grasping {
     // The maps written by contact state
     std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> read_contacts_map;
     std::map<int, sensor_msgs::JointState> read_joints_map;
+
+    // The object pose which is updated by a subscriber to a topic
+    Eigen::Affine3d object_pose;
+
+    // The main matrices created by matrices creator and used for minimization
+    Eigen::MatrixXd read_J; Eigen::MatrixXd read_G;
+    Eigen::MatrixXd read_T; Eigen::MatrixXd read_H;
 
     /** PARSEPARAMS
     * @brief Class function to get a single param from parameter server
@@ -122,6 +156,14 @@ namespace adaptive_grasping {
     * @return null
     */
     void getJointsAndComputeSyn(const sensor_msgs::JointState::ConstPtr &msg);
+
+    /** GETOBJECTPOSE
+    * @brief Callback function to get the object pose from a topic
+    *
+    * @param msg
+    * @return null
+    */
+    void getObjectPose(const geometry_msgs::Pose::ConstPtr &msg);
 
   };
 
