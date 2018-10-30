@@ -23,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 	kdl_parser
 	finger_fk
   message_generation
+  eigen_conversions
 )
 
 ## System dependencies are found with CMake's conventions
