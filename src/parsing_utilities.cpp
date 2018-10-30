@@ -19,7 +19,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, bool& param, std::string param_
 
     // Re-convert to bool and print out
     param = (bool) params[param_name];
-    ROS_INFO_STREAM("Parsed the bool " << param_name << " = " << (param? "true." : "false."));
+    ROS_DEBUG_STREAM("Parsed the bool " << param_name << " = " << (param? "true." : "false."));
 
     return true;
 }
@@ -37,7 +37,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, int& param, std::string param_n
 
     // Re-convert to bool and print out
     param = (int) params[param_name];
-    ROS_INFO_STREAM("Parsed the int " << param_name << " = " << param << ".");
+    ROS_DEBUG_STREAM("Parsed the int " << param_name << " = " << param << ".");
 
     return true;
 }
@@ -55,7 +55,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, double& param, std::string para
 
     // Re-convert to bool and print out
     param = (double) params[param_name];
-    ROS_INFO_STREAM("Parsed the double " << param_name << " = " << param << ".");
+    ROS_DEBUG_STREAM("Parsed the double " << param_name << " = " << param << ".");
 
     return true;
 }
@@ -73,7 +73,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::string& param, std::string
 
     // Re-convert to bool and print out
     param = (std::string) params[param_name];
-    ROS_INFO_STREAM("Parsed the string " << param_name << " = " << param << ".");
+    ROS_DEBUG_STREAM("Parsed the string " << param_name << " = " << param << ".");
 
     return true;
 }
@@ -100,7 +100,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::vector<int>& param, std::s
     for(int i=0; i< params[param_name].size(); i++){
         param.push_back((int) params[param_name][i]);
     }
-    ROS_INFO_STREAM("Parsed the vector " << param_name << " of size " << params[param_name].size() << ".");
+    ROS_DEBUG_STREAM("Parsed the vector " << param_name << " of size " << params[param_name].size() << ".");
 
     return true;
 }
@@ -127,7 +127,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::vector<double>& param, std
     for(int i=0; i< params[param_name].size(); i++){
         param.push_back((double) params[param_name][i]);
     }
-    ROS_INFO_STREAM("Parsed the vector " << param_name << " of size " << params[param_name].size() << ".");
+    ROS_DEBUG_STREAM("Parsed the vector " << param_name << " of size " << params[param_name].size() << ".");
 
     return true;
 }
@@ -157,7 +157,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::map<int, std::string>& par
 
     // Copy the temporary map into the input map and return
     param.swap(tmp_param);
-    ROS_INFO_STREAM("Parsed the map " << param_name << ".");
+    ROS_DEBUG_STREAM("Parsed the map " << param_name << ".");
 
     return true;
 }
@@ -187,7 +187,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, std::map<std::string, std::stri
 
     // Copy the temporary map into the input map and return
     param.swap(tmp_param);
-    ROS_INFO_STREAM("Parsed the map " << param_name << ".");
+    ROS_DEBUG_STREAM("Parsed the map " << param_name << ".");
 
     return true;
 }
@@ -229,7 +229,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     }
 
     // Copy the temporary map into the input map and return
-    ROS_INFO_STREAM("Parsed the matrix " << param_name << " = \n" << param << ".");
+    ROS_DEBUG_STREAM("Parsed the matrix " << param_name << " = \n" << param << ".");
 
     return true;
 }
