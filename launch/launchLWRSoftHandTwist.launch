@@ -19,7 +19,7 @@
 	<arg name="use_other_utils" default="false"/>
 
 	<!-- Set visualization tools -->
-	<arg name="use_rviz" default="false"/>
+	<arg name="use_rviz" default="true"/>
 
 	<!-- Set some controller args -->
 	<arg name="controllers" default="joint_trajectory_controller"/>
