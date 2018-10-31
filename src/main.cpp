@@ -48,8 +48,8 @@ int main(int argc, char** argv){
 	ROS_INFO("\nThe Adaptive Grasper is starting to spin!");
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
 
-    // Starting to run the algorithm
-    adaptive_grasper.spinGrasper();
+    // Starting to spin in order to wait for service calls
+    ros::spin();
 
     // Success message
 	ROS_INFO("\nTerminating Adaptive Grasper!");

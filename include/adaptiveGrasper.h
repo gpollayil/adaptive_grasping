@@ -10,6 +10,7 @@
 
 // Service Includes
 #include "adaptive_grasping/velCommand.h"
+#include "adaptive_grasping/adaptiveGrasp.h"
 
 /**
 * @brief This class is created by the main of the adaptive_grasping_node: it
@@ -86,9 +87,9 @@ namespace adaptive_grasping {
     * @brief Public function to run the adaptive loop
     *
     * @param null
-    * @return null
+    * @return bool if service done correctly
     */
-    void spinGrasper();
+    bool spinGrasper(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res);
 
   private:
 
@@ -97,6 +98,7 @@ namespace adaptive_grasping {
     ros::Subscriber js_sub;                               // Subscriber to joint states
     ros::Subscriber op_sub;                               // Subscriber to object pose
     ros::ServiceClient client_rc;                         // Service client to robot commander
+    ros::ServiceServer server_ag;                         // Service server for adaptive grasper
     double spin_rate;                                     // Rate at which the adaptive grasper should run
 
     // Message variables

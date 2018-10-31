@@ -41,6 +41,9 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     // Initializing the client to robot commander
     this->client_rc = this->ag_nh.serviceClient<adaptive_grasping::velCommand>("rc_service");
 
+    // Initializing the server to adaptive grasper
+    this->server_ag = this->ag_nh.advertiseService("adaptive_grasper_service", &adaptiveGrasper::spinGrasper, this);
+
     // Starting to parse the needed elements from parameter server
     ROS_INFO_STREAM("adaptiveGrasper::initialize STARTING TO PARSE THE NEEDED VARIABLES!");
 
@@ -185,7 +188,13 @@ void adaptiveGrasper::getObjectPose(const geometry_msgs::Pose::ConstPtr &msg){
 }
 
 /* SPINGRASPER */
-void adaptiveGrasper::spinGrasper(){
+bool adaptiveGrasper::spinGrasper(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res){
+    // Checking if request is true and return otherwise
+    if(!req.run_adaptive_grasp){
+        res.success = false;
+        return false;
+    }
+
     // Setting the ROS rate
     ros::Rate rate(this->spin_rate);
 
@@ -244,9 +253,17 @@ void adaptiveGrasper::spinGrasper(){
 
         if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
             ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander!");
+            res.success = false;
+            return false;
         }
 
         // Rate
         rate.sleep();
     }
+
+
+    // Finished adaptive grasping, returning
+    ROS_INFO_STREAM("Finished Adaptive Grasping: returning!!!");
+    res.success = true;
+    return true;
 }
