@@ -426,7 +426,7 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
 
     // For each contact, compute H_i (in world frame) and compose into H
     for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
-      // Compute the local to world transform for H_i
+      // Compute the world to finger transform for H_i
       Eigen::MatrixXd M_i(6, 6);
       Eigen::MatrixXd R_i = std::get<1>(it_c->second).rotation();
       Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
