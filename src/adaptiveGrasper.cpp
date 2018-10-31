@@ -114,6 +114,12 @@ void adaptiveGrasper::printObjectPose(){
     ROS_INFO_STREAM("\nThe object pose is: \n" << this->object_pose.matrix() << ".");
 }
 
+/* SPINROS */
+void adaptiveGrasper::spinROS(){
+    // Starting to spin in order to wait for service calls
+    ros::spin();
+}
+
 /* PARSEPARAMS */
 bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<std::string> param_names){
     // Starting to parse and save all needed single parameters
