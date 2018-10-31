@@ -35,6 +35,9 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->js_sub = this->ag_nh.subscribe("joint_states", 1, &adaptiveGrasper::getJointsAndComputeSyn, this);
     ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << js_sub.getTopic() << ".");
 
+    // Getting ready to run the algo
+    this->run = true;
+
     // Waiting for a message in joint states
     this->full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", this->ag_nh);
 
@@ -199,7 +202,7 @@ bool adaptiveGrasper::spinGrasper(adaptive_grasping::adaptiveGrasp::Request &req
     ros::Rate rate(this->spin_rate);
 
     // Starting the ROS loop
-    while(ros::ok()){
+    while(this->run){
         // Spinning once to process callbacks
         ros::spinOnce();
 

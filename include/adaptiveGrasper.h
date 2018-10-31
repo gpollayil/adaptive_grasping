@@ -101,6 +101,9 @@ namespace adaptive_grasping {
     ros::ServiceServer server_ag;                         // Service server for adaptive grasper
     double spin_rate;                                     // Rate at which the adaptive grasper should run
 
+    // Boolean true if the algorithm should continue running
+    bool run;
+
     // Message variables
     sensor_msgs::JointState::ConstPtr full_joint_state;	  // A msg where the subscriber will save the joint states
 
