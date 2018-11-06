@@ -226,6 +226,7 @@ int main(int argc, char **argv){
   // For reading and couting
   Eigen::MatrixXd read_J; Eigen::MatrixXd read_G;
   Eigen::MatrixXd read_T; Eigen::MatrixXd read_H;
+  Eigen::MatrixXd read_P;
 
   // Creating object matricesCreator
   std::cout<<"Object matricesCreator being created!"<<std::endl;
@@ -441,7 +442,7 @@ int main(int argc, char **argv){
     preserver.changeHandType(S);
 
     // Reading and couting the matrices
-    creator.readAllMatrices(read_J, read_G, read_T, read_H);
+    creator.readAllMatrices(read_J, read_G, read_T, read_H, read_P);
     ROS_DEBUG_STREAM("The created matrices are: ");
     ROS_DEBUG_STREAM("\nJ = " << "\n" << read_J << "\n");
     ROS_DEBUG_STREAM("\nG = " << "\n" << read_G << "\n");

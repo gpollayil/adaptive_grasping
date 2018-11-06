@@ -121,6 +121,15 @@ namespace adaptive_grasping {
     */
     void setObjectPose(Eigen::Affine3d object_pose_);
 
+    /** SETPERMUTATIONVECTOR
+    * @brief Function to set the permutation vector for later perm. matrix computation
+    *
+    * @param p_vector_
+    *   the permutation vector
+    * @return null
+    */
+    void setPermutationVector(Eigen::VectorXd p_vector_);
+
     /** PREPAREKDL
     * @brief Function to prepare KDL jacobian solver
     *
@@ -151,7 +160,7 @@ namespace adaptive_grasping {
     * @return null
     */
     void readAllMatrices(Eigen::MatrixXd& read_J, Eigen::MatrixXd& read_G,
-      Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H);
+      Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H, Eigen::MatrixXd& read_P);
 
   private:
 
@@ -160,6 +169,10 @@ namespace adaptive_grasping {
 
     // Basic contact selection matrix
     Eigen::MatrixXd H_i;
+
+    // Permutation vector and matrix for relaxed minimization
+    Eigen::VectorXd p_vector;
+    Eigen::MatrixXd P;
 
     // Frame names for world and palm
     std::string world_frame_name;
@@ -309,6 +322,17 @@ namespace adaptive_grasping {
     */
     void computeWholeContactSelection(std::map<int, std::tuple<std::string,
       Eigen::Affine3d, Eigen::Affine3d>> contacts_map_);
+
+    /** COMPUTEPERMUTATIONMATRIX
+    * @brief Function to compute the permutation matrix P
+    *
+    * @param p_vector_
+    *   the permutation vector that shows the desired order of rows
+    * @param contacts_num_
+    *   the number of finger contacts
+    * @return null - but sets the private variable P
+    */
+    void computePermutationMatrix(Eigen::VectorXd p_vector_, int contacts_num_);
 
   };
 

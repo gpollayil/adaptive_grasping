@@ -90,10 +90,20 @@ void matricesCreator::setJointsMap(std::map<int,
 
 /* SETOBJECTPOSE */
 void matricesCreator::setObjectPose(Eigen::Affine3d object_pose_){
+  // Set object pose
   object_pose = object_pose_;
 
   // Print message for debug
   if(DEBUG) std::cout << "Object pose set in matricesCreator!" << std::endl;
+}
+
+/* SETPERMUTATIONVECTOR */
+void matricesCreator::setPermutationVector(Eigen::VectorXd p_vector_){
+  // Set the permutation vector
+  p_vector = p_vector_;
+
+  // Print message for debug
+  if(DEBUG) std::cout << "Permutation vector set in matricesCreator!" << std::endl;
 }
 
 /* PREPAREKDL */
@@ -121,6 +131,7 @@ void matricesCreator::computeAllMatrices(){
   computeWholePoleChange(contacts_map);
   computeWholeContactSelection(contacts_map);
   computeWholeJacobian(contacts_map, joints_map);
+  computePermutationMatrix(p_vector, contacts_map.size());
 
   // Print message for debug
   if(DEBUG) std::cout << "Finished computing in matricesCreator!" << std::endl;
@@ -129,8 +140,8 @@ void matricesCreator::computeAllMatrices(){
 
 /* READALLMATRICES */
 void matricesCreator::readAllMatrices(Eigen::MatrixXd& read_J,
-  Eigen::MatrixXd& read_G, Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H){
-    read_J = J; read_G = G; read_T = T; read_H = H;
+  Eigen::MatrixXd& read_G, Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H, Eigen::MatrixXd& read_P){
+    read_J = J; read_G = G; read_T = T; read_H = H; read_P = P;
 }
 
 /* COMPUTEJACOBIAN */
@@ -442,4 +453,55 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
       k += H_i.rows();
       h += 6;
     }
+}
+
+/* COMPUTEPERMUTATIONMATRIX */
+void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int contacts_num_){
+  // Getting the size of the permutation vector
+  int length_p = p_vector_.size();
+
+  // Getting the sizes of Q_1 and Q_2 from the permutation vector
+  int size_Q_1 = 0;
+  int old_p = 0;
+
+  for(int i = 0; i < length_p; i++){
+    if(p_vector_(i) > old_p){
+      size_Q_1++;
+      old_p = p_vector_(i);
+    } else {
+      break;
+    }
+  }
+
+  int size_Q_2 = 6 - size_Q_1;
+
+  // Creating permutation matrix for 1 contact
+  Eigen::MatrixXd P_i = Eigen::MatrixXd::Zero(6, 6);
+  for(int i = 0; i < length_p; i++){
+    P_i(i, p_vector_(i)) = 1;
+  }
+
+  // Creating a block diagonal of permutation matrix for n contacts
+  Eigen::MatrixXd P_temp(6 * contacts_num_, 6 * contacts_num_);
+  int index = 0;
+  for(int i = 0; i < contacts_num_; i++){
+    P_temp.block(index, index, 6, 6) = P_i;
+    index += 6;
+  }
+
+  // Rearranging the permutation matrix into Q_1/Q_2 form (refer paper)
+  P.resize(6 * contacts_num_, 6 * contacts_num_);
+
+  for(int i = 0; i < contacts_num_; i++){
+    for(int j = 0; j < size_Q_1; j++){
+      P.row( (size_Q_1 * i) + j ) = P_temp.row( (6 * i) + j );
+    }
+  }
+
+  for(int i = 0; i < contacts_num_; i++){
+    for(int j = 0; j < size_Q_2; j++){
+      P.row( (contacts_num_ * size_Q_1) + (size_Q_2 * i) + j ) = P_temp.row( size_Q_1 + (6 * i) + j );
+    }
+  }
+
 }

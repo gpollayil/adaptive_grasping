@@ -138,6 +138,11 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     parseParameter(params_xml, this->spin_rate, param_names[7]);
     parseParameter(params_xml, this->object_topic_name, param_names[8]);
     parseParameter(params_xml, this->scaling, param_names[9]);
+
+    // p_vector (vector) needs to be parsed differently using the parsing function for matrix
+    Eigen::MatrixXd temp_p_vector;
+    parseParameter(params_xml, temp_p_vector, param_names[10]);
+    this->p_vector = temp_p_vector.transpose().col(0);
 }
 
 /* SETCOMMANDANDSEND */
@@ -234,10 +239,13 @@ void adaptiveGrasper::spinGrasper(){
             this->my_matrices_creator.setContactsMap(this->read_contacts_map);
             this->my_matrices_creator.setJointsMap(this->read_joints_map);
             this->my_matrices_creator.setObjectPose(this->object_pose);
+            this->my_matrices_creator.setPermutationVector(this->p_vector);
             this->my_matrices_creator.computeAllMatrices();
 
             // Reading and couting the matrices
-            this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H);
+            this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H, this->read_P);
+            ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The Permutation matrix: ");
+            ROS_INFO_STREAM("\nJ = " << "\n" << this->read_P << "\n");
             if(DEBUG){
                 ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
                 ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");

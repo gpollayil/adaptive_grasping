@@ -133,6 +133,7 @@ namespace adaptive_grasping {
     Eigen::VectorXd x_ref;                              // Contains the result of minimization x reference (from Contact Preserver)
     std::string object_topic_name;                      // Contains the name of the topic where the object poses are published (for Matrix Creator)
     double scaling;                                     // Contains the scaling factor for x reference
+    Eigen::VectorXd p_vector;                           // Contains the permutation vector for relaxed minimization (for Matrices Creator)
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
@@ -153,6 +154,7 @@ namespace adaptive_grasping {
     // The main matrices created by matrices creator and used for minimization
     Eigen::MatrixXd read_J; Eigen::MatrixXd read_G;
     Eigen::MatrixXd read_T; Eigen::MatrixXd read_H;
+    Eigen::MatrixXd read_P;
 
     // The service file to be sent to the robot commander server
     adaptive_grasping::velCommand ref_command;

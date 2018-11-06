@@ -38,6 +38,7 @@ int main(int argc, char** argv){
     param_names.push_back("spin_rate");
     param_names.push_back("object_topic_name");
     param_names.push_back("scaling");
+    param_names.push_back("p_vector");
 
     adaptive_grasper.initialize(param_names);
 
