@@ -52,5 +52,8 @@ adaptive_grasping:
   object_topic_name: "/object_pose_topic"
   # The scaling factor for the reference motion
   scaling: 1.0
+  # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q)
+  p_vector:
+    - [1, 2, 4, 5, 6, 3]    # for relaxing only the velocity along local z
 
 
