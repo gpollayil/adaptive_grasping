@@ -95,6 +95,7 @@ void adaptiveGrasper::printParsed(){
     ROS_INFO_STREAM("\nThe desired motion x_d is: \n" << this->x_d << ".");
     ROS_INFO_STREAM("\nThe object pose topic is: " << this->object_topic_name << ".");
     ROS_INFO_STREAM("\nThe reference scaling factor is: " << this->scaling << ".");
+    ROS_INFO_STREAM("\nThe permutation vector is: \n" << this->p_vector << ".");
 }
 
 /* PRINTCONTACTSINFO */
@@ -245,7 +246,7 @@ void adaptiveGrasper::spinGrasper(){
             // Reading and couting the matrices
             this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H, this->read_P);
             ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The Permutation matrix: ");
-            ROS_INFO_STREAM("\nJ = " << "\n" << this->read_P << "\n");
+            ROS_INFO_STREAM("\nP = " << "\n" << this->read_P << "\n");
             if(DEBUG){
                 ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
                 ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");

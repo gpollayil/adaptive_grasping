@@ -460,6 +460,8 @@ void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int co
   // Getting the size of the permutation vector
   int length_p = p_vector_.size();
 
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The length of the permutation vector is " << length_p << ".");
+
   // Getting the sizes of Q_1 and Q_2 from the permutation vector
   int size_Q_1 = 0;
   int old_p = 0;
@@ -475,33 +477,46 @@ void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int co
 
   int size_Q_2 = 6 - size_Q_1;
 
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The sizes of Q_1 and Q_2 are " << size_Q_1 << " and " << size_Q_2 << ".");
+
   // Creating permutation matrix for 1 contact
   Eigen::MatrixXd P_i = Eigen::MatrixXd::Zero(6, 6);
   for(int i = 0; i < length_p; i++){
-    P_i(i, p_vector_(i)) = 1;
+    P_i(i, p_vector_(i) - 1) = 1;
   }
 
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The ith permutation matrix: \n" << P_i << ".");
+
   // Creating a block diagonal of permutation matrix for n contacts
-  Eigen::MatrixXd P_temp(6 * contacts_num_, 6 * contacts_num_);
+  Eigen::MatrixXd P_temp = Eigen::MatrixXd::Zero(6 * contacts_num_, 6 * contacts_num_);
+
   int index = 0;
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the blocks creating for.");
   for(int i = 0; i < contacts_num_; i++){
     P_temp.block(index, index, 6, 6) = P_i;
     index += 6;
   }
 
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The diagonal permutation matrix: \n" << P_temp << ".");
+
   // Rearranging the permutation matrix into Q_1/Q_2 form (refer paper)
-  P.resize(6 * contacts_num_, 6 * contacts_num_);
+  P = Eigen::MatrixXd::Zero(6 * contacts_num_, 6 * contacts_num_);
+
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the first permutation for.");
 
   for(int i = 0; i < contacts_num_; i++){
     for(int j = 0; j < size_Q_1; j++){
       P.row( (size_Q_1 * i) + j ) = P_temp.row( (6 * i) + j );
     }
   }
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the second permutation for.");
 
   for(int i = 0; i < contacts_num_; i++){
     for(int j = 0; j < size_Q_2; j++){
       P.row( (contacts_num_ * size_Q_1) + (size_Q_2 * i) + j ) = P_temp.row( size_Q_1 + (6 * i) + j );
     }
   }
+
+  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The final permutation matrix: \n" << P << ".");
 
 }
