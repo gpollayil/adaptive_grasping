@@ -144,6 +144,12 @@ void matricesCreator::readAllMatrices(Eigen::MatrixXd& read_J,
     read_J = J; read_G = G; read_T = T; read_H = H; read_P = P;
 }
 
+/* READSIZEQ */
+void matricesCreator::readSizeQ(int& size_Q_1_){
+  // Reading the size
+  size_Q_1_ = size_Q_1_matrix;
+}
+
 /* COMPUTEJACOBIAN */
 KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
   KDL::JntArray q_){
@@ -309,8 +315,15 @@ void matricesCreator::computeWholeJacobian(std::map<int,
 
     Eigen::MatrixXd J_i_temp;
 
+    // Printing out the contacts map
+    if(true){
+      for(auto elem : contacts_map_){
+        std::cout << elem.first << " : " << std::get<0>(elem.second) << "." << std::endl;
+      }
+    }
+
     // For each contact, compute J_i and compose into J
-    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+    for(it_c = contacts_map_.begin(); it_c != contacts_map_.end(); ++it_c){
       // Getting the current finger
       int current_finger = it_c->first;
 
@@ -351,8 +364,11 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       // J_i_temp = J_i.data;
 
       // Print Eigen and a message for debug
-      if(DEBUG) std::cout << "J_i_temp is: " << std::endl;
-      if(DEBUG) std::cout << J_i_temp << std::endl;
+      if(true) std::cout << "The current finger is " << std::get<0>(it_c->second) << "." << std::endl;
+      if(true) std::cout << "J_i (in palm frame) is: " << std::endl;
+      if(true) std::cout << J_i.data << std::endl;
+      if(true) std::cout << "J_i (in world frame) is: " << std::endl;
+      if(true) std::cout << J_i_temp << std::endl;
       if(DEBUG) std::cout << "KDL to Eigen in matricesCreator!" << std::endl;
 
       if(current_finger == 1) J.block<6, 5>(k, h) = J_i_temp;
@@ -380,7 +396,7 @@ void matricesCreator::computeWholeGrasp(std::map<int, std::tuple<std::string,
     int k = 0;
 
     // For each contact, compute G_i and compose into G
-    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+    for(it_c = contacts_map_.begin(); it_c != contacts_map_.end(); ++it_c){
       // Compute the grasp matrix for the current contact
       Eigen::MatrixXd G_i = computeGrasp(std::get<1>(it_c->second),
         object_pose);
@@ -407,7 +423,7 @@ void matricesCreator::computeWholePoleChange(std::map<int,
     int k = 0;
 
     // For each contact, compute T_i and compose into T
-    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+    for(it_c = contacts_map_.begin(); it_c != contacts_map_.end(); ++it_c){
       // Compute the twist pole change matrix from palm to current contact
       Eigen::MatrixXd T_i = computePoleChange(std::get<1>(it_c->second),
         std::get<2>(it_c->second));
@@ -436,7 +452,7 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
     int h = 0;
 
     // For each contact, compute H_i (in world frame) and compose into H
-    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+    for(it_c = contacts_map_.begin(); it_c != contacts_map_.end(); ++it_c){
       // Compute the world to finger transform for H_i
       Eigen::MatrixXd M_i(6, 6);
       Eigen::MatrixXd R_i = std::get<1>(it_c->second).rotation();
@@ -457,10 +473,14 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
 
 /* COMPUTEPERMUTATIONMATRIX */
 void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int contacts_num_){
-  // Getting the size of the permutation vector
+  // Getting the size of the permutation vector and the row size of the constraint selection matrix H_i
   int length_p = p_vector_.size();
+  int rows_H_i = H_i.rows();
 
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The length of the permutation vector is " << length_p << ".");
+  // Asserting correct dimensions
+  if(length_p != rows_H_i) ROS_FATAL_STREAM("matricesCreator::computePermutationMatrix The length of the permutation vector is different from the rows of H_i: please change in yaml file!!!");
+
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The length of the permutation vector is " << length_p << ".");
 
   // Getting the sizes of Q_1 and Q_2 from the permutation vector
   int size_Q_1 = 0;
@@ -475,45 +495,51 @@ void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int co
     }
   }
 
-  int size_Q_2 = 6 - size_Q_1;
+  // If no actual permutation is found, relaxing the last component!
+  if(size_Q_1 = length_p) size_Q_1 -= 1;
 
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The sizes of Q_1 and Q_2 are " << size_Q_1 << " and " << size_Q_2 << ".");
+  int size_Q_2 = rows_H_i - size_Q_1;
+
+  // Setting the size of the whole big Q_1 matrix which is 6 * size_Q_1
+  size_Q_1_matrix = contacts_num_ * size_Q_1;
+
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The sizes of Q_1 and Q_2 are " << size_Q_1 << " and " << size_Q_2 << ".");
 
   // Creating permutation matrix for 1 contact
-  Eigen::MatrixXd P_i = Eigen::MatrixXd::Zero(6, 6);
+  Eigen::MatrixXd P_i = Eigen::MatrixXd::Zero(rows_H_i, rows_H_i);
   for(int i = 0; i < length_p; i++){
     P_i(i, p_vector_(i) - 1) = 1;
   }
 
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The ith permutation matrix: \n" << P_i << ".");
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The ith permutation matrix: \n" << P_i << ".");
 
   // Creating a block diagonal of permutation matrix for n contacts
-  Eigen::MatrixXd P_temp = Eigen::MatrixXd::Zero(6 * contacts_num_, 6 * contacts_num_);
+  Eigen::MatrixXd P_temp = Eigen::MatrixXd::Zero(rows_H_i * contacts_num_, rows_H_i * contacts_num_);
 
   int index = 0;
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the blocks creating for.");
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the blocks creating for.");
   for(int i = 0; i < contacts_num_; i++){
-    P_temp.block(index, index, 6, 6) = P_i;
-    index += 6;
+    P_temp.block(index, index, rows_H_i, rows_H_i) = P_i;
+    index += rows_H_i;
   }
 
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The diagonal permutation matrix: \n" << P_temp << ".");
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The diagonal permutation matrix: \n" << P_temp << ".");
 
   // Rearranging the permutation matrix into Q_1/Q_2 form (refer paper)
-  P = Eigen::MatrixXd::Zero(6 * contacts_num_, 6 * contacts_num_);
+  P = Eigen::MatrixXd::Zero(rows_H_i * contacts_num_, rows_H_i * contacts_num_);
 
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the first permutation for.");
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the first permutation for.");
 
   for(int i = 0; i < contacts_num_; i++){
     for(int j = 0; j < size_Q_1; j++){
-      P.row( (size_Q_1 * i) + j ) = P_temp.row( (6 * i) + j );
+      P.row( (size_Q_1 * i) + j ) = P_temp.row( (rows_H_i * i) + j );
     }
   }
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the second permutation for.");
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the second permutation for.");
 
   for(int i = 0; i < contacts_num_; i++){
     for(int j = 0; j < size_Q_2; j++){
-      P.row( (contacts_num_ * size_Q_1) + (size_Q_2 * i) + j ) = P_temp.row( size_Q_1 + (6 * i) + j );
+      P.row( (contacts_num_ * size_Q_1) + (size_Q_2 * i) + j ) = P_temp.row( size_Q_1 + (rows_H_i * i) + j );
     }
   }
 

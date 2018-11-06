@@ -147,7 +147,7 @@ namespace adaptive_grasping {
     void computeAllMatrices();
 
     /** READALLMATRICES
-    * @brief Function to read all of the matrices J, G, T and H at once
+    * @brief Function to read all of the matrices J, G, T, P and H at once
     *
     * @param read_J
     *   the reference to which the whole jacobian should be saved
@@ -157,10 +157,21 @@ namespace adaptive_grasping {
     *   the reference to which the whole pole change should be saved
     * @param read_H
     *   the reference to which the contact selection should be saved
+    * @param read_P
+    *   the permutation matrix
     * @return null
     */
     void readAllMatrices(Eigen::MatrixXd& read_J, Eigen::MatrixXd& read_G,
       Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H, Eigen::MatrixXd& read_P);
+
+    /** READSIZEQ
+    * @brief Function to read the dimension of the Q_1 Matrix
+    *
+    * @param read_size_Q_1
+    *   the size of the first constraint matrix Q_1
+    * @return null
+    */
+    void readSizeQ(int& size_Q_1_);
 
   private:
 
@@ -170,9 +181,10 @@ namespace adaptive_grasping {
     // Basic contact selection matrix
     Eigen::MatrixXd H_i;
 
-    // Permutation vector and matrix for relaxed minimization
+    // Permutation vector and matrix for relaxed minimization and size of whole Q_1
     Eigen::VectorXd p_vector;
     Eigen::MatrixXd P;
+    int size_Q_1_matrix;
 
     // Frame names for world and palm
     std::string world_frame_name;

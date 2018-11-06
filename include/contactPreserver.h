@@ -89,6 +89,17 @@ namespace adaptive_grasping {
     */
     void setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_);
 
+    /** SETPERMUTATIONPARAMS
+    * @brief Function to set new permutation matrix for the relaxed minimization problem
+    *
+    * @param P_
+    *   the whole permutation matrix
+    * @param size_Q_1_
+    *   the size of the matrix Q_1
+    * @return null
+    */
+    void setPermutationParams(Eigen::MatrixXd P_, int size_Q_1_);
+
     /** PERFORMMINIMIZATION
     * @brief Function to perform the minimization using current values
     *
@@ -119,6 +130,9 @@ namespace adaptive_grasping {
     // Synergy Matrix
     Eigen::MatrixXd S;
 
+    // Permutation Matrix
+    Eigen::MatrixXd P;
+
     // Planner desired motions
     Eigen::VectorXd x_d;
 
@@ -127,6 +141,18 @@ namespace adaptive_grasping {
 
     // Contact relation matrix
     Eigen::MatrixXd Q;
+
+    // Q_1 matrix
+    Eigen::MatrixXd Q_1;
+
+    // Q_2 matrix
+    Eigen::MatrixXd Q_2;
+
+    // Size of Q_1 (refer paper)
+    int size_Q_1;
+
+    // Size of Q_2 (refer paper)
+    int size_Q_2;
 
     // Null space basis of Q
     Eigen::MatrixXd N;

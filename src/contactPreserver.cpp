@@ -55,6 +55,13 @@ void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_,
   x_d = x_d_; A_tilde = A_tilde_;
 }
 
+/* SETPERMUTATIONMATRIX */
+void contactPreserver::setPermutationParams(Eigen::MatrixXd P_, int size_Q_1_){
+  // Setting the permutation matrix
+  P = P_;
+  size_Q_1 = size_Q_1_;
+}
+
 /* PERFORMMINIMIZATION */
 Eigen::VectorXd contactPreserver::performMinimization(){
   // Resize Q to be of correct size
@@ -83,6 +90,40 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   if(DEBUG) std::cout << "Lambda = " << std::endl; 
   if(DEBUG) std::cout << InverseBlock*N.transpose()*A_tilde*x_d << "." << std::endl;
   Eigen::VectorXd x_ref = N*InverseBlock*N.transpose()*A_tilde*x_d;
+
+  // If the value of the synergy is almost null, perform the relaxation
+  if(std::abs(x_ref(1)) < 0.0001){
+    ROS_WARN_STREAM("contactPreserver::performMinimization The synergy value is small: relaxing the constraints!.");
+
+    // Partitioning of Q using the permutation matrix P
+    if(true) std::cout << "The NON permuted Q = \n" << Q << "." << "\n-----------\n" << std::endl;
+    Q = P * Q;
+    if(DEBUG) std::cout << "Computed the permuted Q = \n" << Q << "." << std::endl;
+
+    // Computing the size of Q_2
+    size_Q_2 = Q.rows() - size_Q_1;
+    if(DEBUG) std::cout << "Computed the size of Q_2 which is " << size_Q_2 << "." << std::endl;
+
+    // Defining Q_1 and Q_2 and computing the null of Q_1
+    Q_1 = Q.block(0, 0, size_Q_1, Q.cols());
+    if(DEBUG) std::cout << "Computed Q_1: \n" << Q_1 << "\n-----------\n" << std::endl;
+    Q_2 = Q.block(size_Q_1, 0, size_Q_2, Q.cols());
+    if(DEBUG) std::cout << "Computed Q_2: \n" << Q_2 << "\n-----------\n" << std::endl;
+
+    // Compute a basis of the null space by using LU decomposition
+    Eigen::FullPivLU<Eigen::MatrixXd> lu_1(Q_1);
+    N = lu_1.kernel();                                    // ATTENTION: overwriting the previous null matrix
+    ROS_DEBUG_STREAM("N_1(Q_1) = \n" << N << ".");
+    if(DEBUG) std::cout << "Computed N_1(Q_1) in contactPreserver!" << std::endl;
+
+    // Finally, compute the reference motion that preserves the contacts
+    InverseBlock = (N.transpose() * (A_tilde + Q_2.transpose() * Q_2) * N).inverse();
+    if(DEBUG) std::cout << "Lambda Relaxed = " << std::endl; 
+    if(DEBUG) std::cout << InverseBlock*N.transpose()*A_tilde*x_d << "." << std::endl;
+    x_ref = N*InverseBlock*N.transpose()*A_tilde*x_d;
+
+    ROS_WARN_STREAM("contactPreserver::performMinimization Finished relaxing the constraints!.");
+  }
 
   // Return contact preserving solution
   return x_ref;

@@ -245,15 +245,19 @@ void adaptiveGrasper::spinGrasper(){
 
             // Reading and couting the matrices
             this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H, this->read_P);
-            ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The Permutation matrix: ");
-            ROS_INFO_STREAM("\nP = " << "\n" << this->read_P << "\n");
+            ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
             if(DEBUG){
                 ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
                 ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
                 ROS_INFO_STREAM("\nG = " << "\n" << this->read_G << "\n");
                 ROS_INFO_STREAM("\nT = " << "\n" << this->read_T << "\n");
                 ROS_INFO_STREAM("\nH = " << "\n" << this->read_H << "\n");
+                ROS_INFO_STREAM("\nP = " << "\n" << this->read_P << "\n");
             }
+
+            // Reading the size of Q_1
+            this->my_matrices_creator.readSizeQ(this->size_Q_1);
+            if(DEBUG) ROS_INFO_STREAM("\nThe size of Q_1 in adaptiveGrasper = " << this->size_Q_1 << "\n");
 
             // Setting the synergy matrix in preserver
             this->my_contact_preserver.changeHandType(this->S);
@@ -266,8 +270,9 @@ void adaptiveGrasper::spinGrasper(){
                 // Setting grasp state
                 this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
 
-                // Setting minimization parameters
+                // Setting minimization and relaxation parameters
                 this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
+                this->my_contact_preserver.setPermutationParams(this->read_P, this->size_Q_1);
 
                 // Performing minimization
                 this->x_ref = this->my_contact_preserver.performMinimization();

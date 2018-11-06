@@ -151,10 +151,10 @@ namespace adaptive_grasping {
     // The object pose which is updated by a subscriber to a topic
     Eigen::Affine3d object_pose;
 
-    // The main matrices created by matrices creator and used for minimization
+    // The main matrices created by matrices creator and used for minimization and size of Q_1
     Eigen::MatrixXd read_J; Eigen::MatrixXd read_G;
     Eigen::MatrixXd read_T; Eigen::MatrixXd read_H;
-    Eigen::MatrixXd read_P;
+    Eigen::MatrixXd read_P; int size_Q_1;
 
     // The service file to be sent to the robot commander server
     adaptive_grasping::velCommand ref_command;

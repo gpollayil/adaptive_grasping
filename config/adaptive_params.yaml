@@ -19,14 +19,14 @@ adaptive_grasping:
     ee_name: "right_hand_ee_link"
   # The array containing the number of links of each finger
   joints_num: [5, 7, 7, 7, 7]
-  # The following list of arrays is the contact selection matrix H
+  # The following list of arrays is the contact selection matrix H (CHANGE ALSO p_vector ACCORDINGLY)
   h_matrix:
     - [1, 0, 0, 0, 0, 0]
     - [0, 1, 0, 0, 0, 0]
     - [0, 0, 1, 0, 0, 0]
-    - [0, 0, 0, 1, 0, 0]
-    - [0, 0, 0, 0, 1, 0]
-    - [0, 0, 0, 0, 0, 1]
+    # - [0, 0, 0, 1, 0, 0]
+    # - [0, 0, 0, 0, 1, 0]
+    # - [0, 0, 0, 0, 0, 1]
   # The following list of arrays is the minimization weight matrix A tilde
   a_tilde_matrix:
     - [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -52,8 +52,9 @@ adaptive_grasping:
   object_topic_name: "/object_pose_topic"
   # The scaling factor for the reference motion
   scaling: 1.0
-  # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q)
+  # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
-    - [1, 2, 4, 5, 6, 3]    # for relaxing only the velocity along local z
+    # - [1, 2, 4, 5, 6, 3]    # for relaxing only the velocity along local z (FULLY CONSTRAINED)
+    - [1, 2, 3]               # for relaxing only the velocity along local z (POSITION CONSTRAINED)
 
 
