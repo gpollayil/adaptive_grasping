@@ -49,7 +49,7 @@ int main(int argc, char** argv){
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
 
     // Starting to spin
-    adaptive_grasper.spinROS();
+    adaptive_grasper.spinGrasper();
 
     // Success message
 	ROS_INFO("\nTerminating Adaptive Grasper!");

@@ -91,6 +91,14 @@ namespace adaptive_grasping {
     */
     void spinROS();
 
+    /** SPINGRASPER
+    * @brief Public function to run the adaptive loop
+    *
+    * @param null
+    * @return null
+    */
+    void spinGrasper();
+
   private:
 
     // ROS elements
@@ -182,13 +190,13 @@ namespace adaptive_grasping {
     */
     void getObjectPose(const geometry_msgs::Pose::ConstPtr &msg);
 
-    /** SPINGRASPER
-    * @brief Public function to run the adaptive loop
+    /** AGCALLBACK
+    * @brief Callback function for the adaptive grasper service
     *
     * @param null
     * @return bool if service done correctly
     */
-    bool spinGrasper(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res);
+    bool agCallback(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res);
 
   };
 

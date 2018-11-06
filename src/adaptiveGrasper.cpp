@@ -45,7 +45,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->client_rc = this->ag_nh.serviceClient<adaptive_grasping::velCommand>("rc_service");
 
     // Initializing the server to adaptive grasper
-    this->server_ag = this->ag_nh.advertiseService("adaptive_grasper_service", &adaptiveGrasper::spinGrasper, this);
+    this->server_ag = this->ag_nh.advertiseService("adaptive_grasper_service", &adaptiveGrasper::agCallback, this);
 
     // Starting to parse the needed elements from parameter server
     ROS_INFO_STREAM("adaptiveGrasper::initialize STARTING TO PARSE THE NEEDED VARIABLES!");
@@ -196,74 +196,83 @@ void adaptiveGrasper::getObjectPose(const geometry_msgs::Pose::ConstPtr &msg){
     this->adaptive_grasper_mutex.unlock();
 }
 
-/* SPINGRASPER */
-bool adaptiveGrasper::spinGrasper(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res){
+/* AGCALLBACK */
+bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res){
     // Checking if request is true and return otherwise
     if(!req.run_adaptive_grasp){
+        this->run = false;
         res.success = false;
         return false;
     }
 
+    // Setting the run to true
+    this->run = true;
+    res.success = true;
+    return true;
+}
+
+/* SPINGRASPER */
+void adaptiveGrasper::spinGrasper(){
     // Setting the ROS rate
     ros::Rate rate(this->spin_rate);
 
     // Starting the ROS loop
-    while(this->run){
-        // Spinning once to process callbacks
-        ros::spinOnce();
+    while(ros::ok()){
+        if(this->run){
+            // Spinning once to process callbacks
+            ros::spinOnce();
 
-        // Reading the values from contact state
-        this->my_contact_state.readValues(this->read_contacts_map, this->read_joints_map);
+            // Reading the values from contact state
+            this->my_contact_state.readValues(this->read_contacts_map, this->read_joints_map);
 
-        // Printing contacts info and synergy matrix
-        if(DEBUG) ROS_INFO_STREAM("\nSynergy Matrix S: \n" << this->S << ".\n");
-        if(DEBUG) this->printContactsInfo();
-        if(DEBUG) this->printObjectPose();
+            // Printing contacts info and synergy matrix
+            if(DEBUG) ROS_INFO_STREAM("\nSynergy Matrix S: \n" << this->S << ".\n");
+            if(DEBUG) this->printContactsInfo();
+            if(DEBUG) this->printObjectPose();
 
-        // Setting the necessary things in matrix creator and computing matrices
-        this->my_matrices_creator.setContactsMap(this->read_contacts_map);
-        this->my_matrices_creator.setJointsMap(this->read_joints_map);
-        this->my_matrices_creator.setObjectPose(this->object_pose);
-        this->my_matrices_creator.computeAllMatrices();
+            // Setting the necessary things in matrix creator and computing matrices
+            this->my_matrices_creator.setContactsMap(this->read_contacts_map);
+            this->my_matrices_creator.setJointsMap(this->read_joints_map);
+            this->my_matrices_creator.setObjectPose(this->object_pose);
+            this->my_matrices_creator.computeAllMatrices();
 
-        // Reading and couting the matrices
-        this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H);
-        if(DEBUG){
-            ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
-            ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
-            ROS_INFO_STREAM("\nG = " << "\n" << this->read_G << "\n");
-            ROS_INFO_STREAM("\nT = " << "\n" << this->read_T << "\n");
-            ROS_INFO_STREAM("\nH = " << "\n" << this->read_H << "\n");
-        }
+            // Reading and couting the matrices
+            this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H);
+            if(DEBUG){
+                ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
+                ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
+                ROS_INFO_STREAM("\nG = " << "\n" << this->read_G << "\n");
+                ROS_INFO_STREAM("\nT = " << "\n" << this->read_T << "\n");
+                ROS_INFO_STREAM("\nH = " << "\n" << this->read_H << "\n");
+            }
 
-        // Setting the synergy matrix in preserver
-        this->my_contact_preserver.changeHandType(this->S);
+            // Setting the synergy matrix in preserver
+            this->my_contact_preserver.changeHandType(this->S);
 
-        // Resetting the reference motion to zero
-        this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
+            // Resetting the reference motion to zero
+            this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
 
-        // Performing the minimization only if there are contacts (i.e. the matrices are not empty)
-        if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0){
-            // Setting grasp state
-            this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
+            // Performing the minimization only if there are contacts (i.e. the matrices are not empty)
+            if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0){
+                // Setting grasp state
+                this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
 
-            // Setting minimization parameters
-            this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
+                // Setting minimization parameters
+                this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
 
-            // Performing minimization
-            this->x_ref = this->my_contact_preserver.performMinimization();
+                // Performing minimization
+                this->x_ref = this->my_contact_preserver.performMinimization();
 
-            if(DEBUG) ROS_DEBUG_STREAM("adaptiveGrasper::spinGrasper Performed Minimization!!!");
-        }
+                if(DEBUG) ROS_DEBUG_STREAM("adaptiveGrasper::spinGrasper Performed Minimization!!!");
+            }
 
-        // Scaling the reference and sending to the robot commander
-        this->x_ref = this->scaling * this->x_ref;
-        if(true) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
+            // Scaling the reference and sending to the robot commander
+            this->x_ref = this->scaling * this->x_ref;
+            if(true) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
 
-        if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
-            ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander!");
-            res.success = false;
-            return false;
+            if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
+                ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander!");
+            }
         }
 
         // Rate
@@ -273,6 +282,4 @@ bool adaptiveGrasper::spinGrasper(adaptive_grasping::adaptiveGrasp::Request &req
 
     // Finished adaptive grasping, returning
     ROS_INFO_STREAM("Finished Adaptive Grasping: returning!!!");
-    res.success = true;
-    return true;
 }
