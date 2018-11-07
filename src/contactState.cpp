@@ -121,7 +121,7 @@ void contactState::iterateContacts(){
     for(auto it_c : contacts_map){
       // Getting the frame names
       std::string frame_fing = std::get<0>(it_c.second);
-      if(true) std::cout << "Managing contacts for " << frame_fing << "." << std::endl;
+      if(DEBUG) std::cout << "Managing contacts for " << frame_fing << "." << std::endl;
       std::string frame_world = params_map.at("world_name");
       std::string frame_palm = params_map.at("palm_name");
 
@@ -153,7 +153,7 @@ void contactState::iterateJoints(){
     // Creating an srv with touching_finger id and filling up
     if(DEBUG) ROS_INFO("The Finger Joint srv is being filled!");
     finger_fk::FingerJointsService srv;
-    srv.request.finger_id = touching_finger;
+    srv.request.finger_id = it_j->first;
 
     // Calling the service
     if (fj_client.call(srv)) {

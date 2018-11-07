@@ -106,15 +106,15 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
     // Defining Q_1 and Q_2 and computing the null of Q_1
     Q_1 = Q.block(0, 0, size_Q_1, Q.cols());
-    if(DEBUG) std::cout << "Computed Q_1: \n" << Q_1 << "\n-----------\n" << std::endl;
+    if(true) std::cout << "Computed Q_1: \n" << Q_1 << "\n-----------\n" << std::endl;
     Q_2 = Q.block(size_Q_1, 0, size_Q_2, Q.cols());
-    if(DEBUG) std::cout << "Computed Q_2: \n" << Q_2 << "\n-----------\n" << std::endl;
+    if(true) std::cout << "Computed Q_2: \n" << Q_2 << "\n-----------\n" << std::endl;
 
     // Compute a basis of the null space by using LU decomposition
     Eigen::FullPivLU<Eigen::MatrixXd> lu_1(Q_1);
     N = lu_1.kernel();                                    // ATTENTION: overwriting the previous null matrix
     ROS_DEBUG_STREAM("N_1(Q_1) = \n" << N << ".");
-    if(DEBUG) std::cout << "Computed N_1(Q_1) in contactPreserver!" << std::endl;
+    if(true) std::cout << "Computed N_1(Q_1) in contactPreserver: \n" << N << "." << std::endl;
 
     // Finally, compute the reference motion that preserves the contacts
     InverseBlock = (N.transpose() * (A_tilde + Q_2.transpose() * Q_2) * N).inverse();

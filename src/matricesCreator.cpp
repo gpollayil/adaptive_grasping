@@ -316,7 +316,7 @@ void matricesCreator::computeWholeJacobian(std::map<int,
     Eigen::MatrixXd J_i_temp;
 
     // Printing out the contacts map
-    if(true){
+    if(DEBUG){
       std::cout << "Contacts map in matricesCreator is:" << std::endl;
       for(auto elem : contacts_map_){
         std::cout << elem.first << " : " << std::get<0>(elem.second) << "." << std::endl;
@@ -365,11 +365,11 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       // J_i_temp = J_i.data;
 
       // Print Eigen and a message for debug
-      if(true) std::cout << "The current finger is " << std::get<0>(it_c->second) << "." << std::endl;
-      if(true) std::cout << "J_i (in palm frame) is: " << std::endl;
-      if(true) std::cout << J_i.data << std::endl;
-      if(true) std::cout << "J_i (in world frame) is: " << std::endl;
-      if(true) std::cout << J_i_temp << std::endl;
+      if(DEBUG) std::cout << "The current finger is " << std::get<0>(it_c->second) << "." << std::endl;
+      if(DEBUG) std::cout << "J_i (in palm frame) is: " << std::endl;
+      if(DEBUG) std::cout << J_i.data << std::endl;
+      if(DEBUG) std::cout << "J_i (in world frame) is: " << std::endl;
+      if(DEBUG) std::cout << J_i_temp << std::endl;
       if(DEBUG) std::cout << "KDL to Eigen in matricesCreator!" << std::endl;
 
       if(current_finger == 1) J.block<6, 5>(k, h) = J_i_temp;
