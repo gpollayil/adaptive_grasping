@@ -81,11 +81,11 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
     // Creating a tuple with identity Affine3ds
     Eigen::Affine3d identity_aff = Eigen::Affine3d::Identity();
     std::string touched_link_name = link_names_map.at(touching_finger);
-    if(true) std::cout << "The touching finger link is " << touched_link_name << "." << std::endl;
+    if(DEBUG) std::cout << "The touching finger link is " << touched_link_name << "." << std::endl;
     std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d> empty_tuple (std::make_tuple(touched_link_name,
         identity_aff, identity_aff));
-    if(true) std::cout << "The touching finger link in empty_tuple is " << std::get<0>(empty_tuple) << "." << std::endl;
+    if(DEBUG) std::cout << "The touching finger link in empty_tuple is " << std::get<0>(empty_tuple) << "." << std::endl;
     
     // Analogously creating an empty joint state
     sensor_msgs::JointState empty_joints;
