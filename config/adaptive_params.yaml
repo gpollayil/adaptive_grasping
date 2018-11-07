@@ -54,7 +54,7 @@ adaptive_grasping:
   scaling: 1.0
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
-    # - [1, 2, 4, 5, 6, 3]    # for relaxing only the velocity along local z (FULLY CONSTRAINED)
+    # - [1, 2, 4, 5, 6, 3]      # for relaxing only the velocity along local z (FULLY CONSTRAINED)
     - [1, 2, 3]               # for relaxing only the velocity along local z (POSITION CONSTRAINED)
 
 

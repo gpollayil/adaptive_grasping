@@ -159,6 +159,9 @@ namespace adaptive_grasping {
     // The service file to be sent to the robot commander server
     adaptive_grasping::velCommand ref_command;
 
+    // The vector for sending zeros to the velocity and twist controllers (same dimension as x_ref)
+    Eigen::VectorXd zero_ref;
+
     /** PARSEPARAMS
     * @brief Class function to get a single param from parameter server
     *
