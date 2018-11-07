@@ -36,7 +36,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << js_sub.getTopic() << ".");
 
     // Getting ready to run the algo
-    this->run = true;
+    this->run = false;
 
     // Waiting for a message in joint states
     this->full_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", this->ag_nh);
@@ -69,6 +69,9 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->my_contact_state.intialize(this->touch_topic_name, this->link_names_map, this->params_map);
     this->my_matrices_creator.initialize(this->H_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
+
+    // Resetting the reference motion to zero
+    this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
 
     ROS_INFO_STREAM("adaptiveGrasper::initialize FINISHED BUILDING THE OBJECTS!");
 }
@@ -204,14 +207,18 @@ void adaptiveGrasper::getObjectPose(const geometry_msgs::Pose::ConstPtr &msg){
 
 /* AGCALLBACK */
 bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res){
+    if(DEBUG) ROS_INFO_STREAM("Entering the AG callback!");
+
     // Checking if request is true and return otherwise
     if(!req.run_adaptive_grasp){
+        if(DEBUG) ROS_INFO_STREAM("The request run adaptive grasp is FALSE!");
         this->run = false;
         res.success = false;
         return false;
     }
 
     // Setting the run to true
+    if(DEBUG) ROS_INFO_STREAM("The request run adaptive grasp is TRUE!");
     this->run = true;
     res.success = true;
     return true;
@@ -224,10 +231,10 @@ void adaptiveGrasper::spinGrasper(){
 
     // Starting the ROS loop
     while(ros::ok()){
-        if(this->run){
-            // Spinning once to process callbacks
-            ros::spinOnce();
+        // Spinning once to process callbacks
+        ros::spinOnce();
 
+        if(this->run){
             // Reading the values from contact state
             this->my_contact_state.readValues(this->read_contacts_map, this->read_joints_map);
 
