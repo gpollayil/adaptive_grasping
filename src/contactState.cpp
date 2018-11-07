@@ -103,7 +103,7 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
   }
 
   // Printing out the contacts map
-  if(true){
+  if(DEBUG){
     std::cout << "Contacts map in contactState is:" << std::endl;
     for(auto elem : contacts_map){
       std::cout << elem.first << " : " << std::get<0>(elem.second) << "." << std::endl;

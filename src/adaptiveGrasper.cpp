@@ -297,7 +297,7 @@ void adaptiveGrasper::spinGrasper(){
         } else {
             // If the run bool is false publish zero twist and speed
             zero_ref = Eigen::VectorXd::Zero(this->x_ref.size());
-            if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
+            if(!this->setCommandAndSend(zero_ref, this->ref_command)){
                 ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending zeros!");
             }
         }
