@@ -81,10 +81,12 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
     // Creating a tuple with identity Affine3ds
     Eigen::Affine3d identity_aff = Eigen::Affine3d::Identity();
     std::string touched_link_name = link_names_map.at(touching_finger);
+    if(true) std::cout << "The touching finger link is " << touched_link_name << "." << std::endl;
     std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d> empty_tuple (std::make_tuple(touched_link_name,
         identity_aff, identity_aff));
-
+    if(true) std::cout << "The touching finger link in empty_tuple is " << std::get<0>(empty_tuple) << "." << std::endl;
+    
     // Analogously creating an empty joint state
     sensor_msgs::JointState empty_joints;
 
@@ -99,18 +101,27 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
     iterateContacts();
     iterateJoints();
   }
+
+  // Printing out the contacts map
+  if(true){
+    std::cout << "Contacts map in contactState is:" << std::endl;
+    for(auto elem : contacts_map){
+      std::cout << elem.first << " : " << std::get<0>(elem.second) << "." << std::endl;
+    }
+  }
 }
 
 /* ITERATECONTACTS */
 void contactState::iterateContacts(){
   // Creating an iterator for contacts_map
-  std::map<int, std::tuple<std::string, Eigen::Affine3d,
-    Eigen::Affine3d>>::iterator it_c;
+  // std::map<int, std::tuple<std::string, Eigen::Affine3d,
+  //   Eigen::Affine3d>>::iterator it_c;
 
     // Now with a loop echoing and saving all needed transforms in contacts_map
-    for(it_c = contacts_map.begin(); it_c != contacts_map.end(); ++it_c){
+    for(auto it_c : contacts_map){
       // Getting the frame names
-      std::string frame_fing = std::get<0>(it_c->second);
+      std::string frame_fing = std::get<0>(it_c.second);
+      if(true) std::cout << "Managing contacts for " << frame_fing << "." << std::endl;
       std::string frame_world = params_map.at("world_name");
       std::string frame_palm = params_map.at("palm_name");
 
@@ -124,7 +135,7 @@ void contactState::iterateContacts(){
         Eigen::Affine3d> correct_tuple (std::make_tuple(frame_fing,
           fing_aff, palm_aff));
       contact_state_mutex.lock();                             // mutex on
-      contacts_map[touching_finger] = correct_tuple;
+      contacts_map[it_c.first] = correct_tuple;
       contact_state_mutex.unlock();                           // mutex off
     }
 }
@@ -161,7 +172,7 @@ void contactState::iterateJoints(){
 
     // Writing the correct JointState into the map
     contact_state_mutex.lock();                             // mutex on
-    joints_map[touching_finger] = correct_joints;
+    joints_map[it_j->first] = correct_joints;
     contact_state_mutex.unlock();                           // mutex off
   }
 }

@@ -317,6 +317,7 @@ void matricesCreator::computeWholeJacobian(std::map<int,
 
     // Printing out the contacts map
     if(true){
+      std::cout << "Contacts map in matricesCreator is:" << std::endl;
       for(auto elem : contacts_map_){
         std::cout << elem.first << " : " << std::get<0>(elem.second) << "." << std::endl;
       }
