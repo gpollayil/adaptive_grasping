@@ -195,6 +195,15 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
     this->adaptive_grasper_mutex.lock();
     this->S = Syn / this->full_joint_state->position[index - 1];
     this->adaptive_grasper_mutex.unlock();
+
+    // Checking if the synergy value is over a threshold and setting run bool accordingly (for stopping the grasping)
+    if(this->full_joint_state->position[index - 1] > 0.85){
+        this->adaptive_grasper_mutex.lock();
+        this->run = false;
+        this->adaptive_grasper_mutex.unlock();
+        ROS_INFO_STREAM("adaptiveGrasper The hand is almost fully closed: stopping the grasping!");
+    }
+
 }
 
 /* GETOBJECTPOSE */
@@ -212,14 +221,18 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
     // Checking if request is true and return otherwise
     if(!req.run_adaptive_grasp){
         if(DEBUG) ROS_INFO_STREAM("The request run adaptive grasp is FALSE!");
+        this->adaptive_grasper_mutex.lock();
         this->run = false;
+        this->adaptive_grasper_mutex.unlock();
         res.success = false;
         return false;
     }
 
     // Setting the run to true
     if(DEBUG) ROS_INFO_STREAM("The request run adaptive grasp is TRUE!");
+    this->adaptive_grasper_mutex.lock();
     this->run = true;
+    this->adaptive_grasper_mutex.unlock();
     res.success = true;
     return true;
 }
