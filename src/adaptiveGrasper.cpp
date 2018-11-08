@@ -147,6 +147,8 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     Eigen::MatrixXd temp_p_vector;
     parseParameter(params_xml, temp_p_vector, param_names[10]);
     this->p_vector = temp_p_vector.transpose().col(0);
+
+    parseParameter(params_xml, this->syn_thresh, param_names[11]);
 }
 
 /* SETCOMMANDANDSEND */
@@ -197,7 +199,7 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
     this->adaptive_grasper_mutex.unlock();
 
     // Checking if the synergy value is over a threshold and setting run bool accordingly (for stopping the grasping)
-    if(this->full_joint_state->position[index - 1] > 0.85){
+    if(this->run && (this->full_joint_state->position[index - 1] > this->syn_thresh)){
         this->adaptive_grasper_mutex.lock();
         this->run = false;
         this->adaptive_grasper_mutex.unlock();

@@ -39,6 +39,7 @@ int main(int argc, char** argv){
     param_names.push_back("object_topic_name");
     param_names.push_back("scaling");
     param_names.push_back("p_vector");
+    param_names.push_back("syn_thresh");
 
     adaptive_grasper.initialize(param_names);
 
