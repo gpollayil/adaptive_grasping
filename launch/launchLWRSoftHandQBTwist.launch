@@ -26,7 +26,7 @@
 
 	<!-- Set true if real robot is connected -->
 	<arg name="right_arm_enabled" default="true"/>
-  	<arg name="right_hand_enabled" default="false"/>
+  	<arg name="right_hand_enabled" default="true"/>
 
   	<!-- choose to launch qb_interface or qb_interface_imu -->
     <arg name="launch_qb_interface" default="true"/>
