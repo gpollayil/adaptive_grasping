@@ -10,7 +10,7 @@
 	<arg name="environment_name" default="lwr_soma_surface"/>
 
 	<!-- Set simulation tools -->
-	<arg name="use_gazebo" default="false"/>
+	<arg name="use_gazebo" default="true"/>
 
 	<!-- Set usage MoveIt! -->
 	<arg name="use_moveit" default="true"/>
