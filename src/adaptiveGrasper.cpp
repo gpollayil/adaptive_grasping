@@ -73,6 +73,10 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     // Resetting the reference motion to zero
     this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
 
+    // Setting up the RViz object marker publisher
+    this->marker_pub = ag_nh.advertise<visualization_msgs::Marker>("object_marker", 1);
+    this->obj_marker.header.frame_id = "/world";
+
     ROS_INFO_STREAM("adaptiveGrasper::initialize FINISHED BUILDING THE OBJECTS!");
 }
 
@@ -214,6 +218,19 @@ void adaptiveGrasper::getObjectPose(const geometry_msgs::Pose::ConstPtr &msg){
     this->adaptive_grasper_mutex.lock();
     tf::poseMsgToEigen(*msg, this->object_pose);
     this->adaptive_grasper_mutex.unlock();
+
+    // Publishing the object to RViz
+    this->obj_marker.header.stamp = ros::Time::now();
+    this->obj_marker.ns = "adaptive_grasping";
+    this->obj_marker.id = 0;
+    this->obj_marker.type = shape;
+    this->obj_marker.action = visualization_msgs::Marker::ADD;
+    this->obj_marker.pose.position.x = this->object_pose.translation()[0]; this->obj_marker.pose.position.y = this->object_pose.translation()[1];
+    this->obj_marker.pose.position.z = this->object_pose.translation()[2];
+    this->obj_marker.scale.x = 0.05; this->obj_marker.scale.y = 0.05; this->obj_marker.scale.z = 0.05;
+    this->obj_marker.color.r = 0.0f; this->obj_marker.color.g = 1.0f; this->obj_marker.color.b = 0.0f; this->obj_marker.color.a = 1.0f;
+    this->obj_marker.lifetime = ros::Duration(0);
+    this->marker_pub.publish(this->obj_marker);
 }
 
 /* AGCALLBACK */

@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <sensor_msgs/JointState.h>
 #include "ros/ros.h"
 
@@ -89,10 +90,12 @@ namespace adaptive_grasping {
     // Publishers to hand and arm controllers
     ros::Publisher pub_hand;
     ros::Publisher pub_arm;
+    ros::Publisher pub_twist_debug;
 
     // Command vars: messages to be published
     geometry_msgs::Twist cmd_twist;
     std_msgs::Float64 cmd_syn;
+    geometry_msgs::WrenchStamped twist_wrench;          // Publishing twist as a wrench (For Debugging)
 
     /** PERFORMROBOTCOMMAND
     * @brief Private callback function of the main service of robotCommander

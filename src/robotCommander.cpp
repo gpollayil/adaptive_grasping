@@ -19,9 +19,10 @@ robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_){
     // Storing the topic strings
     this->hand_topic = hand_topic_; this->arm_topic = arm_topic_;
     
-    // Initializing the action client and the publisher
+    // Initializing the publishers
     this->pub_hand = nh_rc.advertise<std_msgs::Float64>(this->hand_topic , 1);
     this->pub_arm = nh_rc.advertise<geometry_msgs::Twist>(this->arm_topic , 1);
+    this->pub_twist_debug = nh_rc.advertise<geometry_msgs::WrenchStamped>("/twist_debug" , 1);
     
     // Resizing the Eigen Vector
     this->x_ref.resize(7);
@@ -73,6 +74,14 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     // Publishing to robot controllers
     this->pub_hand.publish(this->cmd_syn);
     this->pub_arm.publish(this->cmd_twist);
+
+    // Filling and publishing the twist for debug
+    this->twist_wrench.header.frame_id = "world";
+    this->twist_wrench.header.stamp = ros::Time::now();
+    this->twist_wrench.wrench.force.x = x_ref(1); this->twist_wrench.wrench.torque.x = x_ref(4);
+    this->twist_wrench.wrench.force.y = x_ref(2); this->twist_wrench.wrench.torque.y = x_ref(5);
+    this->twist_wrench.wrench.force.z = x_ref(3); this->twist_wrench.wrench.torque.z = x_ref(6);
+    this->pub_twist_debug.publish(this->twist_wrench);
 
     // Return the callback result
     res.success = success;

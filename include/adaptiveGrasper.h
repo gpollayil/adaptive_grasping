@@ -12,6 +12,9 @@
 #include "adaptive_grasping/velCommand.h"
 #include "adaptive_grasping/adaptiveGrasp.h"
 
+// For RViz Visualization
+#include <visualization_msgs/Marker.h>
+
 /**
 * @brief This class is created by the main of the adaptive_grasping_node: it
 * contains all the other classes: contact_state, matrix_creator and contact_preserver
@@ -105,9 +108,14 @@ namespace adaptive_grasping {
     ros::NodeHandle ag_nh;
     ros::Subscriber js_sub;                               // Subscriber to joint states
     ros::Subscriber op_sub;                               // Subscriber to object pose
+    ros::Publisher marker_pub;                            // Publisher for object marker to RViz
     ros::ServiceClient client_rc;                         // Service client to robot commander
     ros::ServiceServer server_ag;                         // Service server for adaptive grasper
     double spin_rate;                                     // Rate at which the adaptive grasper should run
+
+    // RViz object marker elements
+    uint32_t shape = visualization_msgs::Marker::SPHERE;
+    visualization_msgs::Marker obj_marker;
 
     // Boolean true if the algorithm should continue running
     bool run;
