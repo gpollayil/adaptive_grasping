@@ -130,6 +130,7 @@ namespace adaptive_grasping {
     std::mutex adaptive_grasper_mutex;
 
     // Elements needed for construction of the main objects
+    int contacts_num;                                   // Number of present finger contacts (updated in the loop)
     std::string touch_topic_name;                       // Contains the name of the topic where touch ids are published (for Contact State)
     std::map<int, std::string> link_names_map;          // Contains the correspondance between ids and link names (for Contact State)
     std::map<std::string, std::string> params_map;      // Contains mainly frame names (for Contact State)

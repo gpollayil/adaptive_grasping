@@ -269,6 +269,7 @@ void adaptiveGrasper::spinGrasper(){
         if(this->run){
             // Reading the values from contact state
             this->my_contact_state.readValues(this->read_contacts_map, this->read_joints_map);
+            this->contacts_num = this->read_contacts_map.size();
 
             // Printing contacts info and synergy matrix
             if(DEBUG) ROS_INFO_STREAM("\nSynergy Matrix S: \n" << this->S << ".\n");
@@ -294,10 +295,6 @@ void adaptiveGrasper::spinGrasper(){
                 ROS_INFO_STREAM("\nP = " << "\n" << this->read_P << "\n");
             }
 
-            // Reading the size of Q_1
-            this->my_matrices_creator.readSizeQ(this->size_Q_1);
-            if(DEBUG) ROS_INFO_STREAM("\nThe size of Q_1 in adaptiveGrasper = " << this->size_Q_1 << "\n");
-
             // Setting the synergy matrix in preserver
             this->my_contact_preserver.changeHandType(this->S);
 
@@ -311,7 +308,7 @@ void adaptiveGrasper::spinGrasper(){
 
                 // Setting minimization and relaxation parameters
                 this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
-                this->my_contact_preserver.setPermutationParams(this->read_P, this->size_Q_1);
+                this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
                 // Performing minimization
                 this->x_ref = this->my_contact_preserver.performMinimization();

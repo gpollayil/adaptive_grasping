@@ -90,15 +90,22 @@ namespace adaptive_grasping {
     void setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_);
 
     /** SETPERMUTATIONPARAMS
-    * @brief Function to set new permutation matrix for the relaxed minimization problem
+    * @brief Function to set new permutation matrix for the relaxed minimization problem (used to compute R)
     *
     * @param P_
     *   the whole permutation matrix
-    * @param size_Q_1_
-    *   the size of the matrix Q_1
+    * @param num_contacts_
+    *   the number of fingers in contact
     * @return null
     */
-    void setPermutationParams(Eigen::MatrixXd P_, int size_Q_1_);
+    void setPermutationParams(Eigen::MatrixXd P_, int num_contacts_);
+
+    /** SETRMATRIX
+    * @brief Function to build relaxation matrices R and R_bar from order of relaxation
+    *
+    * @return bool
+    */
+    bool setRMatrix();
 
     /** PERFORMMINIMIZATION
     * @brief Function to perform the minimization using current values
@@ -115,6 +122,9 @@ namespace adaptive_grasping {
     void printAll();
 
   private:
+    // Boolean for checking if first iteration
+    bool first_it = true;
+
     // Current contacts jacobian
     Eigen::MatrixXd J;
 
@@ -136,26 +146,44 @@ namespace adaptive_grasping {
     // Planner desired motions
     Eigen::VectorXd x_d;
 
+    // Previous planner desired motions
+    Eigen::VectorXd x_d_old;
+
+    // Particular solution x_star
+    Eigen::VectorXd x_star;
+
+    // Constant term for Q_tilde (obtained by appending zeros under x_d)
+    Eigen::VectorXd y;
+
     // Minimization weights
     Eigen::MatrixXd A_tilde;
 
     // Contact relation matrix
     Eigen::MatrixXd Q;
 
-    // Q_1 matrix
-    Eigen::MatrixXd Q_1;
+    // Q_tilde matrix
+    Eigen::MatrixXd Q_tilde;
 
-    // Q_2 matrix
-    Eigen::MatrixXd Q_2;
+    // Relaxation matrix R
+    Eigen::MatrixXd R;
 
-    // Size of Q_1 (refer paper)
-    int size_Q_1;
+    // Relaxation matrix R_bar
+    Eigen::MatrixXd R_bar;
 
-    // Size of Q_2 (refer paper)
-    int size_Q_2;
+    // Pseudo inverse of R_bar Q_tilde
+    Eigen::MatrixXd pinv_R_bar_Q_tilde;
 
-    // Null space basis of Q
-    Eigen::MatrixXd N;
+    // The C matrix in the algorithm
+    Eigen::MatrixXd C;
+
+    // Number of times the relax functon has been called for the same x_d
+    int relaxation_order;
+
+    // Number of contacting fingers
+    int num_contacts;
+
+    // Null space basis of Q_tilde
+    Eigen::MatrixXd N_tilde;
 
   }; // closing class
 

@@ -164,15 +164,6 @@ namespace adaptive_grasping {
     void readAllMatrices(Eigen::MatrixXd& read_J, Eigen::MatrixXd& read_G,
       Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H, Eigen::MatrixXd& read_P);
 
-    /** READSIZEQ
-    * @brief Function to read the dimension of the Q_1 Matrix
-    *
-    * @param read_size_Q_1
-    *   the size of the first constraint matrix Q_1
-    * @return null
-    */
-    void readSizeQ(int& size_Q_1_);
-
   private:
 
     // ROS Node Handle for parsing parameters
@@ -184,7 +175,6 @@ namespace adaptive_grasping {
     // Permutation vector and matrix for relaxed minimization and size of whole Q_1
     Eigen::VectorXd p_vector;
     Eigen::MatrixXd P;
-    int size_Q_1_matrix;
 
     // Frame names for world and palm
     std::string world_frame_name;
