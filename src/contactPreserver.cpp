@@ -57,7 +57,7 @@ void contactPreserver::setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_,
 void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_,
   Eigen::MatrixXd A_tilde_){
   // Set the new desired motion vector and weight matrix
-  x_d = x_d_; A_tilde = A_tilde_;
+  x_d = x_d_; A_tilde_parsed = A_tilde_;
 }
 
 /* SETPERMUTATIONMATRIX */
@@ -80,11 +80,42 @@ bool contactPreserver::setRMatrix(){
   } else {
     int residual = relaxation_order - x_d.size();
     R = Eigen::MatrixXd::Zero(x_d.size() + num_contacts * residual, x_d.size() + P.cols());
+    R.block(0, 0, x_d.size(), x_d.size()) = Eigen::MatrixXd::Identity(x_d.size(), x_d.size());
+
+    int index_x = x_d.size();
+    int index_y = x_d.size();
+    if(DEBUG) ROS_INFO_STREAM("contactPreserver::setRMatrix Entering the blocks creating for.");
+    for(int i = 0; i < num_contacts; i++){
+      R.block(index_x, index_y, residual, P.cols() / num_contacts) = P.block(0, 0, residual, P.cols() / num_contacts);
+      index_x += residual;
+      index_y += P.cols() / num_contacts;
+    }
+
+    std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; std::cout << R << std::endl;
   }
 
   // Compute R_bar as N(R) transpose
   Eigen::FullPivLU<Eigen::MatrixXd> lu(R);
   R_bar = lu.kernel().transpose();
+
+  std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; std::cout << R_bar << std::endl;
+
+  return true;
+}
+
+/* UPDATEAMATRIX */
+void contactPreserver::updateAMatrix(){
+  // If R matrix is smaller than A_tilde_parsed no need to add extra diagonal identity
+  if(R.rows() <= A_tilde_parsed.rows()){
+    A_tilde = A_tilde_parsed.block(0, 0, R.rows(), R.rows());
+  } else {
+    A_tilde = Eigen::MatrixXd::Zero(R.rows(), R.rows());
+    A_tilde.block(0, 0, A_tilde_parsed.rows(), A_tilde_parsed.rows()) = A_tilde_parsed;
+    int rem_rows = R.rows() - A_tilde_parsed.rows();
+    A_tilde.block(A_tilde_parsed.rows(), A_tilde_parsed.rows(), rem_rows, rem_rows) = Eigen::MatrixXd::Identity(rem_rows, rem_rows);
+  }
+
+  std::cout << "contactPreserver::updateAMatrix Updated A_tilde =" << std::endl; std::cout << A_tilde << std::endl;
 }
 
 /* PERFORMMINIMIZATION */
@@ -121,6 +152,9 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
   x_d_old = x_d;
 
+  // Now if necessary changing the matrices R and R_bar or eventually reset them
+  setRMatrix();
+
   // Check the first condition of algorithm
   pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, false);             // Undamped pseudo inversion of (R_bar * Q_tilde)
   if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001)){
@@ -132,51 +166,29 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     // Print message for debug
     if(DEBUG) std::cout << "Computed N_tilde(Q) in contactPreserver!" << std::endl;
 
-    // Computing the solution
-    C = N_tilde.transpose() * Q_tilde.transpose() * R.transpose() * 
+    // Updating A_tilde to comply with the dimensions of R
+    updateAMatrix();
 
+    // Computing the solution (formulas in paper)
+    C = N_tilde.transpose() * Q_tilde.transpose() * R.transpose() * A_tilde * R;
+    x_star = pinv_R_bar_Q_tilde * R_bar * y;
+    x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
+
+    // Checking the second condition of algorithm
+    if(x_ref.head(S.cols()).norm() < 0.0001){
+      /*  If the condition for norm is not valid, relax (increase relaxation_order) 
+        Recomputation of the R matrices will be performed by setRMatrix at next iteration 
+      */
+      relaxation_order += 1;
+      x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+    }
+  } else {
+    /*  If the condition for solution is not valid, relax (increase relaxation_order) 
+        Recomputation of the R matrices will be performed by setRMatrix at next iteration 
+    */
+    relaxation_order += 1;
+    x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
   }
-
-
-  // Finally, compute the reference motion that preserves the contacts
-  Eigen::MatrixXd InverseBlock = (N.transpose()*A_tilde*N).inverse();
-  if(DEBUG) std::cout << "Lambda = " << std::endl; 
-  if(DEBUG) std::cout << InverseBlock*N.transpose()*A_tilde*x_d << "." << std::endl;
-  Eigen::VectorXd x_ref = N*InverseBlock*N.transpose()*A_tilde*x_d;
-
-  // // If the value of the synergy is almost null, perform the relaxation
-  // if(std::abs(x_ref(1)) < 0.0001){
-  //   ROS_WARN_STREAM("contactPreserver::performMinimization The synergy value is small: relaxing the constraints!.");
-
-  //   // Partitioning of Q using the permutation matrix P
-  //   if(true) std::cout << "The NON permuted Q = \n" << Q << "." << "\n-----------\n" << std::endl;
-  //   Q = P * Q;
-  //   if(DEBUG) std::cout << "Computed the permuted Q = \n" << Q << "." << std::endl;
-
-  //   // Computing the size of Q_2
-  //   size_Q_2 = Q.rows() - size_Q_1;
-  //   if(DEBUG) std::cout << "Computed the size of Q_2 which is " << size_Q_2 << "." << std::endl;
-
-  //   // Defining Q_1 and Q_2 and computing the null of Q_1
-  //   Q_1 = Q.block(0, 0, size_Q_1, Q.cols());
-  //   if(true) std::cout << "Computed Q_1: \n" << Q_1 << "\n-----------\n" << std::endl;
-  //   Q_2 = Q.block(size_Q_1, 0, size_Q_2, Q.cols());
-  //   if(true) std::cout << "Computed Q_2: \n" << Q_2 << "\n-----------\n" << std::endl;
-
-  //   // Compute a basis of the null space by using LU decomposition
-  //   Eigen::FullPivLU<Eigen::MatrixXd> lu_1(Q_1);
-  //   N = lu_1.kernel();                                    // ATTENTION: overwriting the previous null matrix
-  //   ROS_DEBUG_STREAM("N_1(Q_1) = \n" << N << ".");
-  //   if(true) std::cout << "Computed N_1(Q_1) in contactPreserver: \n" << N << "." << std::endl;
-
-  //   // Finally, compute the reference motion that preserves the contacts
-  //   InverseBlock = (N.transpose() * (A_tilde + Q_2.transpose() * Q_2) * N).inverse();
-  //   if(DEBUG) std::cout << "Lambda Relaxed = " << std::endl; 
-  //   if(DEBUG) std::cout << InverseBlock*N.transpose()*A_tilde*x_d << "." << std::endl;
-  //   x_ref = N*InverseBlock*N.transpose()*A_tilde*x_d;
-
-  //   ROS_WARN_STREAM("contactPreserver::performMinimization Finished relaxing the constraints!.");
-  // }
 
   // Return contact preserving solution
   return x_ref;
@@ -197,5 +209,5 @@ void contactPreserver::printAll(){
   std::cout << "A_tilde =" << std::endl; std::cout << A_tilde << std::endl;
   std::cout << "x_d =" << std::endl; std::cout << x_d << std::endl;
   std::cout << "Q =" << std::endl; std::cout << Q << std::endl;
-  std::cout << "N =" << std::endl; std::cout << N << std::endl;
+  std::cout << "N_tilde =" << std::endl; std::cout << N_tilde << std::endl;
 }

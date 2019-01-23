@@ -107,6 +107,13 @@ namespace adaptive_grasping {
     */
     bool setRMatrix();
 
+    /** UPDATEAMATRIX
+    * @brief Function to update A_tilde according to R
+    *
+    * @return void
+    */
+    void updateAMatrix();
+
     /** PERFORMMINIMIZATION
     * @brief Function to perform the minimization using current values
     *
@@ -152,10 +159,16 @@ namespace adaptive_grasping {
     // Particular solution x_star
     Eigen::VectorXd x_star;
 
+    // Full minimization solution
+    Eigen::VectorXd x_ref;
+
     // Constant term for Q_tilde (obtained by appending zeros under x_d)
     Eigen::VectorXd y;
 
-    // Minimization weights
+    // Minimization weights parsed
+    Eigen::MatrixXd A_tilde_parsed;
+
+    // Minimization weights current, complies with R
     Eigen::MatrixXd A_tilde;
 
     // Contact relation matrix
