@@ -498,6 +498,6 @@ void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int co
   // Setting the permutation matrix
   P = P_temp;
 
-  ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The final permutation matrix: \n" << P << ".");
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The final permutation matrix: \n" << P << ".");
 
 }

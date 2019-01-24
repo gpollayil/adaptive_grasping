@@ -80,13 +80,13 @@ bool contactPreserver::setRMatrix(){
   } else {
     int residual = relaxation_order - x_d.size();
 
-    std::cout << "setRMatrix residual = " << residual << " - num_contacts = " << num_contacts << " - x_d.size() = " <<
+    if(DEBUG) std::cout << "setRMatrix residual = " << residual << " - num_contacts = " << num_contacts << " - x_d.size() = " <<
       x_d.size() << " - P.cols() = " << P.cols() << std::endl;
 
     R = Eigen::MatrixXd::Zero(x_d.size() + num_contacts * residual, x_d.size() + P.cols());
     R.block(0, 0, x_d.size(), x_d.size()) = Eigen::MatrixXd::Identity(x_d.size(), x_d.size());
 
-    std::cout << "setRMatrix STEP 1!" << std::endl;
+    if(true) std::cout << "setRMatrix STEP 1!" << std::endl;
 
     int index_x = x_d.size();
     int index_y = x_d.size();
@@ -97,10 +97,11 @@ bool contactPreserver::setRMatrix(){
       index_y += P.cols() / num_contacts;
     }
 
-    std::cout << "setRMatrix STEP 2!" << std::endl;
+    if(true) std::cout << "setRMatrix STEP 2!" << std::endl;
   }
 
-  std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; std::cout << R << std::endl;
+  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
+  if(DEBUG) std::cout << R << std::endl;
 
   // Compute R_bar as N(R) transpose
   if(relaxation_order == 0){
@@ -110,7 +111,8 @@ bool contactPreserver::setRMatrix(){
     R_bar = lu.kernel().transpose();
   }
 
-  std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; std::cout << R_bar << std::endl;
+  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; 
+  if(DEBUG) std::cout << R_bar << std::endl;
 
   return true;
 }
@@ -127,7 +129,8 @@ void contactPreserver::updateAMatrix(){
     A_tilde.block(A_tilde_parsed.rows(), A_tilde_parsed.rows(), rem_rows, rem_rows) = Eigen::MatrixXd::Identity(rem_rows, rem_rows);
   }
 
-  std::cout << "contactPreserver::updateAMatrix Updated A_tilde =" << std::endl; std::cout << A_tilde << std::endl;
+  if(DEBUG) std::cout << "contactPreserver::updateAMatrix Updated A_tilde =" << std::endl; 
+  if(DEBUG) std::cout << A_tilde << std::endl;
 }
 
 /* PERFORMMINIMIZATION */
@@ -142,8 +145,6 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
   Q << H*J*S, H*T, NullMatrix-H*G.transpose();
 
-  std::cout << "STEP 1!" << std::endl;
-
   // Print message for debug
   if(DEBUG) std::cout << "Computed Q in contactPreserver!" << std::endl;
 
@@ -151,16 +152,12 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   Q_tilde.resize(x_d.size() + H.rows(), x_d.size());
   Q_tilde << Eigen::MatrixXd::Identity(x_d.size(), x_d.size()), Q;
 
-  std::cout << "STEP 2!" << std::endl;
-
   // Print message for debug
   if(DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
 
   // Compute vector y
   y.resize(x_d.size() + H.rows());
   y << x_d, Eigen::VectorXd::Zero(H.rows());
-
-  std::cout << "STEP 3!" << std::endl;
 
   // If the desired motion has changed, reset R and R_bar
   if(!(x_d - x_d_old).isMuchSmallerThan(0.0001) || first_it){
@@ -170,67 +167,104 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
   x_d_old = x_d;
 
-  std::cout << "STEP 4!" << std::endl;
-
   // Now if necessary changing the matrices R and R_bar or eventually reset them
-  setRMatrix();
+  if(!setRMatrix()){
+    ROS_ERROR_STREAM("The Relaxation iterations finished without leading to a solution!!! Waiting for another x_d!");
+  }
 
-  std::cout << "STEP 5!" << std::endl;
+  std::cout << "-- Step 1 --" << std::endl;
+
+  // Computing pseudoinverse for next condition
+  pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, false);             // Undamped pseudo inversion of (R_bar * Q_tilde)
+  if(pinv_R_bar_Q_tilde.hasNaN()){
+    pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, true);            // Damped pseudo inversion of (R_bar * Q_tilde)
+  }
+
+  std::cout << "-- Step 2 --" << std::endl;
+
+  if(DEBUG) std::cout << "----------------" << std::endl;
+  if(DEBUG) std::cout << "pinv_R_bar_Q_tilde = " << pinv_R_bar_Q_tilde << std::endl;
+  if(DEBUG) std::cout << "----------------" << std::endl;
+
+  // Check if all constraints have been relaxed
+  bool all_relaxed = relaxation_order >= Q_tilde.rows();
 
   // Check the first condition of algorithm
-  pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, false);             // Undamped pseudo inversion of (R_bar * Q_tilde)
-
-  std::cout << "STEP 6!" << std::endl;
-
-  if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001)){
+  if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001) && !all_relaxed){
     // Compute a basis of the null space of Q_tilde by using LU decomposition
+    std::cout << "-- Step 3 --" << std::endl;
+    std::cout << "R_bar = " << R_bar << std::endl;
+    std::cout << "Q_tilde = " << Q_tilde << std::endl;
+    std::cout << "R_bar * Q_tilde = " << R_bar * Q_tilde << std::endl;
+
     Eigen::FullPivLU<Eigen::MatrixXd> lu(R_bar * Q_tilde);
     N_tilde = lu.kernel();
     ROS_DEBUG_STREAM("N_tilde(Q) = \n" << N_tilde << ".");
 
-    std::cout << "STEP 7!" << std::endl;
+    std::cout << "-- Step 4 --" << std::endl;
+
+    if(DEBUG) std::cout << "----------------" << std::endl;
+    if(DEBUG) std::cout << "N_tilde = " << N_tilde << std::endl;
+    if(DEBUG) std::cout << "----------------" << std::endl;
 
     // Print message for debug
     if(DEBUG) std::cout << "Computed N_tilde(Q) in contactPreserver!" << std::endl;
 
-    // Updating A_tilde to comply with the dimensions of R
-    updateAMatrix();
+    // Checking if N_tilde is only a null vector (R_bar * Q_tilde has full rank) -> then relax
+    if(lu.isInvertible()){
+      /*  If the condition on null space basis is valid, relax (increase relaxation_order) 
+          Recomputation of the R matrices will be performed by setRMatrix at next iteration 
+      */
+      if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
+      x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+    } else {
+      // Updating A_tilde to comply with the dimensions of R
+      updateAMatrix();
 
-    std::cout << "STEP 8!" << std::endl;
+      // Computing the solution (formulas in paper)
+      C = N_tilde.transpose() * Q_tilde.transpose() * R.transpose() * A_tilde * R;
+      x_star = pinv_R_bar_Q_tilde * R_bar * y;
 
-    // Computing the solution (formulas in paper)
-    C = N_tilde.transpose() * Q_tilde.transpose() * R.transpose() * A_tilde * R;
-    x_star = pinv_R_bar_Q_tilde * R_bar * y;
-    x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
+      // Check invertibility of block expression
+      Eigen::FullPivLU<Eigen::MatrixXd> lu(C * Q_tilde * N_tilde);
+      if(!lu.isInvertible()) ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
 
-    std::cout << "STEP 9!" << std::endl;
+      // Compute reference
+      x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
+
+      if(DEBUG) std::cout << "----------------" << std::endl;
+      if(DEBUG) std::cout << "x_star = " << x_star << std::endl;
+      if(DEBUG) std::cout << "C = " << C << std::endl;
+      if(DEBUG) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
+      if(DEBUG) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
+      if(DEBUG) std::cout << "----------------" << std::endl;
+    }
 
     // Checking the second condition of algorithm
     if(x_ref.head(S.cols()).norm() < 0.0001){
       /*  If the condition for norm is not valid, relax (increase relaxation_order) 
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
       */
-      relaxation_order += 1;
-      x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+      if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
+      x_ref = Eigen::VectorXd::Zero(x_d.size());                // Null vector is returned to keep the robot still until good solution is found
     }
   } else {
     /*  If the condition for solution is not valid, relax (increase relaxation_order) 
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
     */
-    relaxation_order += 1;
-    x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+    if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
+    x_ref = Eigen::VectorXd::Zero(x_d.size());                  // Null vector is returned to keep the robot still until good solution is found
   }
 
   // DEBUG PRINTS
+  if(DEBUG) std::cout << "----------------" << std::endl;
+  if(DEBUG) std::cout << "Q_tilde = " << Q_tilde << std::endl;
+  if(DEBUG) std::cout << "y = " << y << std::endl;
+  if(DEBUG) std::cout << "R_bar * y = " << R_bar * y << std::endl;
+  if(DEBUG) std::cout << "----------------" << std::endl;
+
   std::cout << "----------------" << std::endl;
-  std::cout << "x_star = " << x_star << std::endl;
-  std::cout << "C = " << C << std::endl;
-  std::cout << "pinv_R_bar_Q_tilde = " << pinv_R_bar_Q_tilde << std::endl;
-  std::cout << "Q_tilde = " << Q_tilde << std::endl;
-  std::cout << "N_tilde = " << N_tilde << std::endl;
-  std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
-  std::cout << "y = " << y << std::endl;
-  std::cout << "R_bar * y = " << R_bar * y << std::endl;
+  std::cout << "relaxation_order = " << relaxation_order << std::endl;
   std::cout << "----------------" << std::endl;
 
   // Return contact preserving solution

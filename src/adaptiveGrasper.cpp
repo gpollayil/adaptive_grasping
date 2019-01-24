@@ -285,7 +285,6 @@ void adaptiveGrasper::spinGrasper(){
 
             // Reading and couting the matrices
             this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H, this->read_P);
-            ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
             if(DEBUG){
                 ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
                 ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
@@ -318,7 +317,7 @@ void adaptiveGrasper::spinGrasper(){
 
             // Scaling the reference and sending to the robot commander
             this->x_ref = this->scaling * this->x_ref;
-            if(true) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
+            if(DEBUG) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
 
             if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
                 ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending x_ref!");
