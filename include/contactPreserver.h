@@ -174,6 +174,9 @@ namespace adaptive_grasping {
     // Contact relation matrix
     Eigen::MatrixXd Q;
 
+    // Old contact relation matrix
+    Eigen::MatrixXd Q_old;
+
     // Q_tilde matrix
     Eigen::MatrixXd Q_tilde;
 

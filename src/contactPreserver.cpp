@@ -145,6 +145,17 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
   Q << H*J*S, H*T, NullMatrix-H*G.transpose();
 
+  // Comparing Q with the old one in order to reset relaxation
+  if(first_it){
+    Q_old = Q;
+  } else {
+    if((Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001)){
+      relaxation_order = 0;                     // Reset relaxation
+      ROS_WARN_STREAM("Resetting relaxation because Q changed.");
+    }
+    Q_old = Q;
+  }
+
   // Print message for debug
   if(DEBUG) std::cout << "Computed Q in contactPreserver!" << std::endl;
 
@@ -163,6 +174,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   if(!(x_d - x_d_old).isMuchSmallerThan(0.0001) || first_it){
     relaxation_order = 0;               // Nothing is to be relaxed
     if(first_it) first_it = false;
+    ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
   }
 
   x_d_old = x_d;
@@ -217,6 +229,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+      ROS_WARN_STREAM("Relaxing because null space is empty.");
     } else {
       // Updating A_tilde to comply with the dimensions of R
       updateAMatrix();
@@ -247,6 +260,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = Eigen::VectorXd::Zero(x_d.size());                // Null vector is returned to keep the robot still until good solution is found
+      ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
     }
   } else {
     /*  If the condition for solution is not valid, relax (increase relaxation_order) 
@@ -254,6 +268,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     */
     if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
     x_ref = Eigen::VectorXd::Zero(x_d.size());                  // Null vector is returned to keep the robot still until good solution is found
+    ROS_WARN_STREAM("Relaxing because no particular solution found.");
   }
 
   // DEBUG PRINTS
