@@ -126,7 +126,8 @@ void contactPreserver::updateAMatrix(){
     A_tilde = Eigen::MatrixXd::Zero(R.rows(), R.rows());
     A_tilde.block(0, 0, A_tilde_parsed.rows(), A_tilde_parsed.rows()) = A_tilde_parsed;
     int rem_rows = R.rows() - A_tilde_parsed.rows();
-    A_tilde.block(A_tilde_parsed.rows(), A_tilde_parsed.rows(), rem_rows, rem_rows) = Eigen::MatrixXd::Identity(rem_rows, rem_rows);
+    // For now the weight on the contacts is hard-coded (TODO: parse also this param)
+    A_tilde.block(A_tilde_parsed.rows(), A_tilde_parsed.rows(), rem_rows, rem_rows) = 10000 * Eigen::MatrixXd::Identity(rem_rows, rem_rows);
   }
 
   if(DEBUG) std::cout << "contactPreserver::updateAMatrix Updated A_tilde =" << std::endl; 
