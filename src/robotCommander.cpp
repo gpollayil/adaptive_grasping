@@ -62,6 +62,12 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
         << "\n" << this->x_ref << ".");
 
+    // Checking if the reference contains NaNs
+    if(this->x_ref.hasNaN()){
+        ROS_FATAL_STREAM("robotCommander::performRobotCommand : The requested velocity vector contains NaNs, setting x_ref to null.");
+        this->x_ref = Eigen::VectorXd::Zero(this->x_ref.size());
+    }
+
     // Saving to hand_ref and palm_ref
     this->setReferences(this->x_ref.head(1), this->x_ref.tail(6));
 

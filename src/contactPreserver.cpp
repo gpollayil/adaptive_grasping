@@ -240,7 +240,12 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
       // Check invertibility of block expression
       Eigen::FullPivLU<Eigen::MatrixXd> lu(C * Q_tilde * N_tilde);
-      if(!lu.isInvertible()) ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
+      if(!lu.isInvertible()){
+        ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
+        if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
+        x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+        ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
+      }
 
       // Compute reference
       x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
