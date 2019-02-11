@@ -18,9 +18,9 @@ sensor_msgs::JointState::ConstPtr rb_joint_state;	// a msg where the subscriber 
 **********************************************************************************************/
 void getJointStates(const sensor_msgs::JointState::ConstPtr &msg){
 	// Storing the message into another global message variable
-	ROS_DEBUG_STREAM("GOT JOINTSTATE MSG: STARTING TO SAVE!");
+	ROS_INFO_STREAM("GOT JOINTSTATE MSG: STARTING TO SAVE!");
 	rb_joint_state = msg;
-	ROS_DEBUG_STREAM("SAVED JOINTSTATE MSG!");
+	ROS_INFO_STREAM("SAVED JOINTSTATE MSG!");
 }
 
 /**********************************************************************************************
@@ -78,16 +78,25 @@ int main(int argc, char** argv){
     ROS_INFO_STREAM("Received first joint msg.");
 
     // The subscriber for saving joint states
-	ros::SubscribeOptions joint_state_so = ros::SubscribeOptions::create<sensor_msgs::JointState>("/" + group_name_ + "/joint_states", 
-		1, getJointStates, ros::VoidPtr(), nh_.getCallbackQueue());
-	ros::Subscriber js_sub = nh_.subscribe(joint_state_so);
+	// ros::SubscribeOptions joint_state_so = ros::SubscribeOptions::create<sensor_msgs::JointState>("/" + group_name_ + "/joint_states", 
+	// 	1, getJointStates, ros::VoidPtr(), nh_.getCallbackQueue());
+	// ros::Subscriber js_sub = nh_.subscribe(joint_state_so);
+
+    ros::Subscriber js_sub = nh_.subscribe("/" + group_name_ + "/joint_states", 1000, getJointStates);
+
+    ROS_INFO_STREAM("Created subscriber to joint states.");
 
     ros::spinOnce();
 
+    ROS_INFO_STREAM("Spinned once.");
+
     // Checking for collisions in ros loop
     while(ros::ok()){
+        ros::spinOnce();
+
         // Setting the robot state with current joint states
-        for (std::size_t i = 0; i < rb_joint_state->position.size(); ++i){
+        for (int i = 0; i < rb_joint_state->position.size(); i++){
+            ROS_INFO_STREAM("Setting joint " << rb_joint_state->name[i]);
             current_state.setJointPositions(rb_joint_state->name[i], &rb_joint_state->position[i]);
         }
 

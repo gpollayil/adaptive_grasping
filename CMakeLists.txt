@@ -25,6 +25,11 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   eigen_conversions
   urdf
+  sensor_msgs
+  moveit_msgs
+  moveit_ros_planning 
+  moveit_ros_planning_interface
+  moveit_core
 )
 
 ## System dependencies are found with CMake's conventions
@@ -159,6 +164,7 @@ set(ADAPTIVE_SOURCE_FILES
 )
 
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
+add_executable(${PROJECT_NAME}_collision_detection_twist_node src/collision_detection_twist_node.cpp)
 add_executable(${PROJECT_NAME}_node src/main.cpp src/adaptiveGrasper.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_robotCommander src/robot_commander_node.cpp ${ADAPTIVE_SOURCE_FILES})
 
@@ -179,6 +185,7 @@ add_executable(${PROJECT_NAME}_test_StateCreatorPreserver test/test_state_creato
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
+add_dependencies(${PROJECT_NAME}_collision_detection_twist_node ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_robotCommander ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
@@ -191,6 +198,9 @@ add_dependencies(${PROJECT_NAME}_test_StateCreatorPreserver ${${PROJECT_NAME}_EX
 # )
 
 target_link_libraries(${PROJECT_NAME}_tf_listener
+   ${catkin_LIBRARIES}
+)
+target_link_libraries(${PROJECT_NAME}_collision_detection_twist_node
    ${catkin_LIBRARIES}
 )
 target_link_libraries(${PROJECT_NAME}_node
