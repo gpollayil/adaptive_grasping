@@ -82,12 +82,12 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     this->pub_arm.publish(this->cmd_twist);
 
     // Filling and publishing the twist for debug
-    this->twist_wrench.header.frame_id = "world";
-    this->twist_wrench.header.stamp = ros::Time::now();
-    this->twist_wrench.wrench.force.x = x_ref(1); this->twist_wrench.wrench.torque.x = x_ref(4);
-    this->twist_wrench.wrench.force.y = x_ref(2); this->twist_wrench.wrench.torque.y = x_ref(5);
-    this->twist_wrench.wrench.force.z = x_ref(3); this->twist_wrench.wrench.torque.z = x_ref(6);
-    this->pub_twist_debug.publish(this->twist_wrench);
+    if(DEBUG) this->twist_wrench.header.frame_id = "world";
+    if(DEBUG) this->twist_wrench.header.stamp = ros::Time::now();
+    if(DEBUG) this->twist_wrench.wrench.force.x = x_ref(1); this->twist_wrench.wrench.torque.x = x_ref(4);
+    if(DEBUG) this->twist_wrench.wrench.force.y = x_ref(2); this->twist_wrench.wrench.torque.y = x_ref(5);
+    if(DEBUG) this->twist_wrench.wrench.force.z = x_ref(3); this->twist_wrench.wrench.torque.z = x_ref(6);
+    if(DEBUG) this->pub_twist_debug.publish(this->twist_wrench);
 
     // Return the callback result
     res.success = success;
