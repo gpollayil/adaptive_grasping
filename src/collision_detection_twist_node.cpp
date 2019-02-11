@@ -18,9 +18,7 @@ sensor_msgs::JointState::ConstPtr rb_joint_state;	// a msg where the subscriber 
 **********************************************************************************************/
 void getJointStates(const sensor_msgs::JointState::ConstPtr &msg){
 	// Storing the message into another global message variable
-	ROS_INFO_STREAM("GOT JOINTSTATE MSG: STARTING TO SAVE!");
 	rb_joint_state = msg;
-	ROS_INFO_STREAM("SAVED JOINTSTATE MSG!");
 }
 
 /**********************************************************************************************
@@ -30,7 +28,7 @@ void getJointStates(const sensor_msgs::JointState::ConstPtr &msg){
 int main(int argc, char** argv){
     // Init the ROS node
     ros::init(argc, argv, "collision_detection_twist_node");
-    ros::NodeHandle nh_("~");
+    ros::NodeHandle nh_;
 
     // Defining MoveIt Group name
     std::string group_name_;
@@ -57,11 +55,6 @@ int main(int argc, char** argv){
         ROS_ERROR_STREAM("Planning scene not configured for " << nh_.getNamespace());
     }
     
-    // collision_detection::CollisionRequest collision_request;
-    // collision_detection::CollisionResult collision_result;
-    // planning_scene_monitor_->getPlanningScene()->checkSelfCollision(collision_request, collision_result);
-    // ROS_INFO_STREAM("Test 1: Current state is " << (collision_result.collision ? "in" : "not in") << " self collision");
-
     // Get the robot state
     robot_state::RobotState current_state = planning_scene_monitor_->getPlanningScene()->getCurrentState();
 
@@ -74,21 +67,13 @@ int main(int argc, char** argv){
 
     // Waiting for initial messages in joint_states
     ROS_INFO_STREAM("Waiting for first joint msg.");
-    ros::topic::waitForMessage<sensor_msgs::JointState>("/" + group_name_ + "/joint_states");
+    rb_joint_state = ros::topic::waitForMessage<sensor_msgs::JointState>("/" + group_name_ + "/joint_states");
     ROS_INFO_STREAM("Received first joint msg.");
 
-    // The subscriber for saving joint states
-	// ros::SubscribeOptions joint_state_so = ros::SubscribeOptions::create<sensor_msgs::JointState>("/" + group_name_ + "/joint_states", 
-	// 	1, getJointStates, ros::VoidPtr(), nh_.getCallbackQueue());
-	// ros::Subscriber js_sub = nh_.subscribe(joint_state_so);
-
-    ros::Subscriber js_sub = nh_.subscribe("/" + group_name_ + "/joint_states", 1000, getJointStates);
+    // Subscriber to joint states
+    ros::Subscriber js_sub = nh_.subscribe("/" + group_name_ + "/joint_states", 1, getJointStates);
 
     ROS_INFO_STREAM("Created subscriber to joint states.");
-
-    ros::spinOnce();
-
-    ROS_INFO_STREAM("Spinned once.");
 
     // Checking for collisions in ros loop
     while(ros::ok()){
@@ -96,7 +81,7 @@ int main(int argc, char** argv){
 
         // Setting the robot state with current joint states
         for (int i = 0; i < rb_joint_state->position.size(); i++){
-            ROS_INFO_STREAM("Setting joint " << rb_joint_state->name[i]);
+            // ROS_INFO_STREAM("Setting joint " << rb_joint_state->name[i] << " to " << rb_joint_state->position[i]);
             current_state.setJointPositions(rb_joint_state->name[i], &rb_joint_state->position[i]);
         }
 
