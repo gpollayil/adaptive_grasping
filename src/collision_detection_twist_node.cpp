@@ -47,16 +47,15 @@ int main(int argc, char** argv){
     planning_scene_monitor_.reset(new planning_scene_monitor::PlanningSceneMonitor(robot_model_loader_));
 
     if(planning_scene_monitor_->getPlanningScene()){
+        bool use_octomap_monitor = false; // this prevents a /tf warning
         planning_scene_monitor_->startSceneMonitor("/planning_scene");
-        planning_scene_monitor_->startWorldGeometryMonitor();
+        planning_scene_monitor_->startWorldGeometryMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_COLLISION_OBJECT_TOPIC,
+            planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_WORLD_TOPIC,use_octomap_monitor);
         planning_scene_monitor_->startStateMonitor();
         ROS_INFO_STREAM("Context monitors started for " << nh_.getNamespace());
     } else {
         ROS_ERROR_STREAM("Planning scene not configured for " << nh_.getNamespace());
     }
-    
-    // Get the robot state
-    robot_state::RobotState current_state = planning_scene_monitor_->getPlanningScene()->getCurrentState();
 
     // Creating collision request and result
     collision_detection::CollisionRequest creq;
@@ -78,6 +77,14 @@ int main(int argc, char** argv){
     // Checking for collisions in ros loop
     while(ros::ok()){
         ros::spinOnce();
+
+        // Getting the allowed collision matrix and print it
+        collision_detection::AllowedCollisionMatrix acm = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
+        std::ostream& stream = std::cout;
+        acm.print(stream);
+
+        // Get the robot state
+        robot_state::RobotState current_state = planning_scene_monitor_->getPlanningScene()->getCurrentState();
 
         // Setting the robot state with current joint states
         for (int i = 0; i < rb_joint_state->position.size(); i++){
