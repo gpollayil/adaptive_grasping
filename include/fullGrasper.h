@@ -30,12 +30,13 @@ namespace adaptive_grasping {
         /** OVERLOADED CONSTRUCTOR
         * @brief Default constructor for fullGrasper
         *
-        * @param robot_ns_ a vector containing the strings of the namespaces of robots (kuka and hand?)
+        * @param arm_ns_ a string containing the namespace of the arm
+        * @param hand_ns_ a string containing the namespace of the hand
         * @param normal_controllers_names_ a vector containing the strings of the normal controllers
         * @param velocity_controllers_names_ a vector containing the strings of the velocity controllers
         * @return null
         */
-        fullGrasper(std::vector<std::string> robot_ns_, std::vector<std::string> normal_controllers_names_, std::vector<std::string> velocity_controllers_names_);
+        fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<std::string> normal_controllers_names_, std::vector<std::string> velocity_controllers_names_);
 
         /** INITIALIZE
         * @brief Public function for initializing the object (recalls the initialize function of adaptive_grasper)
@@ -55,16 +56,25 @@ namespace adaptive_grasping {
         */
         bool switch_control(std::string robot_name, std::string from_controller, std::string to_controller);
 
-        private:
+        /** SPIN
+        * @brief Public function for spinning (recalls the spinGrasper function of adaptive_grasper)
+        *
+        * @param null
+        * @return null
+        */
+        void spin();
 
         // The main element of the object
         adaptiveGrasper adaptive_grasper;
 
+        private:
+
         // The velocity command to be sent to the robot commander (using the one of adaptive_grasper)
         velCommand handclose_command;
 
-        // The namespace of the robot controllers (in order kuka and soft_hand)
-        std::vector<std::string> robot_namespaces;
+        // The namespace of the robot controllers (kuka and soft_hand)
+        std::string arm_namespace;
+        std::string hand_namespace;
 
         // The switch controller service name
         std::string switch_service_name = "/controller_manager/switch_controller";

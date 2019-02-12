@@ -11,7 +11,7 @@
 #include <ros/ros.h>
 
 // CLASS INCLUDES
-#include "adaptiveGrasper.h"
+#include "fullGrasper.h"
 
 // DEFINES
 #define DEBUG       1       // Prints out additional info
@@ -23,10 +23,21 @@ int main(int argc, char** argv){
 	ros::init(argc, argv, "adaptive_grasping_node");
 	ros::NodeHandle adaptive_nh;
 
+    // Params for building full_grasper
+    std::string arm_ns = "right_arm";
+    std::string hand_ns = "right_hand";
+    std::vector<std::string> normal_controllers_names;
+    normal_controllers_names.push_back("joint_trajectory_controller");
+    normal_controllers_names.push_back("joint_trajectory_controller");
+    std::vector<std::string> velocity_controllers_names;
+    velocity_controllers_names.push_back("twist_controller");
+    velocity_controllers_names.push_back("velocity_controller");
+
     // Creating the adaptive grasper class
-    adaptive_grasping::adaptiveGrasper adaptive_grasper;
+    adaptive_grasping::fullGrasper full_grasper(arm_ns, hand_ns, normal_controllers_names, velocity_controllers_names);
 
     // Initializing with a vector containing the names of items to be parsed
+    // For adaptive_grasper
     std::vector<std::string> param_names;
     param_names.push_back("touch_topic_name");
     param_names.push_back("link_names_map");
@@ -41,17 +52,17 @@ int main(int argc, char** argv){
     param_names.push_back("p_vector");
     param_names.push_back("syn_thresh");
 
-    adaptive_grasper.initialize(param_names);
+    full_grasper.initialize(param_names);
 
     // Printing the parsed parameters
-    if(DEBUG) adaptive_grasper.printParsed();
+    if(DEBUG) full_grasper.adaptive_grasper.printParsed();
 
     // Starting message
 	ROS_INFO("\nThe Adaptive Grasper is starting to spin!");
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
 
     // Starting to spin
-    adaptive_grasper.spinGrasper();
+    full_grasper.spin();
 
     // Success message
 	ROS_INFO("\nTerminating Adaptive Grasper!");

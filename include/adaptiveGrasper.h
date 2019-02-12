@@ -102,6 +102,18 @@ namespace adaptive_grasping {
     */
     void spinGrasper();
 
+    /** SETCOMMANDANDSEND
+    * @brief Class function to clear the service file, push back the new ref and send to robot commander
+    *
+    * @param ref_vec eigen::vector of reference motions
+    * @param comm the service file to be filled and sent
+    * @return bool = true if success
+    */
+    bool setCommandAndSend(Eigen::VectorXd ref_vec, adaptive_grasping::velCommand comm);
+
+    // Public elements for the construction of the object
+    Eigen::VectorXd x_d;                                // Contains the desired x motion (for Contact Preserver)
+
   private:
 
     // ROS elements
@@ -129,7 +141,7 @@ namespace adaptive_grasping {
     // A mutual exclusion lock for the variables of this class
     std::mutex adaptive_grasper_mutex;
 
-    // Elements needed for construction of the main objects
+    // Elements needed for construction of the main objects (private ones -- look above for the public ones)
     int contacts_num;                                   // Number of present finger contacts (updated in the loop)
     std::string touch_topic_name;                       // Contains the name of the topic where touch ids are published (for Contact State)
     std::map<int, std::string> link_names_map;          // Contains the correspondance between ids and link names (for Contact State)
@@ -138,7 +150,6 @@ namespace adaptive_grasping {
     Eigen::MatrixXd H_i;                                // Contains contact selection matrix H (for Matrix Creator)
     Eigen::MatrixXd S;                                  // Contains the synergy matrix (for Contact Preserver)
     Eigen::MatrixXd A_tilde;                            // Contains the weigth matrix (for Contact Preserver)
-    Eigen::VectorXd x_d;                                // Contains the desired x motion (for Contact Preserver)
     Eigen::VectorXd x_ref;                              // Contains the result of minimization x reference (from Contact Preserver)
     std::string object_topic_name;                      // Contains the name of the topic where the object poses are published (for Matrix Creator)
     double scaling;                                     // Contains the scaling factor for x reference
@@ -179,15 +190,6 @@ namespace adaptive_grasping {
     * @return bool = true if success
     */
     bool parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<std::string> param_names);
-
-    /** SETCOMMANDANDSEND
-    * @brief Class function to clear the service file, push back the new ref and send to robot commander
-    *
-    * @param ref_vec eigen::vector of reference motions
-    * @param comm the service file to be filled and sent
-    * @return bool = true if success
-    */
-    bool setCommandAndSend(Eigen::VectorXd ref_vec, adaptive_grasping::velCommand comm);
 
     /** GETJOINTSANDCOMPUTESYN
     * @brief Callback function to get the joint states and compute the synergy matrix

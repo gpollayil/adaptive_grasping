@@ -18,9 +18,10 @@ fullGrasper::fullGrasper(){
 }
 
 /* OVERLOADED CONSTRUCTOR */
-fullGrasper::fullGrasper(std::vector<std::string> robot_ns_, std::vector<std::string> normal_controllers_names_, std::vector<std::string> velocity_controllers_names_){
+fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<std::string> normal_controllers_names_, std::vector<std::string> velocity_controllers_names_){
     // Setting the robot controllers namespace
-    this->robot_namespaces = robot_ns_;
+    this->arm_namespace = arm_ns_;
+    this->hand_namespace = hand_ns_;
 
     // Setting the names of the controllers
     this->normal_controllers_names = normal_controllers_names_;
@@ -29,8 +30,12 @@ fullGrasper::fullGrasper(std::vector<std::string> robot_ns_, std::vector<std::st
 
 /* INITIALIZE */
 bool fullGrasper::initialize(std::vector<std::string> param_names){
+    // Switching controllers to velocity and twist
+    this->switch_control(this->arm_namespace, this->normal_controllers_names[0], this->velocity_controllers_names[0]);
+    this->switch_control(this->hand_namespace, this->normal_controllers_names[1], this->velocity_controllers_names[1]);
+
     // Using the initialize of adaptiveGrasper
-    return this->adaptive_grasper.initialize(param_names);
+    if(!this->adaptive_grasper.initialize(param_names)) return false;
 }
 
 /* SWITCHCONTROL */
@@ -48,9 +53,12 @@ bool fullGrasper::switch_control(std::string robot_name, std::string from_contro
     this->switch_controller.request.strictness = controller_manager_msgs::SwitchController::Request::STRICT;
 
     // Swithching controller by calling the service
-    ros::service::call<controller_manager_msgs::SwitchController>(robot_name + this->switch_service_name, this->switch_controller);
-
-
+    return ros::service::call<controller_manager_msgs::SwitchController>(robot_name + this->switch_service_name, this->switch_controller);
 }
 
+/* SPIN */
+void fullGrasper::spin(){
+    // Spinning the grasper
+    this->adaptive_grasper.spinGrasper();
+}
 
