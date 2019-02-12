@@ -165,7 +165,7 @@ set(ADAPTIVE_SOURCE_FILES
 
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
 add_executable(${PROJECT_NAME}_collision_detection_twist_node src/collision_detection_twist_node.cpp)
-add_executable(${PROJECT_NAME}_node src/main.cpp src/adaptiveGrasper.cpp ${ADAPTIVE_SOURCE_FILES})
+add_executable(${PROJECT_NAME}_node src/main.cpp src/adaptiveGrasper.cpp src/fullGrasper.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_robotCommander src/robot_commander_node.cpp ${ADAPTIVE_SOURCE_FILES})
 
 #TESTS
