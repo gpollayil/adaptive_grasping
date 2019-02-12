@@ -9,6 +9,9 @@
 // MSG INCLUDES
 #include <sensor_msgs/JointState.h>
 
+// DEFINES
+#define     DEBUG       0               // Prints out additional info
+
 // GLOBAL VARIABLES
 sensor_msgs::JointState::ConstPtr rb_joint_state;	// a msg where the subscriber will save the joint states
 
@@ -48,10 +51,9 @@ int main(int argc, char** argv){
 
     if(planning_scene_monitor_->getPlanningScene()){
         bool use_octomap_monitor = false; // this prevents a /tf warning
-        planning_scene_monitor_->startSceneMonitor("/planning_scene");
-        planning_scene_monitor_->startWorldGeometryMonitor(planning_scene_monitor::PlanningSceneMonitor::DEFAULT_COLLISION_OBJECT_TOPIC,
-            planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_WORLD_TOPIC,use_octomap_monitor);
-        planning_scene_monitor_->startStateMonitor();
+        planning_scene_monitor_->startSceneMonitor("/move_group/monitored_planning_scene");
+        planning_scene_monitor_->startWorldGeometryMonitor("planning_scene", "world", false);
+        planning_scene_monitor_->startStateMonitor("/" + group_name_ + "/joint_states");
         ROS_INFO_STREAM("Context monitors started for " << nh_.getNamespace());
     } else {
         ROS_ERROR_STREAM("Planning scene not configured for " << nh_.getNamespace());
@@ -81,7 +83,21 @@ int main(int argc, char** argv){
         // Getting the allowed collision matrix and print it
         collision_detection::AllowedCollisionMatrix acm = planning_scene_monitor_->getPlanningScene()->getAllowedCollisionMatrix();
         std::ostream& stream = std::cout;
-        acm.print(stream);
+
+        // Getting all the entry names and couting
+        std::vector<std::string> entry_names;
+        acm.getAllEntryNames(entry_names);
+        if(DEBUG){
+            std::cout << "THE ACM ENTRY NAMES ARE:" << std::endl;
+            for(std::vector<std::string>::const_iterator i = entry_names.begin(); i != entry_names.end(); ++i){
+                std::cout << *i << " ";
+            }
+            std::cout << std::endl << "------------------" << std::endl;
+        }
+
+        // Setting the entries of acm corresponding to world to false
+        acm.setEntry("world", false);
+        if(DEBUG) acm.print(stream);  
 
         // Get the robot state
         robot_state::RobotState current_state = planning_scene_monitor_->getPlanningScene()->getCurrentState();
@@ -92,9 +108,13 @@ int main(int argc, char** argv){
             current_state.setJointPositions(rb_joint_state->name[i], &rb_joint_state->position[i]);
         }
 
+        // Checking if the current planning scene has collision objects inside world
+        current_state.printStatePositions(stream);
+        planning_scene_monitor_->getPlanningScene()->printKnownObjects(stream);
+
         // Clearing the result and requesting for collision check
         cres.clear();
-        planning_scene_monitor_->getPlanningScene()->checkCollision(creq, cres, current_state);
+        planning_scene_monitor_->getPlanningScene()->checkCollision(creq, cres, current_state, acm);
 
         // Checking the result
         if(cres.collision){
