@@ -285,7 +285,7 @@ void adaptiveGrasper::spinGrasper(){
 
             // Reading and couting the matrices
             this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H, this->read_P);
-            if(true){
+            if(DEBUG){
                 ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
                 ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
                 ROS_INFO_STREAM("\nG = " << "\n" << this->read_G << "\n");
