@@ -64,9 +64,9 @@
 		<!-- FOR INCREASING THE RATE OF PUBLISHING OF JOINT STATES -->
 		<rosparam param="rate">1000</rosparam>
 		<!-- FOR USING JOINT STATE PUBLISER FOR GETTING FINGER JOINT STATES -->
-		<rosparam param="source_list">[/right_arm/joint_states,/right_hand/joint_states]</rosparam>
+		<!-- <rosparam param="source_list">[/right_arm/joint_states,/right_hand/joint_states]</rosparam> -->
 		<!-- FOR USING FINGER FK PACKAGE FOR GETTING FINGER JOINT STATES -->
-		<!-- <rosparam param="source_list">[/right_arm/joint_states,/all_hand_joint_states]</rosparam> -->
+		<rosparam param="source_list">[/right_arm/joint_states,/all_hand_joint_states]</rosparam>
 	</node>
 
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>

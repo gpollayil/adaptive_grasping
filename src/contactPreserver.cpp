@@ -36,7 +36,7 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
 
   // Setting temporary values of x_d and x_d_old
   x_d_old = Eigen::VectorXd::Ones(S_.cols() + 6 + 6);
-
+  x_ref_old = Eigen::VectorXd::Zero(x_d_old.size());
 }
 
 /* CHANGEHANDTYPE */
@@ -229,7 +229,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
           Recomputation of the R matrices will be performed by setRMatrix at next iteration 
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-      x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+      x_ref = x_ref_old;            // Old vector is returned until good solution is found
       ROS_WARN_STREAM("Relaxing because null space is empty.");
     } else {
       // Updating A_tilde to comply with the dimensions of R
@@ -244,7 +244,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
       if(!lu.isInvertible()){
         ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
         if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-        x_ref = Eigen::VectorXd::Zero(x_d.size());            // Null vector is returned to keep the robot still until good solution is found
+        x_ref = x_ref_old;            // Old vector is returned until good solution is found
         ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
       }
 
@@ -265,7 +265,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-      x_ref = Eigen::VectorXd::Zero(x_d.size());                // Null vector is returned to keep the robot still until good solution is found
+      x_ref = x_ref_old;            // Old vector is returned until good solution is found
       ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
     }
   } else {
@@ -273,7 +273,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
     */
     if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-    x_ref = Eigen::VectorXd::Zero(x_d.size());                  // Null vector is returned to keep the robot still until good solution is found
+    x_ref = x_ref_old;            // Old vector is returned until good solution is found
     ROS_WARN_STREAM("Relaxing because no particular solution found.");
   }
 
@@ -288,7 +288,8 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   std::cout << "relaxation_order = " << relaxation_order << std::endl;
   std::cout << "----------------" << std::endl;
 
-  // Return contact preserving solution
+  // Saving to old and return contact preserving solution
+  x_ref_old = x_ref;
   return x_ref;
   
   // For debugging purpouses (real line is above)

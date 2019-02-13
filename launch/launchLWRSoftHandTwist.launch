@@ -25,7 +25,7 @@
 	<arg name="controllers" default="joint_trajectory_controller"/>
 
 	<!-- Set true if real robot is connected -->
-	<arg name="right_arm_enabled" default="true"/>
+	<arg name="right_arm_enabled" default="false"/>
   	<arg name="right_hand_enabled" default="false"/>
 
   	<!-- Set verbosity level to debug -->

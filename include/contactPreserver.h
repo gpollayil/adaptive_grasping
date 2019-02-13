@@ -162,6 +162,9 @@ namespace adaptive_grasping {
     // Full minimization solution
     Eigen::VectorXd x_ref;
 
+    // Full minimization solution
+    Eigen::VectorXd x_ref_old;
+
     // Constant term for Q_tilde (obtained by appending zeros under x_d)
     Eigen::VectorXd y;
 
