@@ -13,8 +13,12 @@ using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
 robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_){
-    // Initializing service server
+    // Initializing service servers
     this->rc_server = this->nh_rc.advertiseService("rc_service", &robotCommander::performRobotCommand, this);
+    this->emerg_server = this->nh_rc.advertiseService("rc_emergency_stop", &robotCommander::emergencyStop, this);
+
+    // Setting emergency to false
+    this->emergency = false;
 
     // Storing the topic strings
     this->hand_topic = hand_topic_; this->arm_topic = arm_topic_;
@@ -69,7 +73,11 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     }
 
     // Saving to hand_ref and palm_ref
-    this->setReferences(this->x_ref.head(1), this->x_ref.tail(6));
+    if(!emergency){
+        this->setReferences(this->x_ref.head(1), this->x_ref.tail(6));
+    } else {
+        this->x_ref = Eigen::VectorXd::Zero(7);
+    }
 
     // Filling up the messages to be published
     this->cmd_syn.data = float (x_ref(0));
@@ -92,4 +100,18 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     // Return the callback result
     res.success = success;
     return success;
+}
+
+/* EMERGENCYSTOP */
+bool robotCommander::emergencyStop(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+    // Setting the emergency bool
+    ROS_ERROR_STREAM("robotCommander::emergencyStop EMERGENCY STOP REQUESTED! STOPPING ROBOT!");
+    this->emergency = req.data;
+
+    // Setting the response
+    res.success = req.data;
+    if(req.data) res.message = "Successfully stopped.";
+    else res.message = "Stop not requested. Emergency set to false. Robot enabled: be careful!!!";
+
+    return true;
 }

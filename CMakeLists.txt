@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  std_srvs
 	geometry_msgs
   trajectory_msgs
 	actionlib
@@ -124,7 +125,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES adaptive_grasping
-CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+CATKIN_DEPENDS roscpp rospy std_msgs std_srvs message_runtime
 #  DEPENDS system_lib
 )
 

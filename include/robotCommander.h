@@ -16,6 +16,7 @@
 
 // Service Includes
 #include "adaptive_grasping/velCommand.h"
+#include <std_srvs/SetBool.h>
 
 /**
 * @brief This class is called by the adaptive_grasping method to close the
@@ -51,20 +52,15 @@ namespace adaptive_grasping {
     */
     ~robotCommander();
 
-    /** COMMANDROBOT
-    * @brief Public function to move the hand and/or arm (if twist = 0, no arm)
-    * Executes the references previously set by setReferences function
-    *
-    * @param null
-    * @return null
-    */
-    void commandRobot();
-
   private:
 
     // Basic variables
     ros::NodeHandle nh_rc;
     ros::ServiceServer rc_server;       // For getting velocity requests and commanding the robot
+    ros::ServiceServer emerg_server;    // For stopping the robot in case of emergency
+
+    // A bool for emergency stop (used for setReferences in performRobotCommand)
+    bool emergency;
 
     // A mutual exclusion lock for the variables of this class
     std::mutex robot_commander_mutex;
@@ -117,6 +113,14 @@ namespace adaptive_grasping {
     * @return null
     */
     void setReferences(Eigen::VectorXd hand_ref_, Eigen::VectorXd palm_ref_);
+
+    /** EMERGENCYSTOP
+    * @brief A callback for stopping the motion of robot in case of emergency
+    *
+    * @param req/res
+    * @return null
+    */
+    bool emergencyStop(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
 
   };
 
