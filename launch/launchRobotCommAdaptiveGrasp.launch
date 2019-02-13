@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!--
+TF LISTENER for publishing frames
+-->
+
+<launch>
+
+    <!-- RUNNING THE FINGER JOINT SERVICE -->
+	<node name="finger_joints_service_node" pkg="finger_fk" type="finger_joints_service" respawn="true" output="screen">
+	</node>
+
+    <!-- RUNNING THE ROBOT COMMANDER NODE -->
+	<node name="adaptive_grasping_robotCommander_node" pkg="adaptive_grasping" type="adaptive_grasping_robotCommander" respawn="true" output="screen">
+	</node>
+
+    <!-- RUNNING THE ADAPTIVE GRASPING NODE -->
+	<node name="adaptive_grasping_node" pkg="adaptive_grasping" type="adaptive_grasping_node" respawn="true" output="screen">
+	</node>
+
+    <!-- RUNNING THE PUBLISHER OF OBJECT POSE (MUST BE CHANGED LATER) -->
+    <node name="object_publisher_node" pkg="rostopic" type="rostopic"
+        args="pub /object_pose_topic geometry_msgs/Pose 
+        '{position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 0.0}}'" respawn="true" output="screen">
+    </node>
+
+</launch>
