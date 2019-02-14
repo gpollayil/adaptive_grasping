@@ -31,8 +31,8 @@ fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<
 /* INITIALIZE */
 bool fullGrasper::initialize(std::vector<std::string> param_names){
     // Switching controllers to velocity and twist
-    this->switch_control(this->arm_namespace, this->normal_controllers_names[0], this->velocity_controllers_names[0]);
-    this->switch_control(this->hand_namespace, this->normal_controllers_names[1], this->velocity_controllers_names[1]);
+    // this->switch_control(this->arm_namespace, this->normal_controllers_names[0], this->velocity_controllers_names[0]);
+    // this->switch_control(this->hand_namespace, this->normal_controllers_names[1], this->velocity_controllers_names[1]);
 
     // Using the initialize of adaptiveGrasper
     if(!this->adaptive_grasper.initialize(param_names)) return false;
