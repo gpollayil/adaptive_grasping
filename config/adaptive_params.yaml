@@ -54,7 +54,7 @@ adaptive_grasping:
   # The topic where the object pose is published
   object_topic_name: "/object_pose_topic"
   # The scaling factor for the reference motion
-  scaling: 2.0
+  scaling: 1.0
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
     # - [6, 3, 4, 5, 1, 2]      # for the order of relaxation
