@@ -170,6 +170,7 @@ add_executable(${PROJECT_NAME}_node src/main.cpp src/adaptiveGrasper.cpp src/ful
 add_executable(${PROJECT_NAME}_robotCommander src/robot_commander_node.cpp ${ADAPTIVE_SOURCE_FILES})
 
 #TESTS
+add_executable(${PROJECT_NAME}_homing_node test/homing.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_contactState test/test_contact_state.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_matricesCreator test/test_matrices_creator.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_contactPreserver test/test_contact_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
@@ -189,6 +190,7 @@ add_executable(${PROJECT_NAME}_test_StateCreatorPreserver test/test_state_creato
 add_dependencies(${PROJECT_NAME}_collision_detection_twist_node ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_robotCommander ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
+add_dependencies(${PROJECT_NAME}_homing_node ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_test_StateCreatorPreserver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 # add_dependencies(${PROJECT_NAME}_test_robotCommanderJT ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
@@ -212,6 +214,9 @@ target_link_libraries(${PROJECT_NAME}_robotCommander
 )
 
 #TESTS
+target_link_libraries(${PROJECT_NAME}_homing_node
+   ${catkin_LIBRARIES}
+)
 target_link_libraries(${PROJECT_NAME}_test_matricesCreator
    ${catkin_LIBRARIES}
 )
