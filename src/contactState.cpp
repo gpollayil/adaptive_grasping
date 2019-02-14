@@ -40,6 +40,17 @@ void contactState::readValues(std::map<int, std::tuple<std::string,
     contact_state_mutex.unlock();                           // mutex off
 }
 
+/* RESETCONTACTS */
+bool contactState::resetContact(){
+  // Clearing the maps
+  ROS_INFO("Resetting maps in contactState!");
+
+  contact_state_mutex.lock();
+  joints_map.clear();
+  contacts_map.clear();
+  contact_state_mutex.unlock();
+}
+
 /* INITIALIZE */
 bool contactState::intialize(std::string topic_name,
   std::map<int, std::string> link_names_map_,

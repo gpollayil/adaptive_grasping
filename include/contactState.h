@@ -74,12 +74,20 @@ namespace adaptive_grasping {
     /** READVALUES
     * @brief Class function to read the private variables
     *
-    * @param null
+    * @param maps
     * @return void
     */
     void readValues(std::map<int, std::tuple<std::string, Eigen::Affine3d,
       Eigen::Affine3d>>& input_map_,
         std::map<int, sensor_msgs::JointState>& input_map2_);
+
+    /** RESETCONTACTS
+    * @brief Class function to reset the maps
+    *
+    * @param null
+    * @return bool
+    */
+    bool resetContact();
 
   private:
 
