@@ -63,7 +63,7 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     }
     
     // Debug message
-    ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
+    if(DEBUG) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
         << "\n" << this->x_ref << ".");
 
     // Checking if the reference contains NaNs
@@ -105,7 +105,11 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
 /* EMERGENCYSTOP */
 bool robotCommander::emergencyStop(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
     // Setting the emergency bool
-    ROS_ERROR_STREAM("robotCommander::emergencyStop EMERGENCY STOP REQUESTED! STOPPING ROBOT!");
+    if(req.data){
+        ROS_ERROR_STREAM("robotCommander::emergencyStop EMERGENCY STOP REQUESTED! STOPPING ROBOT!");
+    } else {
+        ROS_WARN_STREAM("robotCommander::emergencyStop REACTIVATION REQUESTED! REMOVING STOP!");
+    }
     this->emergency = req.data;
 
     // Setting the response

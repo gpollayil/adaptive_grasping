@@ -244,7 +244,7 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
         this->run = false;
         this->adaptive_grasper_mutex.unlock();
         res.success = false;
-        return false;
+        return true;
     }
 
     // Setting the run to true
