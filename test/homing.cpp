@@ -179,7 +179,7 @@ bool homing_callback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Respons
         res.message = "Could not restart robot commander!";
     }
 
-    ROS_INFO_STREAM("Finished Homing!");
+    ROS_WARN_STREAM("Finished Homing! PLEASE RESTART THE ADAPTIVE GRASPING FOR RESETTING THE CONTACTS!");
 
     res.success = true;
     return true;

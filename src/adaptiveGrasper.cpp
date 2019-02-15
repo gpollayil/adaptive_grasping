@@ -252,7 +252,7 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
     this->adaptive_grasper_mutex.lock();
     this->run = true;
     this->adaptive_grasper_mutex.unlock();
-    this->my_contact_state.resetContact();
+    // this->my_contact_state.resetContact();           // This does not work! (Restarting the node is necessary)
     res.success = true;
     return true;
 }
