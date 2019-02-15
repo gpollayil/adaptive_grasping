@@ -185,7 +185,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     ROS_ERROR_STREAM("The Relaxation iterations finished without leading to a solution!!! Waiting for another x_d!");
   }
 
-  std::cout << "-- Step 1 --" << std::endl;
+  if(DEBUG) std::cout << "-- Step 1 --" << std::endl;
 
   // Computing pseudoinverse for next condition
   pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, false);             // Undamped pseudo inversion of (R_bar * Q_tilde)
@@ -193,7 +193,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, true);            // Damped pseudo inversion of (R_bar * Q_tilde)
   }
 
-  std::cout << "-- Step 2 --" << std::endl;
+  if(DEBUG) std::cout << "-- Step 2 --" << std::endl;
 
   if(DEBUG) std::cout << "----------------" << std::endl;
   if(DEBUG) std::cout << "pinv_R_bar_Q_tilde = " << pinv_R_bar_Q_tilde << std::endl;
@@ -205,16 +205,16 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   // Check the first condition of algorithm
   if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001) && !all_relaxed){
     // Compute a basis of the null space of Q_tilde by using LU decomposition
-    std::cout << "-- Step 3 --" << std::endl;
-    std::cout << "R_bar = " << R_bar << std::endl;
-    std::cout << "Q_tilde = " << Q_tilde << std::endl;
-    std::cout << "R_bar * Q_tilde = " << R_bar * Q_tilde << std::endl;
+    if(DEBUG) std::cout << "-- Step 3 --" << std::endl;
+    if(DEBUG) std::cout << "R_bar = " << R_bar << std::endl;
+    if(DEBUG) std::cout << "Q_tilde = " << Q_tilde << std::endl;
+    if(DEBUG) std::cout << "R_bar * Q_tilde = " << R_bar * Q_tilde << std::endl;
 
     Eigen::FullPivLU<Eigen::MatrixXd> lu(R_bar * Q_tilde);
     N_tilde = lu.kernel();
     ROS_DEBUG_STREAM("N_tilde(Q) = \n" << N_tilde << ".");
 
-    std::cout << "-- Step 4 --" << std::endl;
+    if(DEBUG) std::cout << "-- Step 4 --" << std::endl;
 
     if(DEBUG) std::cout << "----------------" << std::endl;
     if(DEBUG) std::cout << "N_tilde = " << N_tilde << std::endl;
