@@ -35,7 +35,7 @@ int main(int argc, char** argv){
 
     // Defining MoveIt Group name
     std::string group_name_;
-    group_name_ = "right_arm";
+    group_name_ = "panda_arm";
 
     // Creating a robot model loader from robot_description
     robot_model_loader::RobotModelLoaderPtr robot_model_loader_;

@@ -24,13 +24,13 @@ int main(int argc, char** argv){
 	ros::NodeHandle adaptive_nh;
 
     // Params for building full_grasper
-    std::string arm_ns = "right_arm";
+    std::string arm_ns = "panda_arm";
     std::string hand_ns = "right_hand";
     std::vector<std::string> normal_controllers_names;
     normal_controllers_names.push_back("joint_trajectory_controller");
     normal_controllers_names.push_back("joint_trajectory_controller");
     std::vector<std::string> velocity_controllers_names;
-    velocity_controllers_names.push_back("twist_controller");
+    velocity_controllers_names.push_back("cartesian_velocity_controller");
     velocity_controllers_names.push_back("velocity_controller");
 
     // Creating the adaptive grasper class

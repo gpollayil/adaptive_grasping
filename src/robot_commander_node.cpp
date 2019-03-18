@@ -21,7 +21,7 @@ int main(int argc, char** argv){
 	ros::NodeHandle rc_jt_serv_nh;
 
     std::string hand_topic = "/right_hand/velocity_controller/command/";
-    std::string arm_topic = "/right_arm/twist_controller/command/";
+    std::string arm_topic = "/panda_arm/cartesian_velocity_controller/command/";
 
     // Creating the commander class
     adaptive_grasping::robotCommander robot_commander(hand_topic, arm_topic);

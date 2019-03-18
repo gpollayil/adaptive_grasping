@@ -4,7 +4,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "adaptive_grasper"
 
-#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
 
 /**
 * @brief The following are functions of the class adaptiveGrasper.

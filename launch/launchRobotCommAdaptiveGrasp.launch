@@ -1,10 +1,16 @@
 <?xml version="1.0"?>
 
 <!--
-TF LISTENER for publishing frames
+The needed nodes and params for launching the Adaptive Grasping
 -->
 
 <launch>
+
+    <!-- Set verbosity level to debug -->
+    <env name ="ROSCONSOLE_CONFIG_FILE" value ="$(find adaptive_grasping)/config/rosconsole.conf"/>
+
+    <!-- Loads adaptive grasping configurations from YAML file to parameter server -->
+    <rosparam command="load" file="$(find adaptive_grasping)/config/adaptive_params.yaml"/>
 
     <!-- RUNNING THE FINGER JOINT SERVICE -->
 	<node name="finger_joints_service_node" pkg="finger_fk" type="finger_joints_service" respawn="true" output="screen">
