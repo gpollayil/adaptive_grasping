@@ -19,9 +19,9 @@ TF LISTENER for publishing frames
 	</node>
 
     <!-- RUNNING THE PUBLISHER OF OBJECT POSE (MUST BE CHANGED LATER) -->
-    <node name="object_publisher_node" pkg="rostopic" type="rostopic"
+    <!-- <node name="object_publisher_node" pkg="rostopic" type="rostopic"
         args="pub /object_pose_topic geometry_msgs/Pose 
         '{position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 0.0}}'" respawn="true" output="screen">
-    </node>
+    </node> -->
 
 </launch>

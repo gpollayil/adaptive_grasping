@@ -161,7 +161,6 @@ set(ADAPTIVE_SOURCE_FILES
 	src/matricesCreator.cpp
 	src/contactPreserver.cpp
 	src/robotCommander.cpp
-  # src/robotCommanderJT.cpp
 )
 
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
@@ -175,7 +174,6 @@ add_executable(${PROJECT_NAME}_test_contactState test/test_contact_state.cpp ${A
 add_executable(${PROJECT_NAME}_test_matricesCreator test/test_matrices_creator.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_contactPreserver test/test_contact_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_test_StateCreatorPreserver test/test_state_creator_preserver.cpp ${ADAPTIVE_SOURCE_FILES})
-# add_executable(${PROJECT_NAME}_test_robotCommanderJT test/test_robot_commander_jt.cpp ${ADAPTIVE_SOURCE_FILES})
 
 #set_target_properties(${PROJECT_NAME}_test_StateCreatorPreserver PROPERTIES COMPILE_FLAGS "-o0")
 
@@ -193,7 +191,6 @@ add_dependencies(${PROJECT_NAME}_robotCommander ${${PROJECT_NAME}_EXPORTED_TARGE
 add_dependencies(${PROJECT_NAME}_homing_node ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_test_StateCreatorPreserver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
-# add_dependencies(${PROJECT_NAME}_test_robotCommanderJT ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -229,9 +226,6 @@ target_link_libraries(${PROJECT_NAME}_test_contactState
 target_link_libraries(${PROJECT_NAME}_test_StateCreatorPreserver
    ${catkin_LIBRARIES}
 )
-# target_link_libraries(${PROJECT_NAME}_test_robotCommanderJT
-#    ${catkin_LIBRARIES}
-# )
 
 #############
 ## Install ##
