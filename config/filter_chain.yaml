@@ -1,6 +1,6 @@
 low_pass_filter:
-  name: my_filter
-  type: MultiChannelTransferFunctionFilterDouble
+- name: first_low_pass
+  type: filters/TransferFunctionFilterDouble
   params:
-    a: [1.0, -0.509525449494429]
-    b: [0.245237275252786, 0.245237275252786]
+    a: [1.0, -0.9971]
+    b: [0.0014, 0.0014]

@@ -97,8 +97,14 @@ namespace adaptive_grasping {
     std_msgs::Float64 cmd_syn;
     geometry_msgs::WrenchStamped twist_wrench;          // Publishing twist as a wrench (For Debugging)
 
-    // A vector of double filter chains for reference low pass filtering
-    filters::MultiChannelFilterChain<double> ref_filter;
+    // A series of double filter chains for reference low pass filtering
+    filters::FilterChain<double> ref_1_filter;
+    filters::FilterChain<double> ref_2_filter;
+    filters::FilterChain<double> ref_3_filter;
+    filters::FilterChain<double> ref_4_filter;
+    filters::FilterChain<double> ref_5_filter;
+    filters::FilterChain<double> ref_6_filter;
+    filters::FilterChain<double> ref_7_filter;
 
     /** PERFORMROBOTCOMMAND
     * @brief Private callback function of the main service of robotCommander

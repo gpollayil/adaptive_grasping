@@ -12,7 +12,9 @@
 using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
-robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_): ref_filter("double") {
+robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_) : 
+    ref_1_filter("double"), ref_2_filter("double"), ref_3_filter("double"), ref_4_filter("double"),
+    ref_5_filter("double"), ref_6_filter("double"), ref_7_filter("double") {
     // Initializing service servers
     this->rc_server = this->nh_rc.advertiseService("rc_service", &robotCommander::performRobotCommand, this);
     this->emerg_server = this->nh_rc.advertiseService("rc_emergency_stop", &robotCommander::emergencyStop, this);
@@ -30,9 +32,16 @@ robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_):
     
     // Resizing the Eigen Vector
     this->x_ref.resize(7);
+    this->filtered_x_ref.resize(7);
 
     // Setting up the filters
-    this->ref_filter.configure(this->x_ref.size(), "low_pass_filter", this->nh_rc);
+    this->ref_1_filter.configure("low_pass_filter", this->nh_rc);
+    this->ref_2_filter.configure("low_pass_filter", this->nh_rc);
+    this->ref_3_filter.configure("low_pass_filter", this->nh_rc);
+    this->ref_4_filter.configure("low_pass_filter", this->nh_rc);
+    this->ref_5_filter.configure("low_pass_filter", this->nh_rc);
+    this->ref_6_filter.configure("low_pass_filter", this->nh_rc);
+    this->ref_7_filter.configure("low_pass_filter", this->nh_rc);
 
 }
 
@@ -84,15 +93,19 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     }
 
     // Filtering the command in order to avoid peaks
-    double *x_ref_array = this->x_ref.data();
-    double filtered_x_ref_array[7];
-    this->ref_filter.update(x_ref_array, filtered_x_ref_array);
+    this->ref_1_filter.update(this->x_ref(0), this->filtered_x_ref(0));
+    this->ref_2_filter.update(this->x_ref(1), this->filtered_x_ref(1));
+    this->ref_3_filter.update(this->x_ref(2), this->filtered_x_ref(2));
+    this->ref_4_filter.update(this->x_ref(3), this->filtered_x_ref(3));
+    this->ref_5_filter.update(this->x_ref(4), this->filtered_x_ref(4));
+    this->ref_6_filter.update(this->x_ref(5), this->filtered_x_ref(5));
+    this->ref_7_filter.update(this->x_ref(6), this->filtered_x_ref(6));
 
     // Filling up the messages to be published
-    this->cmd_syn.data = float (x_ref(0));
-    this->cmd_twist.linear.x = x_ref(1); this->cmd_twist.angular.x = x_ref(4);
-    this->cmd_twist.linear.y = x_ref(2); this->cmd_twist.angular.y = x_ref(5);
-    this->cmd_twist.linear.z = x_ref(3); this->cmd_twist.angular.z = x_ref(6);
+    this->cmd_syn.data = float (filtered_x_ref(0));
+    this->cmd_twist.linear.x = filtered_x_ref(1); this->cmd_twist.angular.x = filtered_x_ref(4);
+    this->cmd_twist.linear.y = filtered_x_ref(2); this->cmd_twist.angular.y = filtered_x_ref(5);
+    this->cmd_twist.linear.z = filtered_x_ref(3); this->cmd_twist.angular.z = filtered_x_ref(6);
 
     // Publishing to robot controllers
     this->pub_hand.publish(this->cmd_syn);
@@ -101,9 +114,9 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     // Filling and publishing the twist for debug
     if(DEBUG) this->twist_wrench.header.frame_id = "world";
     if(DEBUG) this->twist_wrench.header.stamp = ros::Time::now();
-    if(DEBUG) this->twist_wrench.wrench.force.x = x_ref(1); this->twist_wrench.wrench.torque.x = x_ref(4);
-    if(DEBUG) this->twist_wrench.wrench.force.y = x_ref(2); this->twist_wrench.wrench.torque.y = x_ref(5);
-    if(DEBUG) this->twist_wrench.wrench.force.z = x_ref(3); this->twist_wrench.wrench.torque.z = x_ref(6);
+    if(DEBUG) this->twist_wrench.wrench.force.x = filtered_x_ref(1); this->twist_wrench.wrench.torque.x = filtered_x_ref(4);
+    if(DEBUG) this->twist_wrench.wrench.force.y = filtered_x_ref(2); this->twist_wrench.wrench.torque.y = filtered_x_ref(5);
+    if(DEBUG) this->twist_wrench.wrench.force.z = filtered_x_ref(3); this->twist_wrench.wrench.torque.z = filtered_x_ref(6);
     if(DEBUG) this->pub_twist_debug.publish(this->twist_wrench);
 
     // Return the callback result
