@@ -12,7 +12,7 @@
 using namespace adaptive_grasping;
 
 /* CONSTRUCTOR */
-robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_){
+robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_): ref_filter("double") {
     // Initializing service servers
     this->rc_server = this->nh_rc.advertiseService("rc_service", &robotCommander::performRobotCommand, this);
     this->emerg_server = this->nh_rc.advertiseService("rc_emergency_stop", &robotCommander::emergencyStop, this);
@@ -30,6 +30,10 @@ robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_){
     
     // Resizing the Eigen Vector
     this->x_ref.resize(7);
+
+    // Setting up the filters
+    this->ref_filter.configure(this->x_ref.size(), "low_pass_filter", this->nh_rc);
+
 }
 
 /* DESTRUCTOR */
@@ -78,6 +82,11 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     } else {
         this->x_ref = Eigen::VectorXd::Zero(7);
     }
+
+    // Filtering the command in order to avoid peaks
+    double *x_ref_array = this->x_ref.data();
+    double filtered_x_ref_array[7];
+    this->ref_filter.update(x_ref_array, filtered_x_ref_array);
 
     // Filling up the messages to be published
     this->cmd_syn.data = float (x_ref(0));

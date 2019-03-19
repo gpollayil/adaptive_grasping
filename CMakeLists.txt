@@ -11,26 +11,27 @@ set(CMAKE_CXX_STANDARD 11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  std_srvs
-	geometry_msgs
-  trajectory_msgs
+   roscpp
+   rospy
+   std_msgs
+   std_srvs
+   geometry_msgs
+   trajectory_msgs
 	actionlib
 	actionlib_msgs
-  tf
-  tf_conversions
+   tf
+   tf_conversions
 	kdl_parser
 	finger_fk
-  message_generation
-  eigen_conversions
-  urdf
-  sensor_msgs
-  moveit_msgs
-  moveit_ros_planning 
-  moveit_ros_planning_interface
-  moveit_core
+   message_generation
+   eigen_conversions
+   urdf
+   sensor_msgs
+   moveit_msgs
+   moveit_ros_planning 
+   moveit_ros_planning_interface
+   moveit_core
+   filters
 )
 
 ## System dependencies are found with CMake's conventions
