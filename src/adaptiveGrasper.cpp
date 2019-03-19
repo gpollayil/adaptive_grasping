@@ -4,7 +4,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "adaptive_grasper"
 
-#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
 
 /**
 * @brief The following are functions of the class adaptiveGrasper.
@@ -170,7 +170,7 @@ bool adaptiveGrasper::setCommandAndSend(Eigen::VectorXd ref_vec, adaptive_graspi
     comm.request.x_ref.push_back(ref_vec(6));
 
     if(this->client_rc.call(comm)){
-      if(DEBUG) ROS_INFO_STREAM("adaptiveGrasper::setCommandAndSend Success!");
+      if(DEBUG && false) ROS_INFO_STREAM("adaptiveGrasper::setCommandAndSend Success!");
       return true;
     } else {
       if(DEBUG) ROS_INFO_STREAM("adaptiveGrasper::setCommandAndSend Failed!");
@@ -190,12 +190,12 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
 
     // Copying the values of the joints
     int index = find (this->full_joint_state->name.begin(),this->full_joint_state->name.end(), "right_hand_thumb_abd_joint") - this->full_joint_state->name.begin();
-    if(DEBUG) std::cout << "********************************* " << std::endl;
+    if(DEBUG && false) std::cout << "********************************* " << std::endl;
     for(int j = 0; j < 33; j++){
-        if(DEBUG) std::cout << "Getting the joint " << this->full_joint_state->name[index + j] << " with value " << this->full_joint_state->position[index + j] << "." << std::endl;
+        if(DEBUG && false) std::cout << "Getting the joint " << this->full_joint_state->name[index + j] << " with value " << this->full_joint_state->position[index + j] << "." << std::endl;
         Syn(j) = this->full_joint_state->position[index + j];
     }
-    if(DEBUG) std::cout << "********************************* " << std::endl;
+    if(DEBUG && false) std::cout << "********************************* " << std::endl;
 
     // Dividing by synergy value to find the Matrix
     this->adaptive_grasper_mutex.lock();

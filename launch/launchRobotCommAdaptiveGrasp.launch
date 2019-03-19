@@ -21,7 +21,7 @@ The needed nodes and params for launching the Adaptive Grasping
 	</node>
 
     <!-- RUNNING THE ADAPTIVE GRASPING NODE -->
-	<node name="adaptive_grasping_node" pkg="adaptive_grasping" type="adaptive_grasping_node" respawn="true" output="screen">
+	<node name="adaptive_grasping_node" pkg="adaptive_grasping" type="adaptive_grasping_node" respawn="false" output="screen">
 	</node>
 
     <!-- RUNNING THE PUBLISHER OF OBJECT POSE (MUST BE CHANGED LATER) -->
