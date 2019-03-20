@@ -97,6 +97,9 @@ namespace adaptive_grasping {
     std_msgs::Float64 cmd_syn;
     geometry_msgs::WrenchStamped twist_wrench;          // Publishing twist as a wrench (For Debugging)
 
+    // A vector of filters for eventually filtering the references to be sent to the controllers (TODO: use vector of filters)
+    // std::vector<filters::FilterChain<double>> ref_filter;
+
     // A series of double filter chains for reference low pass filtering
     filters::FilterChain<double> ref_1_filter;
     filters::FilterChain<double> ref_2_filter;
