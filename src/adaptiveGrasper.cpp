@@ -207,6 +207,8 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
         this->adaptive_grasper_mutex.lock();
         this->run = false;
         this->adaptive_grasper_mutex.unlock();
+        // Resetting the contact state
+        this->my_contact_state.resetContact();
         ROS_INFO_STREAM("adaptiveGrasper The hand is almost fully closed: stopping the grasping!");
     }
 
@@ -243,16 +245,19 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
         this->adaptive_grasper_mutex.lock();
         this->run = false;
         this->adaptive_grasper_mutex.unlock();
+        // Resetting the contact state
+        this->my_contact_state.resetContact();
         res.success = false;
         return true;
     }
 
-    // Setting the run to true
     if(DEBUG) ROS_INFO_STREAM("The request run adaptive grasp is TRUE!");
+    // Resetting the contact state
+    this->my_contact_state.resetContact();
+    // Setting the run to true
     this->adaptive_grasper_mutex.lock();
     this->run = true;
     this->adaptive_grasper_mutex.unlock();
-    // this->my_contact_state.resetContact();           // This does not work! (Restarting the node is necessary)
     res.success = true;
     return true;
 }
