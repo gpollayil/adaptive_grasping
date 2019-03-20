@@ -86,8 +86,6 @@ bool contactPreserver::setRMatrix(){
     R = Eigen::MatrixXd::Zero(x_d.size() + num_contacts * residual, x_d.size() + P.cols());
     R.block(0, 0, x_d.size(), x_d.size()) = Eigen::MatrixXd::Identity(x_d.size(), x_d.size());
 
-    if(true) std::cout << "setRMatrix STEP 1!" << std::endl;
-
     int index_x = x_d.size();
     int index_y = x_d.size();
     if(DEBUG) ROS_INFO_STREAM("contactPreserver::setRMatrix Entering the blocks creating for.");
@@ -96,8 +94,6 @@ bool contactPreserver::setRMatrix(){
       index_x += residual;
       index_y += P.cols() / num_contacts;
     }
-
-    if(true) std::cout << "setRMatrix STEP 2!" << std::endl;
   }
 
   if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
@@ -152,7 +148,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   } else {
     if((Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001)){
       relaxation_order = 0;                     // Reset relaxation
-      ROS_WARN_STREAM("Resetting relaxation because Q changed.");
+      if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
     }
     Q_old = Q;
   }
@@ -175,7 +171,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   if(!(x_d - x_d_old).isMuchSmallerThan(0.0001) || first_it){
     relaxation_order = 0;               // Nothing is to be relaxed
     if(first_it) first_it = false;
-    ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
+    if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
   }
 
   x_d_old = x_d;
@@ -230,7 +226,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
-      ROS_WARN_STREAM("Relaxing because null space is empty.");
+      if(DEBUG) ROS_WARN_STREAM("Relaxing because null space is empty.");
     } else {
       // Updating A_tilde to comply with the dimensions of R
       updateAMatrix();
@@ -245,7 +241,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
         ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
         if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
         x_ref = x_ref_old;            // Old vector is returned until good solution is found
-        ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
+        if(DEBUG) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
       }
 
       // Compute reference
@@ -266,7 +262,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
-      ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
+      if(DEBUG) ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
     }
   } else {
     /*  If the condition for solution is not valid, relax (increase relaxation_order) 
@@ -274,7 +270,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     */
     if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
     x_ref = x_ref_old;            // Old vector is returned until good solution is found
-    ROS_WARN_STREAM("Relaxing because no particular solution found.");
+    if(DEBUG) ROS_WARN_STREAM("Relaxing because no particular solution found.");
   }
 
   // DEBUG PRINTS
@@ -284,9 +280,11 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   if(DEBUG) std::cout << "R_bar * y = " << R_bar * y << std::endl;
   if(DEBUG) std::cout << "----------------" << std::endl;
 
-  std::cout << "----------------" << std::endl;
-  std::cout << "relaxation_order = " << relaxation_order << std::endl;
-  std::cout << "----------------" << std::endl;
+  if(true){
+    std::cout << "----------------" << std::endl;
+    std::cout << "relaxation_order = " << relaxation_order << std::endl;
+    std::cout << "----------------" << std::endl;
+  }
 
   // Saving to old and return contact preserving solution
   x_ref_old = x_ref;
