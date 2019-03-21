@@ -131,7 +131,7 @@ void contactPreserver::updateAMatrix(){
 }
 
 /* PERFORMMINIMIZATION */
-Eigen::VectorXd contactPreserver::performMinimization(){
+bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   // Resize Q to be of correct size
   Q.resize(H.rows(), x_d.size());
 
@@ -210,8 +210,8 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     if(DEBUG) std::cout << "Q_tilde = " << Q_tilde << std::endl;
     if(DEBUG) std::cout << "R_bar * Q_tilde = " << R_bar * Q_tilde << std::endl;
 
-    Eigen::FullPivLU<Eigen::MatrixXd> lu(R_bar * Q_tilde);
-    N_tilde = lu.kernel();
+    Eigen::FullPivLU<Eigen::MatrixXd> luN(R_bar * Q_tilde);
+    N_tilde = luN.kernel();
     ROS_DEBUG_STREAM("N_tilde(Q) = \n" << N_tilde << ".");
 
     if(DEBUG) std::cout << "-- Step 4 --" << std::endl;
@@ -223,44 +223,35 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     // Print message for debug
     if(DEBUG) std::cout << "Computed N_tilde(Q) in contactPreserver!" << std::endl;
 
-    // Checking if N_tilde is only a null vector (R_bar * Q_tilde has full rank) -> then relax
+    // Updating A_tilde to comply with the dimensions of R
+    updateAMatrix();
+
+    // Computing the solution (formulas in paper)
+    C = N_tilde.transpose() * Q_tilde.transpose() * R.transpose() * A_tilde * R;
+    x_star = pinv_R_bar_Q_tilde * R_bar * y;
+
+    // Check invertibility of block expression
+    Eigen::FullPivLU<Eigen::MatrixXd> lu(C * Q_tilde * N_tilde);
     if(!lu.isInvertible()){
-      /*  If the condition on null space basis is valid, relax (increase relaxation_order) 
-          Recomputation of the R matrices will be performed by setRMatrix at next iteration 
-      */
+      ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
-      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because null space is empty.");
-    } else {
-      // Updating A_tilde to comply with the dimensions of R
-      updateAMatrix();
-
-      // Computing the solution (formulas in paper)
-      C = N_tilde.transpose() * Q_tilde.transpose() * R.transpose() * A_tilde * R;
-      x_star = pinv_R_bar_Q_tilde * R_bar * y;
-
-      // Check invertibility of block expression
-      Eigen::FullPivLU<Eigen::MatrixXd> lu(C * Q_tilde * N_tilde);
-      if(!lu.isInvertible()){
-        ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
-        if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-        x_ref = x_ref_old;            // Old vector is returned until good solution is found
-        if(DEBUG || true) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
-      }
-
-      // Compute reference
-      x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
-
-      if(DEBUG || true) std::cout << "----------------" << std::endl;
-      if(DEBUG || true) std::cout << "x_star = " << x_star << std::endl;
-      if(DEBUG || true) std::cout << "N_tilde = " << N_tilde << std::endl;
-      if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
-      if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
-      if(DEBUG || true) std::cout << "C = " << C << std::endl;
-      if(DEBUG || true) std::cout << "(y - Q_tilde * x_star) = " << (y - Q_tilde * x_star) << std::endl;
-      if(DEBUG || true) std::cout << "----------------" << std::endl;
+      x_result = x_ref;
+      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
+      return false;
     }
 
+    // Compute reference
+    x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
+    if(DEBUG || true) std::cout << "----------------" << std::endl;
+    if(DEBUG || true) std::cout << "x_star = " << x_star << std::endl;
+    if(DEBUG || true) std::cout << "N_tilde = " << N_tilde << std::endl;
+    if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
+    if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
+    if(DEBUG || true) std::cout << "C = " << C << std::endl;
+    if(DEBUG || true) std::cout << "(y - Q_tilde * x_star) = " << (y - Q_tilde * x_star) << std::endl;
+    if(DEBUG || true) std::cout << "----------------" << std::endl;
+    
     // Checking the second condition of algorithm
     if(x_ref.head(S.cols()).norm() < 0.0001){
       /*  If the condition for norm is not valid, relax (increase relaxation_order) 
@@ -268,7 +259,9 @@ Eigen::VectorXd contactPreserver::performMinimization(){
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
+      x_result = x_ref;
       if(DEBUG) ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
+      return false;
     }
   } else {
     /*  If the condition for solution is not valid, relax (increase relaxation_order) 
@@ -276,7 +269,9 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     */
     if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
     x_ref = x_ref_old;            // Old vector is returned until good solution is found
+    x_result = x_ref;
     if(DEBUG) ROS_WARN_STREAM("Relaxing because no particular solution found.");
+    return false;
   }
 
   // DEBUG PRINTS
@@ -286,7 +281,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   if(DEBUG) std::cout << "R_bar * y = " << R_bar * y << std::endl;
   if(DEBUG) std::cout << "----------------" << std::endl;
 
-  if(true){
+  if(DEBUG || true){
     std::cout << "----------------" << std::endl;
     std::cout << "relaxation_order = " << relaxation_order << std::endl;
     std::cout << "----------------" << std::endl;
@@ -294,7 +289,8 @@ Eigen::VectorXd contactPreserver::performMinimization(){
 
   // Saving to old and return contact preserving solution
   x_ref_old = x_ref;
-  return x_ref;
+  x_result = x_ref;
+  return true;
   
   // For debugging purpouses (real line is above)
   // Eigen::VectorXd null_vec_debug = N.col(0);

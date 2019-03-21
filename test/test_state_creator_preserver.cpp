@@ -467,7 +467,7 @@ int main(int argc, char **argv){
         preserver.setMinimizationParams(x_d, A_tilde);
 
         // Performing minimization
-        x_ref = preserver.performMinimization();
+        bool relaxed = preserver.performMinimization(x_ref);
 
         ROS_DEBUG_STREAM("Performed Minimization!!!");
     }

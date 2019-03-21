@@ -316,7 +316,7 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
                 // Performing minimization
-                this->x_ref = this->my_contact_preserver.performMinimization();
+                bool relaxation_happened = this->my_contact_preserver.performMinimization(this->x_ref);
 
                 if(DEBUG) ROS_DEBUG_STREAM("adaptiveGrasper::spinGrasper Performed Minimization!!!");
             }

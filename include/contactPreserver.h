@@ -117,9 +117,11 @@ namespace adaptive_grasping {
     /** PERFORMMINIMIZATION
     * @brief Function to perform the minimization using current values
     *
-    * @return Eigen::VectorXd x_ref the resulting motion that preserves contacts
+    * @param x_result
+    *   the resulting motion that preserves contacts
+    * @return bool success if no relaxation happens and nothing goes wrong
     */
-    Eigen::VectorXd performMinimization();
+    bool performMinimization(Eigen::VectorXd& x_result);
 
     /** PRINTALL
     * @brief Function to print out to console all relevant variables
