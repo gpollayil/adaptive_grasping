@@ -146,9 +146,13 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   if(first_it){
     Q_old = Q;
   } else {
-    if((Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001)){
+    if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001)){
       relaxation_order = 0;                     // Reset relaxation
-      if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
+      if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
+      if(DEBUG || true) std::cout << "----------------" << std::endl;
+      if(DEBUG || true) std::cout << "Q = " << Q << std::endl;
+      if(DEBUG || true) std::cout << "Q_old = " << Q_old << std::endl;
+      if(DEBUG || true) std::cout << "----------------" << std::endl;
     }
     Q_old = Q;
   }
@@ -171,7 +175,7 @@ Eigen::VectorXd contactPreserver::performMinimization(){
   if(!(x_d - x_d_old).isMuchSmallerThan(0.0001) || first_it){
     relaxation_order = 0;               // Nothing is to be relaxed
     if(first_it) first_it = false;
-    if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
+    if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
   }
 
   x_d_old = x_d;
@@ -220,13 +224,13 @@ Eigen::VectorXd contactPreserver::performMinimization(){
     if(DEBUG) std::cout << "Computed N_tilde(Q) in contactPreserver!" << std::endl;
 
     // Checking if N_tilde is only a null vector (R_bar * Q_tilde has full rank) -> then relax
-    if(lu.isInvertible()){
+    if(!lu.isInvertible()){
       /*  If the condition on null space basis is valid, relax (increase relaxation_order) 
           Recomputation of the R matrices will be performed by setRMatrix at next iteration 
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
-      if(DEBUG) ROS_WARN_STREAM("Relaxing because null space is empty.");
+      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because null space is empty.");
     } else {
       // Updating A_tilde to comply with the dimensions of R
       updateAMatrix();
@@ -241,18 +245,20 @@ Eigen::VectorXd contactPreserver::performMinimization(){
         ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
         if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
         x_ref = x_ref_old;            // Old vector is returned until good solution is found
-        if(DEBUG) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
+        if(DEBUG || true) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
       }
 
       // Compute reference
       x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
 
-      if(DEBUG) std::cout << "----------------" << std::endl;
-      if(DEBUG) std::cout << "x_star = " << x_star << std::endl;
-      if(DEBUG) std::cout << "C = " << C << std::endl;
-      if(DEBUG) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
-      if(DEBUG) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
-      if(DEBUG) std::cout << "----------------" << std::endl;
+      if(DEBUG || true) std::cout << "----------------" << std::endl;
+      if(DEBUG || true) std::cout << "x_star = " << x_star << std::endl;
+      if(DEBUG || true) std::cout << "N_tilde = " << N_tilde << std::endl;
+      if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
+      if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
+      if(DEBUG || true) std::cout << "C = " << C << std::endl;
+      if(DEBUG || true) std::cout << "(y - Q_tilde * x_star) = " << (y - Q_tilde * x_star) << std::endl;
+      if(DEBUG || true) std::cout << "----------------" << std::endl;
     }
 
     // Checking the second condition of algorithm
