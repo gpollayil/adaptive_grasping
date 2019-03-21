@@ -96,11 +96,13 @@ namespace adaptive_grasping {
     geometry_msgs::Twist cmd_twist;
     std_msgs::Float64 cmd_syn;
     geometry_msgs::WrenchStamped twist_wrench;          // Publishing twist as a wrench (For Debugging)
+    double vel_limit = 0.05;                            // Upper limit for all joint velocities
 
     // A vector of filters for eventually filtering the references to be sent to the controllers (TODO: use vector of filters)
     // std::vector<filters::FilterChain<double>> ref_filter;
 
     // A series of double filter chains for reference low pass filtering
+    bool enable_filter = true;
     filters::FilterChain<double> ref_1_filter;
     filters::FilterChain<double> ref_2_filter;
     filters::FilterChain<double> ref_3_filter;
@@ -118,6 +120,15 @@ namespace adaptive_grasping {
     */
     bool performRobotCommand(adaptive_grasping::velCommand::Request &req,
         adaptive_grasping::velCommand::Response &res);
+
+    /** ENFORCELIMITS
+    * @brief Private function to check joint velocity limits and to follow them
+    *
+    * @param vel_ref_
+    *   the vector containing the reference twist for the palm (must be 6d and passed by reference)
+    * @return ok_limits
+    */
+    bool enforceLimits(Eigen::VectorXd& vel_ref_);
 
     /** SETREFERENCES
     * @brief Private function to set the twist references of palm and the speed of hand joints

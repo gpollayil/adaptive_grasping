@@ -11,6 +11,7 @@ The needed nodes and params for launching the Adaptive Grasping
 
     <!-- Loads adaptive grasping configurations and low pass filter name and parameters from YAML file to parameter server -->
     <rosparam command="load" file="$(find adaptive_grasping)/config/adaptive_params.yaml"/>
+    <rosparam command="load" file="$(find adaptive_grasping)/config/robcomm_params.yaml" />
     <rosparam command="load" file="$(find adaptive_grasping)/config/filter_chain.yaml" />
 
     <!-- RUNNING THE FINGER JOINT SERVICE -->
