@@ -24,9 +24,9 @@ adaptive_grasping:
     - [1, 0, 0, 0, 0, 0]
     - [0, 1, 0, 0, 0, 0]
     - [0, 0, 1, 0, 0, 0]
-    # - [0, 0, 0, 1, 0, 0]
-    # - [0, 0, 0, 0, 1, 0]
-    # - [0, 0, 0, 0, 0, 1]
+    - [0, 0, 0, 1, 0, 0]
+    - [0, 0, 0, 0, 1, 0]
+    - [0, 0, 0, 0, 0, 1]
   # The following list of arrays is the minimization weight matrix A tilde
   a_tilde_matrix:
     - [100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -58,9 +58,9 @@ adaptive_grasping:
   scaling: 1.0
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
-    # - [6, 3, 4, 5, 1, 2]      # for the order of relaxation
-    - [2, 3, 1]      # for the order of relaxation
+    - [6, 3, 4, 5, 1, 2]      # for the order of relaxation
+    # - [2, 3, 1]      # for the order of relaxation
   # The threshold on the synergy joint value for stopping the grasping motion
-  syn_thresh: 0.85
+  syn_thresh: 0.8
 
 

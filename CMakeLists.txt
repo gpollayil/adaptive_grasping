@@ -157,7 +157,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/adaptive_grasping_node.cpp)
 
 set(ADAPTIVE_SOURCE_FILES
-  src/parsing_utilities.cpp
+   src/parsing_utilities.cpp
 	src/contactState.cpp
 	src/matricesCreator.cpp
 	src/contactPreserver.cpp
