@@ -304,7 +304,7 @@ void adaptiveGrasper::spinGrasper(){
             this->my_contact_preserver.changeHandType(this->S);
 
             // Resetting the reference motion to zero
-            this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
+            this->x_ref = this->x_d;
 
             // Performing the minimization only if there are contacts (i.e. the matrices are not empty)
             if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0){
