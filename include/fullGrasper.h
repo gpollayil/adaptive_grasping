@@ -8,17 +8,17 @@
 
 // ROS msg includes
 #include <geometry_msgs/Pose.h>
+#include "std_msgs/Float64.h"
 #include "std_srvs/SetBool.h"
 
 // Custom msg and srv includes
-#include "adaptive_grasping/set_object.h"
-#include "panda_softhand_control/hand_control.h"
-#include "panda_softhand_control/joint_control.h"
-#include "panda_softhand_control/pose_control.h"
-#include "panda_softhand_control/slerp_control.h"
+#include "adaptive_grasping/choose_object.h"
+#include <franka_msgs/FrankaState.h>
+#include <franka_control/ErrorRecoveryActionGoal.h>
 
 // Custom Includes
-#include "adaptiveGrasper.h"            // Most of other h files are included in this one
+#include "adaptiveGrasper.h"                                // Most of other h files are included in this one
+#include "panda_softhand_control/PandaSoftHandClient.h"
 
 /**
 * @brief This class is created by the main of the full_grasping_node: it has inside it
@@ -111,7 +111,15 @@ namespace adaptive_grasping {
         * @param msg pose
         * @return null
         */
-        bool call_set_object(adaptive_grasping::set_object::Request &req, adaptive_grasping::set_object::Response &res);
+        bool call_set_object(adaptive_grasping::choose_object::Request &req, adaptive_grasping::choose_object::Response &res);
+
+        /** GETFRANKASTATE
+        * @brief Callback function for getting information fram franka robot
+        *
+        * @param msg state
+        * @return null
+        */
+        void get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg);
 
         /** CALLADAPTIVEGRASPTASK
         * @brief Callback function for performing the whole adaptive grasp routine
@@ -145,6 +153,18 @@ namespace adaptive_grasping {
 
         // A controller_mangager msg for switching controllers
         controller_manager_msgs::SwitchController switch_controller;
+
+        // The Panda SoftHand Client
+        PandaSoftHandClient panda_softhand_client;
+
+        // Subscriber to franka_states for getting tau_ext on joints and other info and Publisher of its norm
+        std::string franka_state_topic_name = "/franka_state_controller/franka_states";
+        ros::Subscriber franka_state_sub;
+        franka_msgs::FrankaState latest_franka_state;
+        bool franka_ok = true;
+        double tau_ext_norm = 0.0;
+        ros::Publisher pub_tau_ext_norm;
+        ros::Publisher pub_franka_recovery;         // TODO: Recover from error automatically
 
         // Subscriber to object pose and the pose
         ros::Subscriber object_sub;

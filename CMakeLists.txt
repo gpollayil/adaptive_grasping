@@ -27,12 +27,12 @@ find_package(catkin REQUIRED COMPONENTS
    eigen_conversions
    urdf
    sensor_msgs
+   panda_softhand_control
    moveit_msgs
    moveit_ros_planning 
    moveit_ros_planning_interface
    moveit_core
    filters
-   # panda_softhand_control
    controller_manager_msgs
 )
 
@@ -81,7 +81,7 @@ add_service_files(
   FILES
   velCommand.srv
   adaptiveGrasp.srv
-  set_object.srv
+  choose_object.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -127,9 +127,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+   INCLUDE_DIRS include
 #  LIBRARIES adaptive_grasping
-CATKIN_DEPENDS roscpp rospy std_msgs std_srvs message_runtime
+   CATKIN_DEPENDS roscpp rospy std_msgs std_srvs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -140,8 +140,8 @@ CATKIN_DEPENDS roscpp rospy std_msgs std_srvs message_runtime
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-	include
-  ${catkin_INCLUDE_DIRS}
+   include
+   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
