@@ -32,6 +32,8 @@ find_package(catkin REQUIRED COMPONENTS
    moveit_ros_planning_interface
    moveit_core
    filters
+   # panda_softhand_control
+   controller_manager_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -79,6 +81,7 @@ add_service_files(
   FILES
   velCommand.srv
   adaptiveGrasp.srv
+  set_object.srv
 )
 
 ## Generate actions in the 'action' folder
