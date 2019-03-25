@@ -178,10 +178,12 @@ namespace adaptive_grasping {
         XmlRpc::XmlRpcValue task_seq_params;
 
         // Parsed task sequence variables
-        std::string robot_name;                     // Name of the robot (namespace)
-        std::string robot_joints_name;              // Name of the robot joints (without the number of the joints)
-        std::string pos_controller;                 // Name of position controller
-        std::string imp_controller;                 // Name of impedance controller
+        std::string arm_name;                           // Name of the robot (namespace)
+        std::string hand_name;                          // Name of the hand (namespace)
+        std::string arm_pos_controller;                 // Name of position controller of the arm
+        std::string arm_vel_controller;                 // Name of impedance controller of the arm
+        std::string hand_pos_controller;                // Name of position controller of the hand
+        std::string hand_vel_controller;                // Name of impedance controller of the hand
         std::vector<double> home_joints;
         std::vector<double> grasp_transform;
         geometry_msgs::Pose grasp_T;

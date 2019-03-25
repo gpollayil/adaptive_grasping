@@ -2,6 +2,19 @@
 # Remember that there might be other important constants that can only be changed from the src code.
 
 full_grasper:
+  # Name of the arm
+  arm_name: panda_arm
+  # Name of the hand
+  hand_name: right_hand
+  # Arm position controller
+  arm_pos_controller: position_joint_trajectory_controller
+  # Arm velocity controller
+  arm_vel_controller: cartesian_velocity_controller
+  # Hand position controller
+  hand_pos_controller: joint_trajectory_controller
+  # Hand velocity controller
+  hand_vel_controller: velocity_controller
+
   # The joint configuration for home
   home_joints: [-0.035, -0.109, -0.048, -1.888, 0.075, 1.797, -0.110] 
   # Transform from object frame to grasp pose frame (xyzrpy) (DEFAULT)
