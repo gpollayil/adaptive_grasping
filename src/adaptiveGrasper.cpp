@@ -4,7 +4,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "adaptive_grasper"
 
-#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
 
 /**
 * @brief The following are functions of the class adaptiveGrasper.
@@ -211,7 +211,7 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
         this->run = false;
         this->adaptive_grasper_mutex.unlock();
         // Resetting the contact state
-        this->my_contact_state.resetContact();
+        // this->my_contact_state.resetContact();       // Might cause crashing
 
         // Calling the end adaptive grasping service to let full grasper know that it ended
         if(this->end_client.call(this->end_srv)){
@@ -266,7 +266,7 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
         } else {
             ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
         }
-        
+
         return true;
     }
 
