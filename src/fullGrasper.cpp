@@ -181,8 +181,7 @@ geometry_msgs::Pose fullGrasper::convert_vector_to_pose(std::vector<double> inpu
 
 /* INITIALIZE */
 bool fullGrasper::initialize(std::vector<std::string> param_names){
-    // Using the initialize of adaptiveGrasper
-    if(!this->adaptive_grasper.initialize(param_names)) return false;
+    // Nothing to do here
 }
 
 /* SWITCHCONTROL */
@@ -205,8 +204,7 @@ bool fullGrasper::switch_control(std::string robot_name, std::string from_contro
 
 /* SPIN */
 void fullGrasper::spin(){
-    // Spinning the grasper
-    this->adaptive_grasper.spinGrasper();
+    // Nothing to do here
 }
 
 /* GETOBJECTPOSE */

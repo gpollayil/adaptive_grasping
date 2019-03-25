@@ -20,7 +20,7 @@
 int main(int argc, char** argv){
 
 	// Initializing ROS node
-	ros::init(argc, argv, "adaptive_grasping_node");
+	ros::init(argc, argv, "adaptive_grasping_fg_node");
 	ros::NodeHandle adaptive_nh;
 
     // Params for building full_grasper
@@ -36,40 +36,19 @@ int main(int argc, char** argv){
     // Creating the adaptive grasper class
     adaptive_grasping::fullGrasper full_grasper(arm_ns, hand_ns, normal_controllers_names, velocity_controllers_names);
 
-    // Initializing with a vector containing the names of items to be parsed
-    // For adaptive_grasper
-    std::vector<std::string> param_names;
-    param_names.push_back("touch_topic_name");
-    param_names.push_back("link_names_map");
-    param_names.push_back("params_map");
-    param_names.push_back("joints_num");
-    param_names.push_back("h_matrix");
-    param_names.push_back("a_tilde_matrix");
-    param_names.push_back("x_d");
-    param_names.push_back("spin_rate");
-    param_names.push_back("object_topic_name");
-    param_names.push_back("scaling");
-    param_names.push_back("p_vector");
-    param_names.push_back("syn_thresh");
-
-    full_grasper.initialize(param_names);
-
-    // Printing the parsed parameters
-    if(DEBUG) full_grasper.adaptive_grasper.printParsed();
-
     // Starting message
-	ROS_INFO("\nThe Adaptive Grasper is starting to spin!");
+	ROS_INFO("\nThe Full Grasper is starting to spin!");
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
 
     // ROS Async spinner (necessary for processing callbacks inside the service callbacks)
     ros::AsyncSpinner spinner(5);
     spinner.start();
 
-    // Starting to spin
-    full_grasper.spin();
+    // Waiting until termination
+    ros::waitForShutdown();
 
     // Success message
-	ROS_INFO("\nTerminating Adaptive Grasper!");
+	ROS_INFO("\nTerminating Full Grasper!");
 
     // Teminating
     spinner.stop();

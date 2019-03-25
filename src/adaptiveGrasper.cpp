@@ -284,7 +284,7 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
 /* SPINGRASPER */
 void adaptiveGrasper::spinGrasper(){
     // Setting the ROS rate
-    // ros::Rate rate(this->spin_rate);
+    ros::Rate rate(this->spin_rate);
 
     // (TODO: might need to start an AsyncSpinner here.)
 
@@ -358,7 +358,7 @@ void adaptiveGrasper::spinGrasper(){
         }
 
         // Rate
-        // rate.sleep();
+        rate.sleep();
     }
 
 

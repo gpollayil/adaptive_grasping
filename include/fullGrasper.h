@@ -22,8 +22,7 @@
 #include "panda_softhand_control/PandaSoftHandClient.h"
 
 /**
-* @brief This class is created by the main of the full_grasping_node: it has inside it
-* all the other classes: contact_state, matrix_creator, contact_preserver and adaptive_grasper.
+* @brief This class is created by the main of the full_grasping_node.
 * The purpouse of this node is to start closing the hand until a touch is detected; then the
 * callback of the adaptive_grasper is called.
 * It also has a callback that uses panda_softhand_control package to perform a full adaptive
@@ -137,9 +136,6 @@ namespace adaptive_grasping {
         * @return bool success
         */
         bool call_end_adaptive_grasp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
-
-        // The main element of the object
-        adaptiveGrasper adaptive_grasper;
 
         private:
 
