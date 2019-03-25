@@ -61,13 +61,18 @@ int main(int argc, char** argv){
 	ROS_INFO("\nThe Adaptive Grasper is starting to spin!");
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
 
+    // ROS Async spinner (necessary for processing callbacks inside the service callbacks)
+    ros::AsyncSpinner spinner(5);
+    spinner.start();
+
     // Starting to spin
     full_grasper.spin();
 
     // Success message
 	ROS_INFO("\nTerminating Adaptive Grasper!");
 
-	// Spin
-	ros::spin();
+    // Teminating
+    spinner.stop();
 
+    return 0;
 }
