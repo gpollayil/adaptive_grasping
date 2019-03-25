@@ -71,7 +71,7 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     }
     
     // Debug message
-    if(DEBUG || true) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
+    if(DEBUG) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
         << "\n" << this->x_ref << ".");
 
     // Checking if the reference contains NaNs
@@ -89,7 +89,7 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
 
     // Checking velocity limits and eventually scaling them
     if(!this->enforceLimits(this->x_ref)){
-        if(DEBUG || true){
+        if(DEBUG){
             ROS_WARN("robotCommander::performRobotCommand : velocity limits violated, scaling the reference.");
         }
     }
