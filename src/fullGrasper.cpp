@@ -1,6 +1,8 @@
 #include "fullGrasper.h"
 #include "utils/parsing_utilities.h"
 
+#include "adaptive_grasping/adaptiveGrasp.h"
+
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "full_grasper"
 
@@ -51,6 +53,7 @@ fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<
     // Advertising the services (TODO: parse the service names)
     this->adaptive_task_server = this->nh.advertiseService("adaptive_task_service", &fullGrasper::call_adaptive_grasp_task, this);
     this->set_object_server = this->nh.advertiseService("set_object_service", &fullGrasper::call_set_object, this);
+    this->ag_ended_server = this->nh.advertiseService("adaptive_grasping_end_trigger", &fullGrasper::call_end_adaptive_grasp, this);
 }
 
 /* PARSETASKPARAMS */
@@ -332,6 +335,27 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     }
 
     // Calling the adaptive grasp service and waiting for its completion
+    this->adaptive_grasping_ended = false;                                  // Setting end trigger to false
+
+    adaptive_grasping::adaptiveGrasp ag_srv; ag_srv.request.run_adaptive_grasp = true;
+    if(!ros::service::call<adaptive_grasping::adaptiveGrasp>("adaptive_grasper_service", ag_srv)){
+        ROS_ERROR("Could not call the adaptive_grasper_service.");
+        res.success = false;
+        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        return false;
+    }
+
+    ROS_INFO("Called the adaptive_grasper_service!");
+
+    // 4) Wait for an event on a topic
+    while(!this->adaptive_grasping_ended){
+        // Sleep for some time
+        usleep(50);
+    }
+
+    ROS_INFO("Someone triggered the adaptive grasp end!");
+
+    sleep(2);       // TODO: listen to robot and make sure it's not moving
 
     // 4.4) Switching to back to position controllers
     if(!this->switch_control(this->arm_name, this->arm_vel_controller, this->arm_pos_controller) || !this->franka_ok){
@@ -399,4 +423,10 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     res.success = true;
     res.message = "The service call_adaptive_grasp_task was correctly performed!";
     return true;
+}
+
+/* CALLENDADAPTIVEGRASP */
+bool fullGrasper::call_end_adaptive_grasp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res){
+    // Setting the trigger bool
+    this->adaptive_grasping_ended = true;
 }

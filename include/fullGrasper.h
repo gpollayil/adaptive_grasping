@@ -10,6 +10,7 @@
 #include <geometry_msgs/Pose.h>
 #include "std_msgs/Float64.h"
 #include "std_srvs/SetBool.h"
+#include "std_srvs/Trigger.h"
 
 // Custom msg and srv includes
 #include "adaptive_grasping/choose_object.h"
@@ -129,6 +130,14 @@ namespace adaptive_grasping {
         */
         bool call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
 
+        /** CALLENDADAPTIVEGRASP
+        * @brief Callback function for triggering the end of adaptive grasper
+        *
+        * @param req / res
+        * @return bool success
+        */
+        bool call_end_adaptive_grasp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+
         // The main element of the object
         adaptiveGrasper adaptive_grasper;
 
@@ -173,6 +182,10 @@ namespace adaptive_grasping {
         // Service Servers
         ros::ServiceServer adaptive_task_server;
         ros::ServiceServer set_object_server;
+        ros::ServiceServer ag_ended_server;
+
+        // Adaptive grasping ended trigger bool
+        bool adaptive_grasping_ended;
 
         // The XmlRpc value for parsing complex params
         XmlRpc::XmlRpcValue task_seq_params;
