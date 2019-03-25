@@ -47,6 +47,9 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     // Initializing the server to adaptive grasper
     this->server_ag = this->ag_nh.advertiseService("adaptive_grasper_service", &adaptiveGrasper::agCallback, this);
 
+    // Initializing the client to end adaptive grasping
+    this->end_client = this->ag_nh.serviceClient<std_srvs::Trigger>("adaptive_grasping_end_trigger");
+
     // Starting to parse the needed elements from parameter server
     ROS_INFO_STREAM("adaptiveGrasper::initialize STARTING TO PARSE THE NEEDED VARIABLES!");
 
@@ -209,7 +212,15 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
         this->adaptive_grasper_mutex.unlock();
         // Resetting the contact state
         this->my_contact_state.resetContact();
-        ROS_INFO_STREAM("adaptiveGrasper The hand is almost fully closed: stopping the grasping!");
+
+        // Calling the end adaptive grasping service to let full grasper know that it ended
+        if(this->end_client.call(this->end_srv)){
+            ROS_WARN_STREAM("adaptiveGrasper : Triggered stop adaptive grasping!");
+        } else {
+            ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
+        }
+
+        ROS_INFO_STREAM("adaptiveGrasper : The hand is almost fully closed: stopping the grasping!");
     }
 
 }
@@ -248,6 +259,14 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
         // Resetting the contact state
         this->my_contact_state.resetContact();
         res.success = false;
+
+        // Calling the end adaptive grasping service to let full grasper know that it ended
+        if(this->end_client.call(this->end_srv)){
+            ROS_WARN_STREAM("adaptiveGrasper : Triggered stop adaptive grasping!");
+        } else {
+            ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
+        }
+        
         return true;
     }
 
@@ -265,7 +284,9 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
 /* SPINGRASPER */
 void adaptiveGrasper::spinGrasper(){
     // Setting the ROS rate
-    ros::Rate rate(this->spin_rate);
+    // ros::Rate rate(this->spin_rate);
+
+    // (TODO: might need to start an AsyncSpinner here.)
 
     // Starting the ROS loop
     while(ros::ok()){
@@ -337,7 +358,7 @@ void adaptiveGrasper::spinGrasper(){
         }
 
         // Rate
-        rate.sleep();
+        // rate.sleep();
     }
 
 

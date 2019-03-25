@@ -9,6 +9,7 @@
 #include "contactPreserver.h"
 
 // Service Includes
+#include "std_srvs/Trigger.h"
 #include "adaptive_grasping/velCommand.h"
 #include "adaptive_grasping/adaptiveGrasp.h"
 
@@ -123,6 +124,8 @@ namespace adaptive_grasping {
     ros::Publisher marker_pub;                            // Publisher for object marker to RViz
     ros::ServiceClient client_rc;                         // Service client to robot commander
     ros::ServiceServer server_ag;                         // Service server for adaptive grasper
+    ros::ServiceClient end_client;                        // Service client to signal that adaptive grasping ended
+    std_srvs::Trigger end_srv;                            // Service message to be sent to trigger end
     double spin_rate;                                     // Rate at which the adaptive grasper should run
 
     // RViz object marker elements
