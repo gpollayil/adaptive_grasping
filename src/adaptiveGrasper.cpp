@@ -322,7 +322,7 @@ void adaptiveGrasper::spinGrasper(){
                 ROS_INFO_STREAM("\nP = " << "\n" << this->read_P << "\n");
             }
             // Printing out the contacts map
-            if(this->read_contacts_map.size() > 0){
+            if(this->read_contacts_map.size() > 0 && DEBUG){
               std::cout << "Current contacts are:" << std::endl;
               for(auto elem : this->read_contacts_map){
                 std::cout << elem.first << " : " << std::get<0>(elem.second) << "." << std::endl;
