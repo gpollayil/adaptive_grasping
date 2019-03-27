@@ -61,6 +61,8 @@ adaptive_grasping:
     - [6, 3, 4, 5, 1, 2]      # for the order of relaxation
     # - [2, 3, 1]      # for the order of relaxation
   # The threshold on the synergy joint value for stopping the grasping motion
-  syn_thresh: 0.8
+  syn_thresh: 0.4
+  # The bool to decide if null twist should be sent when relaxation occurs
+  relax_to_zero: false
 
 
