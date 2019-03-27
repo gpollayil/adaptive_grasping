@@ -158,6 +158,7 @@ namespace adaptive_grasping {
     double scaling;                                     // Contains the scaling factor for x reference
     Eigen::VectorXd p_vector;                           // Contains the permutation vector for relaxed minimization (for Matrices Creator)
     double syn_thresh;                                  // Contains threshold on the synergy joint value for stopping the grasping motion (for Adaptive Grasper)
+    bool relax_to_zero = true;                        // Contains bool to decide to set zero ref if relaxation happens
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;

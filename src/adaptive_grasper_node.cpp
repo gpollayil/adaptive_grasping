@@ -51,6 +51,7 @@ int main(int argc, char** argv){
     param_names.push_back("scaling");
     param_names.push_back("p_vector");
     param_names.push_back("syn_thresh");
+    param_names.push_back("relax_to_zero");
 
     adaptive_grasper.initialize(param_names);
 

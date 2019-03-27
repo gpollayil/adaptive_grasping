@@ -4,7 +4,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "adaptive_grasper"
 
-#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
 
 /**
 * @brief The following are functions of the class adaptiveGrasper.
@@ -156,6 +156,7 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     this->p_vector = temp_p_vector.transpose().col(0);
 
     parseParameter(params_xml, this->syn_thresh, param_names[11]);
+    parseParameter(params_xml, this->relax_to_zero, param_names[12]);
 }
 
 /* SETCOMMANDANDSEND */
@@ -211,7 +212,7 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
         this->run = false;
         this->adaptive_grasper_mutex.unlock();
         // Resetting the contact state
-        // this->my_contact_state.resetContact();       // Might cause crashing
+        this->my_contact_state.resetContact();       // Might cause crashing
 
         // Calling the end adaptive grasping service to let full grasper know that it ended
         if(this->end_client.call(this->end_srv)){
@@ -320,6 +321,13 @@ void adaptiveGrasper::spinGrasper(){
                 ROS_INFO_STREAM("\nH = " << "\n" << this->read_H << "\n");
                 ROS_INFO_STREAM("\nP = " << "\n" << this->read_P << "\n");
             }
+            // Printing out the contacts map
+            if(this->read_contacts_map.size() > 0){
+              std::cout << "Current contacts are:" << std::endl;
+              for(auto elem : this->read_contacts_map){
+                std::cout << elem.first << " : " << std::get<0>(elem.second) << "." << std::endl;
+              }
+            }
 
             // Setting the synergy matrix in preserver
             this->my_contact_preserver.changeHandType(this->S);
@@ -337,7 +345,12 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
                 // Performing minimization
-                bool relaxation_happened = this->my_contact_preserver.performMinimization(this->x_ref);
+                bool no_relaxation = this->my_contact_preserver.performMinimization(this->x_ref);
+
+                // If needed set reference to null twist
+                if(!no_relaxation && this->relax_to_zero){
+                    this->x_ref = Eigen::VectorXd::Zero(this->x_ref.size());
+                }
 
                 if(DEBUG) ROS_DEBUG_STREAM("adaptiveGrasper::spinGrasper Performed Minimization!!!");
             }
