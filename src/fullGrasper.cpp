@@ -6,7 +6,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "full_grasper"
 
-#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG_FG   0           // Prints out additional info
 
 /**
 * @brief The following are functions of the class fullGrasper.
@@ -54,6 +54,12 @@ fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<
     this->adaptive_task_server = this->nh.advertiseService("adaptive_task_service", &fullGrasper::call_adaptive_grasp_task, this);
     this->set_object_server = this->nh.advertiseService("set_object_service", &fullGrasper::call_set_object, this);
     this->ag_ended_server = this->nh.advertiseService("adaptive_grasping_end_trigger", &fullGrasper::call_end_adaptive_grasp, this);
+
+    // Initializing the service clients
+    this->arm_switch_client = this->nh.serviceClient<controller_manager_msgs::SwitchController>(this->arm_name + this->switch_service_name);
+    this->arm_switch_client.waitForExistence(ros::Duration(2.0));
+    this->hand_switch_client = this->nh.serviceClient<controller_manager_msgs::SwitchController>(this->hand_name + this->switch_service_name);
+    this->hand_switch_client.waitForExistence(ros::Duration(2.0));
 }
 
 /* PARSETASKPARAMS */
@@ -145,7 +151,7 @@ bool fullGrasper::parse_task_params(){
         success = false;
     }
 
-    if(DEBUG){
+    if(DEBUG_FG){
         ROS_INFO_STREAM("The poses map is");
         for(auto it : this->poses_map){
             std::cout << it.first << " : [ ";
@@ -199,7 +205,16 @@ bool fullGrasper::switch_control(std::string robot_name, std::string from_contro
     this->switch_controller.request.strictness = controller_manager_msgs::SwitchController::Request::BEST_EFFORT;
 
     // Swithching controller by calling the service
-    return ros::service::call<controller_manager_msgs::SwitchController>(robot_name + this->switch_service_name, this->switch_controller);
+    if(robot_name == this->arm_name){
+        this->arm_switch_client.waitForExistence(ros::Duration(5.0));
+        return this->arm_switch_client.call(this->switch_controller);
+    } else if (robot_name == this->hand_name){
+        this->hand_switch_client.waitForExistence(ros::Duration(5.0));
+        return this->hand_switch_client.call(this->switch_controller);
+    }
+
+    ROS_ERROR("fullGrasper : in switch_control unknown robot name!");
+    return false;
 }
 
 /* SPIN */
@@ -246,14 +261,14 @@ void fullGrasper::get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg
     // Checking for libfranka errors
     if(msg->robot_mode != 2 && msg->robot_mode != 5){       // The robot state is not "automatic" or "manual guiding"
         this->franka_ok = false;
-        if(DEBUG && false) ROS_ERROR("Something happened to the robot!");
+        if(DEBUG_FG && false) ROS_ERROR("Something happened to the robot!");
     }else if(msg->robot_mode == 2){
         this->franka_ok = true;
-        if(DEBUG && false) ROS_WARN("Now Franka is in a good mood!");
+        if(DEBUG_FG && false) ROS_WARN("Now Franka is in a good mood!");
     }
 
     // Getting the tau ext
-    if(DEBUG && false){
+    if(DEBUG_FG && false){
         std::cout << "The latest tau ext vector is \n [ ";
         for(auto it : this->latest_franka_state.tau_ext_hat_filtered)  std::cout << it << " ";
         std::cout << "]" << std::endl;
@@ -326,7 +341,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
         return false;
     }
-    sleep(0.5);     // Giving some time to controller manager
+    sleep(1);     // Giving some time to controller manager
     if(!this->switch_control(this->hand_name, this->hand_pos_controller, this->hand_vel_controller) || !this->franka_ok){
         ROS_ERROR_STREAM("Could not switch to the hand velocity controller " 
             << this->hand_vel_controller << " from " << this->hand_pos_controller << ". Are these controllers loaded?");
@@ -366,7 +381,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
         return false;
     }
-    sleep(0.5);     // Giving some time to controller manager
+    sleep(1);     // Giving some time to controller manager
     if(!this->switch_control(this->hand_name, this->hand_vel_controller, this->hand_pos_controller) || !this->franka_ok){
         ROS_ERROR_STREAM("Could not switch to the hand position controller " 
             << this->hand_pos_controller << " from " << this->hand_vel_controller << ". Are these controllers loaded?");
@@ -406,17 +421,17 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     while(!hand_open){
         now_time = ros::Time::now();
         usleep(500);                         // Don't know why, but the threshold works with this sleeping
-        if(DEBUG) ROS_WARN_STREAM("The tau_ext difference is " << std::abs(this->tau_ext_norm - base_tau_ext) << " and the threshold is " << this->handover_thresh << ".");
+        if(DEBUG_FG) ROS_WARN_STREAM("The tau_ext difference is " << std::abs(this->tau_ext_norm - base_tau_ext) << " and the threshold is " << this->handover_thresh << ".");
 
         if(std::abs(this->tau_ext_norm - base_tau_ext) > this->handover_thresh){
             hand_open = true;
-            if(DEBUG) ROS_WARN_STREAM("Opening condition reached!" << " SOMEONE PULLED!");
-            if(DEBUG) ROS_WARN_STREAM("The tau_ext difference is " << std::abs(this->tau_ext_norm - base_tau_ext) << " and the threshold is " << this->handover_thresh << ".");
+            if(DEBUG_FG) ROS_WARN_STREAM("Opening condition reached!" << " SOMEONE PULLED!");
+            if(DEBUG_FG) ROS_WARN_STREAM("The tau_ext difference is " << std::abs(this->tau_ext_norm - base_tau_ext) << " and the threshold is " << this->handover_thresh << ".");
         }
         if((now_time - init_time) > ros::Duration(10, 0)){
             hand_open = true;
-            if(DEBUG) ROS_WARN_STREAM("Opening condition reached!" << " TIMEOUT!");
-            if(DEBUG) ROS_WARN_STREAM("The initial time was " << init_time << ", now it is " << now_time 
+            if(DEBUG_FG) ROS_WARN_STREAM("Opening condition reached!" << " TIMEOUT!");
+            if(DEBUG_FG) ROS_WARN_STREAM("The initial time was " << init_time << ", now it is " << now_time 
                 << ", the difference is " << (now_time - init_time) << " and the timeout thresh is " << ros::Duration(10, 0));
         }
     }

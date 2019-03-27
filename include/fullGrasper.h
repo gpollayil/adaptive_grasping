@@ -180,6 +180,10 @@ namespace adaptive_grasping {
         ros::ServiceServer set_object_server;
         ros::ServiceServer ag_ended_server;
 
+        // Service Clients
+        ros::ServiceClient arm_switch_client;
+        ros::ServiceClient hand_switch_client;
+
         // Adaptive grasping ended trigger bool
         bool adaptive_grasping_ended;
 
