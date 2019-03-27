@@ -4,7 +4,7 @@
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_preserver"
-#define DEBUG             1   // print out additional info
+#define DEBUG             0   // print out additional info
 
 /**
 * @brief The following are functions of the class contactPreserver.
@@ -148,11 +148,11 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   } else {
     if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001)){
       relaxation_order = 0;                     // Reset relaxation
-      if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
-      if(DEBUG || true) std::cout << "----------------" << std::endl;
-      if(DEBUG || true) std::cout << "Q = " << Q << std::endl;
-      if(DEBUG || true) std::cout << "Q_old = " << Q_old << std::endl;
-      if(DEBUG || true) std::cout << "----------------" << std::endl;
+      if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
+      if(DEBUG) std::cout << "----------------" << std::endl;
+      if(DEBUG) std::cout << "Q = " << Q << std::endl;
+      if(DEBUG) std::cout << "Q_old = " << Q_old << std::endl;
+      if(DEBUG) std::cout << "----------------" << std::endl;
     }
     Q_old = Q;
   }
@@ -175,7 +175,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(!(x_d - x_d_old).isMuchSmallerThan(0.0001) || first_it){
     relaxation_order = 0;               // Nothing is to be relaxed
     if(first_it) first_it = false;
-    if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
+    if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
   }
 
   x_d_old = x_d;
@@ -198,6 +198,12 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(DEBUG) std::cout << "----------------" << std::endl;
   if(DEBUG) std::cout << "pinv_R_bar_Q_tilde = " << pinv_R_bar_Q_tilde << std::endl;
   if(DEBUG) std::cout << "----------------" << std::endl;
+
+  if(DEBUG || true){
+    std::cout << "----------------" << std::endl;
+    std::cout << "relaxation_order = " << relaxation_order << std::endl;
+    std::cout << "----------------" << std::endl;
+  }
 
   // Check if all constraints have been relaxed
   bool all_relaxed = relaxation_order >= Q_tilde.rows();
@@ -237,20 +243,20 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
       x_result = x_ref;
-      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
+      if(DEBUG) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
       return false;
     }
 
     // Compute reference
     x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
-    if(DEBUG || true) std::cout << "----------------" << std::endl;
-    if(DEBUG || true) std::cout << "x_star = " << x_star << std::endl;
-    if(DEBUG || true) std::cout << "N_tilde = " << N_tilde << std::endl;
-    if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
-    if(DEBUG || true) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
-    if(DEBUG || true) std::cout << "C = " << C << std::endl;
-    if(DEBUG || true) std::cout << "(y - Q_tilde * x_star) = " << (y - Q_tilde * x_star) << std::endl;
-    if(DEBUG || true) std::cout << "----------------" << std::endl;
+    if(DEBUG) std::cout << "----------------" << std::endl;
+    if(DEBUG) std::cout << "x_star = " << x_star << std::endl;
+    if(DEBUG) std::cout << "N_tilde = " << N_tilde << std::endl;
+    if(DEBUG) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
+    if(DEBUG) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
+    if(DEBUG) std::cout << "C = " << C << std::endl;
+    if(DEBUG) std::cout << "(y - Q_tilde * x_star) = " << (y - Q_tilde * x_star) << std::endl;
+    if(DEBUG) std::cout << "----------------" << std::endl;
     
     // Checking the second condition of algorithm
     if(x_ref.head(S.cols()).norm() < 0.0001){
@@ -280,12 +286,6 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(DEBUG) std::cout << "y = " << y << std::endl;
   if(DEBUG) std::cout << "R_bar * y = " << R_bar * y << std::endl;
   if(DEBUG) std::cout << "----------------" << std::endl;
-
-  if(DEBUG || true){
-    std::cout << "----------------" << std::endl;
-    std::cout << "relaxation_order = " << relaxation_order << std::endl;
-    std::cout << "----------------" << std::endl;
-  }
 
   // Saving to old and return contact preserving solution
   x_ref_old = x_ref;
