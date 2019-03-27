@@ -6,7 +6,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "full_grasper"
 
-#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
 
 /**
 * @brief The following are functions of the class fullGrasper.
@@ -316,6 +316,8 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         return false;
     }
 
+    sleep(2);       // TODO: listen to robot and make sure it's not moving
+
     // 4.1) Switching to velocity controllers
     if(!this->switch_control(this->arm_name, this->arm_pos_controller, this->arm_vel_controller) || !this->franka_ok){
         ROS_ERROR_STREAM("Could not switch to the arm velocity controller " 
@@ -324,6 +326,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
         return false;
     }
+    sleep(0.5);     // Giving some time to controller manager
     if(!this->switch_control(this->hand_name, this->hand_pos_controller, this->hand_vel_controller) || !this->franka_ok){
         ROS_ERROR_STREAM("Could not switch to the hand velocity controller " 
             << this->hand_vel_controller << " from " << this->hand_pos_controller << ". Are these controllers loaded?");
@@ -363,9 +366,18 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
         return false;
     }
+    sleep(0.5);     // Giving some time to controller manager
     if(!this->switch_control(this->hand_name, this->hand_vel_controller, this->hand_pos_controller) || !this->franka_ok){
         ROS_ERROR_STREAM("Could not switch to the hand position controller " 
             << this->hand_pos_controller << " from " << this->hand_vel_controller << ". Are these controllers loaded?");
+        res.success = false;
+        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        return false;
+    }
+
+    // 4.5) Completing grasp
+    if(!this->panda_softhand_client.call_hand_service(1.0, 2.0) || !this->franka_ok){
+        ROS_ERROR("Could not complete the grasp.");
         res.success = false;
         res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
         return false;
