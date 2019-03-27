@@ -101,11 +101,16 @@ void adaptiveGrasper::printParsed(){
     }
     std::cout << "]" << std::endl;
     ROS_INFO_STREAM("\nThe contact selection matrix H is: \n" << this->H_i << ".");
+    ROS_INFO_STREAM("\nThe contact selection matrix H_2 is: \n" << this->H_i_2 << ".");
     ROS_INFO_STREAM("\nThe min. weight matrix A tilde is: \n" << this->A_tilde << ".");
     ROS_INFO_STREAM("\nThe desired motion x_d is: \n" << this->x_d << ".");
     ROS_INFO_STREAM("\nThe object pose topic is: " << this->object_topic_name << ".");
     ROS_INFO_STREAM("\nThe reference scaling factor is: " << this->scaling << ".");
     ROS_INFO_STREAM("\nThe permutation vector is: \n" << this->p_vector << ".");
+    ROS_INFO_STREAM("\nThe permutation vector 2 is: \n" << this->p_vector_2 << ".");
+    ROS_INFO_STREAM("\nThe max synergy threshold is: \n" << this->syn_thresh << ".");
+    ROS_INFO_STREAM("\nThe bool relax_to_zero is: \n" << this->relax_to_zero << ".");
+    ROS_INFO_STREAM("\nThe bool touch_change is: \n" << this->touch_change << ".");
 }
 
 /* PRINTCONTACTSINFO */
@@ -157,6 +162,14 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
 
     parseParameter(params_xml, this->syn_thresh, param_names[11]);
     parseParameter(params_xml, this->relax_to_zero, param_names[12]);
+    parseParameter(params_xml, this->touch_change, param_names[13]);
+
+    parseParameter(params_xml, this->H_i_2, param_names[14]);
+
+    // p_vector_2 (vector) needs to be parsed differently using the parsing function for matrix
+    Eigen::MatrixXd temp_p_vector_2;
+    parseParameter(params_xml, temp_p_vector_2, param_names[15]);
+    this->p_vector_2 = temp_p_vector_2.transpose().col(0);
 }
 
 /* SETCOMMANDANDSEND */
@@ -308,7 +321,13 @@ void adaptiveGrasper::spinGrasper(){
             this->my_matrices_creator.setContactsMap(this->read_contacts_map);
             this->my_matrices_creator.setJointsMap(this->read_joints_map);
             this->my_matrices_creator.setObjectPose(this->object_pose);
-            this->my_matrices_creator.setPermutationVector(this->p_vector);
+            if(this->read_contacts_map.size() > 1 && this->touch_change){
+                this->my_matrices_creator.changeContactType(this->H_i_2);
+                this->my_matrices_creator.setPermutationVector(this->p_vector_2);
+            } else {
+                this->my_matrices_creator.changeContactType(this->H_i);
+                this->my_matrices_creator.setPermutationVector(this->p_vector);
+            }
             this->my_matrices_creator.computeAllMatrices();
 
             // Reading and couting the matrices

@@ -20,13 +20,17 @@ adaptive_grasping:
   # The array containing the number of links of each finger
   joints_num: [5, 7, 7, 7, 7]
   # The following list of arrays is the contact selection matrix H (CHANGE ALSO p_vector ACCORDINGLY)
-  h_matrix:
+  h_matrix:     # fully constrained
     - [1, 0, 0, 0, 0, 0]
     - [0, 1, 0, 0, 0, 0]
     - [0, 0, 1, 0, 0, 0]
     - [0, 0, 0, 1, 0, 0]
     - [0, 0, 0, 0, 1, 0]
     - [0, 0, 0, 0, 0, 1]
+  h_matrix_2:   # position constrained
+    - [1, 0, 0, 0, 0, 0]
+    - [0, 1, 0, 0, 0, 0]
+    - [0, 0, 1, 0, 0, 0]
   # The following list of arrays is the minimization weight matrix A tilde
   a_tilde_matrix:
     - [100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -58,11 +62,14 @@ adaptive_grasping:
   scaling: 1.0
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
-    - [6, 3, 4, 5, 1, 2]      # for the order of relaxation
-    # - [2, 3, 1]      # for the order of relaxation
+    - [6, 3, 4, 5, 1, 2]      # fully constrained
+  p_vector_2:
+    - [2, 3, 1]               # position constrained
   # The threshold on the synergy joint value for stopping the grasping motion
   syn_thresh: 0.4
   # The bool to decide if null twist should be sent when relaxation occurs
   relax_to_zero: false
+  # The bool to decide if to change contact selection when touch occurs
+  touch_change: true
 
 

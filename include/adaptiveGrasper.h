@@ -150,15 +150,18 @@ namespace adaptive_grasping {
     std::map<int, std::string> link_names_map;          // Contains the correspondance between ids and link names (for Contact State)
     std::map<std::string, std::string> params_map;      // Contains mainly frame names (for Contact State)
     std::vector<int> joint_numbers;                     // Contains the number of links of each finger (for Matrix Creator)
-    Eigen::MatrixXd H_i;                                // Contains contact selection matrix H (for Matrix Creator)
+    Eigen::MatrixXd H_i;                                // Contains contact selection matrix H fully constrained(for Matrix Creator)
+    Eigen::MatrixXd H_i_2;                              // Contains contact selection matrix H position constrained (for Matrix Creator)
     Eigen::MatrixXd S;                                  // Contains the synergy matrix (for Contact Preserver)
     Eigen::MatrixXd A_tilde;                            // Contains the weigth matrix (for Contact Preserver)
     Eigen::VectorXd x_ref;                              // Contains the result of minimization x reference (from Contact Preserver)
     std::string object_topic_name;                      // Contains the name of the topic where the object poses are published (for Matrix Creator)
     double scaling;                                     // Contains the scaling factor for x reference
-    Eigen::VectorXd p_vector;                           // Contains the permutation vector for relaxed minimization (for Matrices Creator)
+    Eigen::VectorXd p_vector;                           // Contains the permutation vector for relaxed minimization fully constrained (for Matrices Creator)
+    Eigen::VectorXd p_vector_2;                         // Contains the permutation vector for relaxed minimization position constrained (for Matrices Creator)
     double syn_thresh;                                  // Contains threshold on the synergy joint value for stopping the grasping motion (for Adaptive Grasper)
-    bool relax_to_zero = true;                        // Contains bool to decide to set zero ref if relaxation happens
+    bool relax_to_zero = false;                         // Contains bool to decide to set zero ref if relaxation happens
+    bool touch_change = false;                          // Contains bool to decide if to change contact selection when touch occurs
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
