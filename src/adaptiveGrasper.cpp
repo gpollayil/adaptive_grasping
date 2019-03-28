@@ -59,6 +59,13 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     }
     this->initialized = this->parseParams(this->adaptive_params, param_names);
 
+    // Subscribing to panda softhand safety
+    this->safety_sub = this->ag_nh.subscribe("/panda_softhand_safety_info", 1, &adaptiveGrasper::getSafetyInfo, this);
+    ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << safety_sub.getTopic() << ".");
+
+    // Waiting for a message in panda softhand safety
+    panda_softhand_safety::SafetyInfo::ConstPtr tmp_safety = ros::topic::waitForMessage<panda_softhand_safety::SafetyInfo>("/panda_softhand_safety_info", this->ag_nh);
+
     // Subscribing to object pose
     this->op_sub = this->ag_nh.subscribe(this->object_topic_name, 1, &adaptiveGrasper::getObjectPose, this);
     ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << op_sub.getTopic() << ".");
@@ -237,6 +244,27 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
         ROS_INFO_STREAM("adaptiveGrasper : The hand is almost fully closed: stopping the grasping!");
     }
 
+}
+
+/* GETSAFETYINFO */
+void adaptiveGrasper::getSafetyInfo(const panda_softhand_safety::SafetyInfo::ConstPtr &msg){
+    // Checking if the collision is going to happen and setting run bool accordingly (for stopping the grasping)
+    if(this->run && (msg->collision)){
+        this->adaptive_grasper_mutex.lock();
+        this->run = false;
+        this->adaptive_grasper_mutex.unlock();
+        // Resetting the contact state
+        this->my_contact_state.resetContact();       // Might cause crashing
+
+        // Calling the end adaptive grasping service to let full grasper know that it ended
+        if(this->end_client.call(this->end_srv)){
+            ROS_WARN_STREAM("adaptiveGrasper : Triggered stop adaptive grasping!");
+        } else {
+            ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
+        }
+
+        ROS_INFO_STREAM("adaptiveGrasper : The robot is about to collide: stopping the grasping!");
+    }
 }
 
 /* GETOBJECTPOSE */

@@ -12,6 +12,7 @@
 #include "std_srvs/Trigger.h"
 #include "adaptive_grasping/velCommand.h"
 #include "adaptive_grasping/adaptiveGrasp.h"
+#include "panda_softhand_safety/SafetyInfo.h"
 
 // For RViz Visualization
 #include <visualization_msgs/Marker.h>
@@ -120,6 +121,7 @@ namespace adaptive_grasping {
     // ROS elements
     ros::NodeHandle ag_nh;
     ros::Subscriber js_sub;                               // Subscriber to joint states
+    ros::Subscriber safety_sub;                           // Subscriber to panda_softhand_safety
     ros::Subscriber op_sub;                               // Subscriber to object pose
     ros::Publisher marker_pub;                            // Publisher for object marker to RViz
     ros::ServiceClient client_rc;                         // Service client to robot commander
@@ -205,6 +207,14 @@ namespace adaptive_grasping {
     * @return null
     */
     void getJointsAndComputeSyn(const sensor_msgs::JointState::ConstPtr &msg);
+
+    /** GETSAFETYINFO
+    * @brief Callback function to get the safety info from robot
+    *
+    * @param msg
+    * @return null
+    */
+    void getSafetyInfo(const panda_softhand_safety::SafetyInfo::ConstPtr &msg);
 
     /** GETOBJECTPOSE
     * @brief Callback function to get the object pose from a topic
