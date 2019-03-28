@@ -66,7 +66,7 @@ adaptive_grasping:
   p_vector_2:
     - [2, 3, 1]               # position constrained
   # The threshold on the synergy joint value for stopping the grasping motion
-  syn_thresh: 0.4
+  syn_thresh: 0.8
   # The bool to decide if null twist should be sent when relaxation occurs
   relax_to_zero: false
   # The bool to decide if to change contact selection when touch occurs
