@@ -19,6 +19,7 @@
     <!-- Utilities -->
     <arg name="environment_name" default="panda_soma"/>
     <arg name="use_moveit" default="true"/>
+    <arg name="use_safety" default="true"/>
 
     <!-- START LAUNCH -->
 
@@ -55,8 +56,8 @@
         <rosparam command="load" file="$(find panda_controllers)/config/panda_controllers.yaml" />
         <rosparam command="load" file="$(find franka_softbots)/config/franka_softbots.yaml" />
         <node name="state_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="franka_state_controller"/>
-        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="position_joint_trajectory_controller"/>
-        <node name="controller_stopper" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--stopped cartesian_velocity_controller cartesian_impedance_controller_softbots_stiff_matrix"/>
+        <node name="controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false" output="screen"  args="spawn position_joint_trajectory_controller"/>
+        <node name="controller_stopper" pkg="controller_manager" type="controller_manager" respawn="false" output="screen"  args="load cartesian_velocity_controller cartesian_impedance_controller_softbots_stiff_matrix"/>
         
         <!-- Panda joint state publisher -->
         <node name="joint_state_publisher" type="joint_state_publisher" pkg="joint_state_publisher" output="screen">
@@ -106,9 +107,14 @@
         </group>
 
         <!-- load the hand controllers in current namespace -->
-        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_state_controller joint_trajectory_controller"/>
-        <node name="controller_stopper" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--stopped velocity_controller"/>
+        <node name="controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false" output="screen"  args="spawn joint_state_controller joint_trajectory_controller"/>
+        <node name="controller_stopper" pkg="controller_manager" type="controller_manager" respawn="false" output="screen"  args="load velocity_controller"/>
 
+    </group>
+
+    <!-- Panda SoftHand Safety -->
+    <group if="$(arg use_safety)">
+            <include file="$(find panda_softhand_safety)/launch/panda_softhand_safety.launch"></include>
     </group>
 
     <!-- QB Interface -->
