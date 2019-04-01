@@ -5,7 +5,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_preserver"
 #define DEBUG             0   // print out additional info
-
+#define N_DEBUG           1   // sends as reference column of N(Q)
 /**
 * @brief The following are functions of the class contactPreserver.
 *
@@ -142,6 +142,14 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
   Q << H*J*S, H*T, NullMatrix-H*G.transpose();
 
+  // For debugging purpouses (real line is above)
+  if(N_DEBUG){
+    Eigen::FullPivLU<Eigen::MatrixXd> luN_debug(Q);
+    Eigen::MatrixXd N_debug = luN_debug.kernel();
+    x_result = N_debug.col(0);
+    return true;
+  }
+  
   // Comparing Q with the old one in order to reset relaxation
   if(first_it){
     Q_old = Q;
@@ -249,6 +257,18 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
 
     // Compute reference
     x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
+    
+    // **********************************************************************************************//
+    // JacobiSVD<MatrixXd> svd(C * Q_tilde * N_tilde,  ComputeThinV | ComputeThinU);
+    // Eigen::MatrixXd temp_matriv = svd.singularValues().asDiagonal();
+    // for(int i = 0; i < temp_matriv.rows(); i++)
+    // {
+    //   if (std::abs(temp_matriv(i,i)) > 0.001) temp_matriv(i,i) = 1.0 / temp_matriv(i,i);
+    // }
+    // Eigen::MatrixXd some_inv = (svd.matrixV().transpose() * temp_matriv * svd.matrixU().transpose());
+    // x_ref = x_star + N_tilde * some_inv * C * (y - Q_tilde * x_star);
+    // **********************************************************************************************//
+
     if(DEBUG) std::cout << "----------------" << std::endl;
     if(DEBUG) std::cout << "x_star = " << x_star << std::endl;
     if(DEBUG) std::cout << "N_tilde = " << N_tilde << std::endl;
@@ -291,10 +311,6 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   x_ref_old = x_ref;
   x_result = x_ref;
   return true;
-  
-  // For debugging purpouses (real line is above)
-  // Eigen::VectorXd null_vec_debug = N.col(0);
-  // return null_vec_debug;
 }
 
 /* PRINTALL */

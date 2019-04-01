@@ -20,7 +20,7 @@ full_grasper:
   # Transform from object frame to grasp pose frame (xyzrpy) (DEFAULT)
   grasp_transform: [0.0, 0.0, 0.090, -3.1415, 0.0, 0.0]
   # Transform from grasp pose frame to pre-grasp pose frame (xyzrpy)
-  pre_grasp_transform: [0.0, 0.0, -0.1, 0.0, 0.0, 0.0]
+  pre_grasp_transform: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   # The joint configuration for handover
   handover_joints: [-0.101, 0.161, 0.159, -1.651, 2.023, 2.419, -0.006]
   # The threshold on tau_ext for handover hand opening
@@ -34,3 +34,4 @@ full_grasper:
     "two_cubes" : [-0.055, 0.113, 0.061, -3.104, 0.122, -0.241]
     "bottle" : [0.051, -0.076, 0.077, -2.560, -0.240, 0.353]
     "helmet" : [0.120, -0.039, 0.179, 3.007, 0.200, 0.247]
+    "debug" : [0.013, 0.012, 0.338, -1.512, 0.021, -0.005]

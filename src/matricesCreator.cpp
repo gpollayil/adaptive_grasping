@@ -177,7 +177,7 @@ Eigen::MatrixXd matricesCreator::transformJacobian(KDL::Jacobian Jac){
   if(DEBUG) std::cout << "transformJacobian: just entered!" << std::endl;
 
   // Compute the needed matrices for base change
-  Eigen::MatrixXd R_p_w = Palm_to_World.rotation();
+  Eigen::MatrixXd R_p_w = Palm_to_World.inverse().rotation();
   Eigen::MatrixXd O_3 = Eigen::MatrixXd::Zero(3, 3);
 
   // Debug message
@@ -242,11 +242,13 @@ Eigen::MatrixXd matricesCreator::computePoleChange(Eigen::Affine3d contact_pose,
     Palm_to_World = P_to_W;   // Stored for transformJacobian
 
     // Transform it into world coordinates
-    Eigen::Vector3d PC_w = P_to_W.rotation() * PC_p;
+    Eigen::Vector3d PC_w = P_to_W.inverse().rotation() * PC_p;
 
     // For debugging
     ROS_DEBUG_STREAM("PC in P is: \n" << PC_p << ".");
     ROS_DEBUG_STREAM("PC in W is: \n" << PC_w << ".");
+    ROS_DEBUG_STREAM("pwp is: \n" << P_to_W.translation() << ".");
+    ROS_DEBUG_STREAM("Rwp is: \n" << P_to_W.rotation() << ".");
 
     // Creating the skew matrix
     Eigen::Matrix3d PC_hat;
@@ -326,6 +328,14 @@ void matricesCreator::computeWholeJacobian(std::map<int,
       robot_kin_tree.getChain(palm_frame_name, std::get<0>(it_c->second),
         finger_kin_chain);
 
+      if(DEBUG){
+        std::cout << "The segments of current chain are:" << std::endl;
+        for(auto it : finger_kin_chain.segments){
+          std::cout << it.getName() << std::endl;
+        }
+        std::cout << "The chain has " << finger_kin_chain.getNrOfJoints() << " joints." << std::endl;
+      }
+
       // Printing current finger kinematic chain
       if(DEBUG) std::cout << "Kinematic chain has: " <<
         finger_kin_chain.getNrOfJoints() << " no. of joints." << std::endl;
@@ -360,10 +370,10 @@ void matricesCreator::computeWholeJacobian(std::map<int,
 
       // Print Eigen and a message for debug
       if(DEBUG) std::cout << "The current finger is " << std::get<0>(it_c->second) << "." << std::endl;
-      if(DEBUG) std::cout << "J_i (in palm frame) is: " << std::endl;
-      if(DEBUG) std::cout << J_i.data << std::endl;
-      if(DEBUG) std::cout << "J_i (in world frame) is: " << std::endl;
-      if(DEBUG) std::cout << J_i_temp << std::endl;
+      if(true) std::cout << "J_i (in palm frame) is: " << std::endl;
+      if(true) std::cout << J_i.data << std::endl;
+      if(true) std::cout << "J_i (in world frame) is: " << std::endl;
+      if(true) std::cout << J_i_temp << std::endl;
       if(DEBUG) std::cout << "KDL to Eigen in matricesCreator!" << std::endl;
 
       if(current_finger == 1) J.block<6, 5>(k, h) = J_i_temp;
