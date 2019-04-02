@@ -111,6 +111,7 @@ void adaptiveGrasper::printParsed(){
     ROS_INFO_STREAM("\nThe contact selection matrix H_2 is: \n" << this->H_i_2 << ".");
     ROS_INFO_STREAM("\nThe min. weight matrix A tilde is: \n" << this->A_tilde << ".");
     ROS_INFO_STREAM("\nThe desired motion x_d is: \n" << this->x_d << ".");
+    ROS_INFO_STREAM("\nThe desired motion x_d_2 is: \n" << this->x_d_2 << ".");
     ROS_INFO_STREAM("\nThe object pose topic is: " << this->object_topic_name << ".");
     ROS_INFO_STREAM("\nThe reference scaling factor is: " << this->scaling << ".");
     ROS_INFO_STREAM("\nThe permutation vector is: \n" << this->p_vector << ".");
@@ -177,6 +178,11 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     Eigen::MatrixXd temp_p_vector_2;
     parseParameter(params_xml, temp_p_vector_2, param_names[15]);
     this->p_vector_2 = temp_p_vector_2.transpose().col(0);
+
+    // x_d_2 (vector) needs to be parsed differently using the parsing function for matrix
+    Eigen::MatrixXd temp_x_d_2;
+    parseParameter(params_xml, temp_x_d_2, param_names[16]);
+    this->x_d_2 = temp_x_d_2.transpose().col(0);
 }
 
 /* SETCOMMANDANDSEND */
@@ -349,6 +355,8 @@ void adaptiveGrasper::spinGrasper(){
             this->my_matrices_creator.setContactsMap(this->read_contacts_map);
             this->my_matrices_creator.setJointsMap(this->read_joints_map);
             this->my_matrices_creator.setObjectPose(this->object_pose);
+            
+            // Single contact -> fully constrained / Multiple contacts -> position constrained
             if(this->read_contacts_map.size() > 1 && this->touch_change){
                 this->my_matrices_creator.changeContactType(this->H_i_2);
                 this->my_matrices_creator.setPermutationVector(this->p_vector_2);
@@ -356,6 +364,7 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_matrices_creator.changeContactType(this->H_i);
                 this->my_matrices_creator.setPermutationVector(this->p_vector);
             }
+
             this->my_matrices_creator.computeAllMatrices();
 
             // Reading and couting the matrices
@@ -379,8 +388,12 @@ void adaptiveGrasper::spinGrasper(){
             // Setting the synergy matrix in preserver
             this->my_contact_preserver.changeHandType(this->S);
 
-            // Resetting the reference motion to zero
-            this->x_ref = this->x_d;
+            // Setting the reference motion to the desired one (Single/Multiple)
+            if(this->read_contacts_map.size() > 1 && this->touch_change){
+                this->x_ref = this->x_d_2;
+            } else {
+                this->x_ref = this->x_d;
+            }
 
             // Performing the minimization only if there are contacts (i.e. the matrices are not empty)
             if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0){
@@ -388,7 +401,11 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
 
                 // Setting minimization and relaxation parameters
-                this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
+                if(this->read_contacts_map.size() > 1 && this->touch_change){
+                    this->my_contact_preserver.setMinimizationParams(this->x_d_2, this->A_tilde);
+                } else {
+                    this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
+                }
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
                 // Performing minimization

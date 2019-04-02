@@ -48,12 +48,13 @@ adaptive_grasping:
     - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10000]
   # The following array is the desired x motion
   x_d:
-    # - [0.1, 0.01, 0, -0.01, 0, -0.05, 0, 0, 0, 0, 0, 0, 0]     # for other fingers mainly?
-    - [0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]     # for simple grasp?
-    # - [0.1, 0, 0, -0.01, 0.05, 0, 0, 0, 0, 0, 0, 0, 0]    # for thumb mainly?
-    # - [0.5, 0.00, 0, -0.05, 0, -0.09, 0, 0, 0, 0, 0, 0, 0]     # random stuff 1
-    # - [0.5, 0.00, 0, -0.05, 0, 0.00, 0, 0, 0, 0, 0, 0, 0]     # random stuff 2
-
+    # - [0.1, 0.01, 0, -0.01, 0, -0.05, 0, 0, 0, 0, 0, 0, 0]      # for other fingers mainly?
+    - [0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]                   # for simple grasp?
+    # - [0.1, 0, 0, -0.01, 0.05, 0, 0, 0, 0, 0, 0, 0, 0]          # for thumb mainly?
+    # - [0.5, 0.00, 0, -0.05, 0, -0.09, 0, 0, 0, 0, 0, 0, 0]      # random stuff 1
+    # - [0.5, 0.00, 0, -0.05, 0, 0.00, 0, 0, 0, 0, 0, 0, 0]       # random stuff 2
+  x_d_2:
+    - [0.0, 0.01, 0, -0.01, 0, -0.05, 0, 0, 0, 0, 0, 0, 0]      # for two finger contacts
   # The rate of the adaptive loop
   spin_rate: 1000.0
   # The topic where the object pose is published

@@ -5,7 +5,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_preserver"
 #define DEBUG             0   // print out additional info
-#define N_DEBUG           1   // sends as reference column of N(Q)
+#define N_DEBUG           0   // sends as reference column of N(Q)
 /**
 * @brief The following are functions of the class contactPreserver.
 *

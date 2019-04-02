@@ -113,8 +113,9 @@ namespace adaptive_grasping {
     */
     bool setCommandAndSend(Eigen::VectorXd ref_vec, adaptive_grasping::velCommand comm);
 
-    // Public elements for the construction of the object
+    // The desired motion provided from outside
     Eigen::VectorXd x_d;                                // Contains the desired x motion (for Contact Preserver)
+    Eigen::VectorXd x_d_2;                              // Contains the desired x motion (for 2 contact case)
 
   private:
 
