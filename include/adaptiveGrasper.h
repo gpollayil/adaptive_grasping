@@ -8,6 +8,9 @@
 #include "matricesCreator.h"
 #include "contactPreserver.h"
 
+// Msgs Includes
+#include <geometry_msgs/WrenchStamped.h>
+
 // Service Includes
 #include "std_srvs/Trigger.h"
 #include "adaptive_grasping/velCommand.h"
@@ -125,6 +128,7 @@ namespace adaptive_grasping {
     ros::Subscriber safety_sub;                           // Subscriber to panda_softhand_safety
     ros::Subscriber op_sub;                               // Subscriber to object pose
     ros::Publisher marker_pub;                            // Publisher for object marker to RViz
+    ros::Publisher pub_twist_debug;                       // To visualize the twist in rqt_plot
     ros::ServiceClient client_rc;                         // Service client to robot commander
     ros::ServiceServer server_ag;                         // Service server for adaptive grasper
     ros::ServiceClient end_client;                        // Service client to signal that adaptive grasping ended
@@ -134,6 +138,9 @@ namespace adaptive_grasping {
     // RViz object marker elements
     uint32_t shape = visualization_msgs::Marker::SPHERE;
     visualization_msgs::Marker obj_marker;
+
+    // Wrench message for twist publishing for rqt_plot
+    geometry_msgs::WrenchStamped twist_wrench;          // Publishing twist as a wrench (For Debugging)
 
     // Boolean true if the algorithm should continue running
     bool run;

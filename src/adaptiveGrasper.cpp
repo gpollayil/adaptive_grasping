@@ -5,6 +5,7 @@
 #define CLASS_NAMESPACE   "adaptive_grasper"
 
 #define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG_PUB         1   // publishes additional info for rqt_plot
 
 /**
 * @brief The following are functions of the class adaptiveGrasper.
@@ -86,6 +87,9 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     // Setting up the RViz object marker publisher
     this->marker_pub = ag_nh.advertise<visualization_msgs::Marker>("object_marker", 1);
     this->obj_marker.header.frame_id = "/world";
+
+    // Setting up the publisher for twist
+    this->pub_twist_debug = this->ag_nh.advertise<geometry_msgs::WrenchStamped>("/x_ref_debug" , 1);
 
     ROS_INFO_STREAM("adaptiveGrasper::initialize FINISHED BUILDING THE OBJECTS!");
 }
@@ -391,6 +395,7 @@ void adaptiveGrasper::spinGrasper(){
             // Setting the reference motion to the desired one (Single/Multiple)
             if(this->read_contacts_map.size() > 1 && this->touch_change){
                 this->x_ref = this->x_d_2;
+                if(DEBUG) ROS_INFO_STREAM("adaptiveGrasper::spinGrasper Two contacts, changing x_d!");
             } else {
                 this->x_ref = this->x_d;
             }
@@ -403,6 +408,7 @@ void adaptiveGrasper::spinGrasper(){
                 // Setting minimization and relaxation parameters
                 if(this->read_contacts_map.size() > 1 && this->touch_change){
                     this->my_contact_preserver.setMinimizationParams(this->x_d_2, this->A_tilde);
+                    if(DEBUG) ROS_WARN_STREAM("adaptiveGrasper::spinGrasper Two contacts, changing x_d and A_tilde!");
                 } else {
                     this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
                 }
@@ -410,6 +416,17 @@ void adaptiveGrasper::spinGrasper(){
 
                 // Performing minimization
                 bool no_relaxation = this->my_contact_preserver.performMinimization(this->x_ref);
+
+                // Publish the twist for debug
+                if (DEBUG_PUB){
+                    // Filling and publishing the twist for debug
+                    this->twist_wrench.header.frame_id = "world";
+                    this->twist_wrench.header.stamp = ros::Time::now();
+                    this->twist_wrench.wrench.force.x = this->x_ref(1); this->twist_wrench.wrench.torque.x = this->x_ref(4);
+                    this->twist_wrench.wrench.force.y = this->x_ref(2); this->twist_wrench.wrench.torque.y = this->x_ref(5);
+                    this->twist_wrench.wrench.force.z = this->x_ref(3); this->twist_wrench.wrench.torque.z = this->x_ref(6);
+                    this->pub_twist_debug.publish(this->twist_wrench);
+                }
 
                 // If needed set reference to null twist
                 if(!no_relaxation && this->relax_to_zero){

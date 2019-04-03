@@ -3,6 +3,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "robot_commander"
 #define DEBUG             0   // print out additional info
+#define DEBUG_PUB         0   // publishes additional info for rqt_plot
 
 /**
 * @brief The following are functions of the class robotCommander.
@@ -118,12 +119,12 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     this->pub_arm.publish(this->cmd_twist);
 
     // Filling and publishing the twist for debug
-    if(DEBUG) this->twist_wrench.header.frame_id = "world";
-    if(DEBUG) this->twist_wrench.header.stamp = ros::Time::now();
-    if(DEBUG) this->twist_wrench.wrench.force.x = filtered_x_ref(1); this->twist_wrench.wrench.torque.x = filtered_x_ref(4);
-    if(DEBUG) this->twist_wrench.wrench.force.y = filtered_x_ref(2); this->twist_wrench.wrench.torque.y = filtered_x_ref(5);
-    if(DEBUG) this->twist_wrench.wrench.force.z = filtered_x_ref(3); this->twist_wrench.wrench.torque.z = filtered_x_ref(6);
-    if(DEBUG) this->pub_twist_debug.publish(this->twist_wrench);
+    if(DEBUG_PUB) this->twist_wrench.header.frame_id = "world";
+    if(DEBUG_PUB) this->twist_wrench.header.stamp = ros::Time::now();
+    if(DEBUG_PUB) this->twist_wrench.wrench.force.x = filtered_x_ref(1); this->twist_wrench.wrench.torque.x = filtered_x_ref(4);
+    if(DEBUG_PUB) this->twist_wrench.wrench.force.y = filtered_x_ref(2); this->twist_wrench.wrench.torque.y = filtered_x_ref(5);
+    if(DEBUG_PUB) this->twist_wrench.wrench.force.z = filtered_x_ref(3); this->twist_wrench.wrench.torque.z = filtered_x_ref(6);
+    if(DEBUG_PUB) this->pub_twist_debug.publish(this->twist_wrench);
 
     // Return the callback result
     res.success = success;

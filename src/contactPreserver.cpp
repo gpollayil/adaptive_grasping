@@ -188,6 +188,9 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
 
   x_d_old = x_d;
 
+  if(DEBUG) std::cout << "x_d in CP = " << x_d << std::endl;
+  if(DEBUG) std::cout << "x_d_old in CP = " << x_d_old << std::endl;
+
   // Now if necessary changing the matrices R and R_bar or eventually reset them
   if(!setRMatrix()){
     ROS_ERROR_STREAM("The Relaxation iterations finished without leading to a solution!!! Waiting for another x_d!");
@@ -207,7 +210,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(DEBUG) std::cout << "pinv_R_bar_Q_tilde = " << pinv_R_bar_Q_tilde << std::endl;
   if(DEBUG) std::cout << "----------------" << std::endl;
 
-  if(DEBUG || true){
+  if(DEBUG){
     std::cout << "----------------" << std::endl;
     std::cout << "relaxation_order = " << relaxation_order << std::endl;
     std::cout << "----------------" << std::endl;
@@ -217,7 +220,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   bool all_relaxed = relaxation_order >= Q_tilde.rows();
 
   // Check the first condition of algorithm
-  if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001) && !all_relaxed){
+  if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.01) && !all_relaxed){
     // Compute a basis of the null space of Q_tilde by using LU decomposition
     if(DEBUG) std::cout << "-- Step 3 --" << std::endl;
     if(DEBUG) std::cout << "R_bar = " << R_bar << std::endl;
@@ -247,11 +250,11 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     // Check invertibility of block expression
     Eigen::FullPivLU<Eigen::MatrixXd> lu(C * Q_tilde * N_tilde);
     if(!lu.isInvertible()){
-      ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
+      if(DEBUG) ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
       x_result = x_ref;
-      if(DEBUG) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
+      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
       return false;
     }
 
@@ -279,14 +282,14 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     if(DEBUG) std::cout << "----------------" << std::endl;
     
     // Checking the second condition of algorithm
-    if(x_ref.head(S.cols()).norm() < 0.0001){
+    if(x_ref.head(S.cols()).norm() < 0.000001){
       /*  If the condition for norm is not valid, relax (increase relaxation_order) 
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
       */
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
       x_result = x_ref;
-      if(DEBUG) ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
+      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
       return false;
     }
   } else {
@@ -296,7 +299,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
     x_ref = x_ref_old;            // Old vector is returned until good solution is found
     x_result = x_ref;
-    if(DEBUG) ROS_WARN_STREAM("Relaxing because no particular solution found.");
+    if(DEBUG || true) ROS_WARN_STREAM("Relaxing because no particular solution found.");
     return false;
   }
 
@@ -310,6 +313,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   // Saving to old and return contact preserving solution
   x_ref_old = x_ref;
   x_result = x_ref;
+  ROS_ERROR_STREAM("A new reference has been sent! Yahoo!.");
   return true;
 }
 

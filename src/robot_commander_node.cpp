@@ -31,6 +31,12 @@ int main(int argc, char** argv){
 	ROS_DEBUG_STREAM("DEBUG ACTIVATED!");
 
 	// Spin
-	ros::spin();
+	ros::spin();					// trying to solve the delay with ros rate
+	// ros::Rate rc_rate(10000);
+	// while (ros::ok()) {
+	// 	ros::spinOnce();
+	// 	rc_rate.sleep();
+	// }
 
+	return 0;
 }
