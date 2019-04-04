@@ -154,7 +154,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(first_it){
     Q_old = Q;
   } else {
-    if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001)){
+    if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001) && (relaxation_order > x_d.size())){
       relaxation_order = 0;                     // Reset relaxation
       if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
       if(DEBUG) std::cout << "----------------" << std::endl;
@@ -220,7 +220,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   bool all_relaxed = relaxation_order >= Q_tilde.rows();
 
   // Check the first condition of algorithm
-  if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.01) && !all_relaxed){
+  if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001) && !all_relaxed){
     // Compute a basis of the null space of Q_tilde by using LU decomposition
     if(DEBUG) std::cout << "-- Step 3 --" << std::endl;
     if(DEBUG) std::cout << "R_bar = " << R_bar << std::endl;
