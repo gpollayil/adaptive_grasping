@@ -259,7 +259,7 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
 /* GETSAFETYINFO */
 void adaptiveGrasper::getSafetyInfo(const panda_softhand_safety::SafetyInfo::ConstPtr &msg){
     // Checking if the collision is going to happen and setting run bool accordingly (for stopping the grasping)
-    if(this->run && (msg->collision)){
+    if( this->run && ((msg->collision) || (msg->joint_position_limits) || (msg->joint_velocity_limits)) ){
         this->adaptive_grasper_mutex.lock();
         this->run = false;
         this->adaptive_grasper_mutex.unlock();
@@ -273,7 +273,8 @@ void adaptiveGrasper::getSafetyInfo(const panda_softhand_safety::SafetyInfo::Con
             ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
         }
 
-        ROS_INFO_STREAM("adaptiveGrasper : The robot is about to collide: stopping the grasping!");
+        if(msg->collision) ROS_INFO_STREAM("adaptiveGrasper : The robot is about to collide: stopping the grasping!");
+        else ROS_INFO_STREAM("adaptiveGrasper : The robot is about to violate joint limits: stopping the grasping!");
     }
 }
 
