@@ -313,7 +313,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   // Saving to old and return contact preserving solution
   x_ref_old = x_ref;
   x_result = x_ref;
-  if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
+  if(DEBUG) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
   return true;
 }
 
