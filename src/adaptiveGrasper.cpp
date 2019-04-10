@@ -120,6 +120,7 @@ void adaptiveGrasper::printParsed(){
     ROS_INFO_STREAM("\nThe reference scaling factor is: " << this->scaling << ".");
     ROS_INFO_STREAM("\nThe permutation vector is: \n" << this->p_vector << ".");
     ROS_INFO_STREAM("\nThe permutation vector 2 is: \n" << this->p_vector_2 << ".");
+    ROS_INFO_STREAM("\nThe touch indexes vector 2 is: \n" << this->touch_indexes << ".");
     ROS_INFO_STREAM("\nThe max synergy threshold is: \n" << this->syn_thresh << ".");
     ROS_INFO_STREAM("\nThe bool relax_to_zero is: \n" << this->relax_to_zero << ".");
     ROS_INFO_STREAM("\nThe bool touch_change is: \n" << this->touch_change << ".");
@@ -187,6 +188,11 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     Eigen::MatrixXd temp_x_d_2;
     parseParameter(params_xml, temp_x_d_2, param_names[16]);
     this->x_d_2 = temp_x_d_2.transpose().col(0);
+
+    // touch_indexes (vector) needs to be parsed differently using the parsing function for matrix
+    Eigen::MatrixXd temp_touch_indexes;
+    parseParameter(params_xml, temp_touch_indexes, param_names[17]);
+    this->touch_indexes = temp_touch_indexes.transpose().col(0);
 }
 
 /* SETCOMMANDANDSEND */
@@ -370,6 +376,10 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_matrices_creator.setPermutationVector(this->p_vector);
             }
 
+            // Setting the other stuff for whole permutation computation in matricesCreator
+            this->my_matrices_creator.setOtherPermutationStuff(this->touch_indexes);
+
+            // Computing all matrices
             this->my_matrices_creator.computeAllMatrices();
 
             // Reading and couting the matrices

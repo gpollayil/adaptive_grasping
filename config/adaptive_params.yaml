@@ -63,9 +63,12 @@ adaptive_grasping:
   scaling: 1.0
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
-    - [6, 3, 4, 5, 1, 2]      # fully constrained
+    - [6, 3, 4, 5, 1, 2]              # fully constrained
   p_vector_2:
-    - [2, 3, 1]               # position constrained
+    - [2, 3, 1]                       # position constrained
+  # The vector containing the indexes of the touch constraints
+  touch_indexes:
+    - [14, 15, 16, 17, 18, 19]
   # The threshold on the synergy joint value for stopping the grasping motion
   syn_thresh: 0.8
   # The bool to decide if null twist should be sent when relaxation occurs

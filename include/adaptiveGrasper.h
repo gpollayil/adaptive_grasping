@@ -169,6 +169,7 @@ namespace adaptive_grasping {
     double scaling;                                     // Contains the scaling factor for x reference
     Eigen::VectorXd p_vector;                           // Contains the permutation vector for relaxed minimization fully constrained (for Matrices Creator)
     Eigen::VectorXd p_vector_2;                         // Contains the permutation vector for relaxed minimization position constrained (for Matrices Creator)
+    Eigen::VectorXd touch_indexes;                      // Contains the vector with the indexes of the touch constraints (for Matrices Creator)
     double syn_thresh;                                  // Contains threshold on the synergy joint value for stopping the grasping motion (for Adaptive Grasper)
     bool relax_to_zero = false;                         // Contains bool to decide to set zero ref if relaxation happens
     bool touch_change = false;                          // Contains bool to decide if to change contact selection when touch occurs
