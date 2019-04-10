@@ -106,6 +106,51 @@ void matricesCreator::setPermutationVector(Eigen::VectorXd p_vector_){
   if(DEBUG) std::cout << "Permutation vector set in matricesCreator!" << std::endl;
 }
 
+/* SETOTHERPERMUTATIONSTUFF */
+void matricesCreator::setOtherPermutationStuff(Eigen::VectorXd touch_indexes_){
+  // Set the touch indexes vector
+  touch_indexes = touch_indexes_;
+
+  // Print message for debug
+  if(DEBUG) std::cout << "The touch indexes vector set in matricesCreator!" << std::endl;
+}
+
+/* COMPLETEPEWHOLERMUTATIONVECTOR */
+void matricesCreator::computeWholePermutationVector(Eigen::VectorXd p_vector_, int contacts_num_, Eigen::VectorXd touch_indexes_, Eigen::VectorXd p_vector_full_){
+  // Checking if the touch_indexes_ vector complies with the dimension of H_i
+  if (touch_indexes_.size() != H_i.size()) {
+    ROS_ERROR_STREAM("matricesCreator::computeWholePermutationVector : dimensions of touch_indexes_ != dimensions of H_i");
+  }
+  
+  // Creating a tmp vector which will be the full permutation vector
+  std::vector<double> temp_vector_full;
+
+  // Now, iterating on p_vector_ to fill up correctly the full permutation vector
+  int length_p_vec = p_vector_.size();
+  for (int j = 0; j < length_p_vec; j++) {
+    // Checking if ith elem of p_vector_ is in touch_indexes_
+    bool is_in_touch_indexes = false;
+    for (int k = 0; k < touch_indexes_.size(); k++) {
+      if (p_vector_(j) == touch_indexes_(k)) is_in_touch_indexes = true;
+    }
+
+    // Pushing back the indexes according to is_in_touch_indexes
+    if (is_in_touch_indexes) {
+      for (int con_it = 0; con_it < contacts_num_; con_it++) {
+        temp_vector_full.push_back(p_vector_(j) + con_it*touch_indexes_.size());
+      }
+    } else {
+      temp_vector_full.push_back(p_vector_(j));
+    }
+  }
+
+  Eigen::VectorXd temp_eig = Eigen::VectorXd::Map(temp_vector_full.data(), temp_vector_full.size());
+  
+  if (DEBUG || true) ROS_INFO_STREAM("matricesCreator::computeWholePermutationVector : the computed whole perm. vector is \n " << temp_eig);
+
+  p_vector_full_ = temp_eig;
+}
+
 /* PREPAREKDL */
 bool matricesCreator::prepareKDL(){
   // Load robot description from ROS parameter server
@@ -131,7 +176,8 @@ void matricesCreator::computeAllMatrices(){
   computeWholePoleChange(contacts_map);
   computeWholeContactSelection(contacts_map);
   computeWholeJacobian(contacts_map, joints_map);
-  computePermutationMatrix(p_vector, contacts_map.size());
+  computeWholePermutationVector(p_vector, contacts_map.size(), touch_indexes, p_vector_full);
+  computePermutationMatrix(p_vector_full, contacts_map.size());
 
   // Print message for debug
   if(DEBUG) std::cout << "Finished computing in matricesCreator!" << std::endl;

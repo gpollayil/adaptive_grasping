@@ -130,6 +130,30 @@ namespace adaptive_grasping {
     */
     void setPermutationVector(Eigen::VectorXd p_vector_);
 
+    /** SETOTHERPERMUTATIONSTUFF
+    * @brief Function to set the touch indexes vector
+    *
+    * @param touch_indexes
+    *    vector containing the indexes of the touch constraints
+    * @return null
+    */
+    void setOtherPermutationStuff(Eigen::VectorXd touch_indexes_);
+
+    /** COMPLETEPEWHOLERMUTATIONVECTOR
+    * @brief Function to make a complete perm. vec. according to the  number of touches
+    *
+    * @param p_vector_
+    *   the permutation vector
+    * @param contacts_num_
+    *   the number of fingers in contact
+    * @param touch_indexes_
+    *   a vector containing the indexes of the touch constraints
+    * @param p_vector_full_
+    *   the whole permutation vector which considers the number of touches
+    * @return null
+    */
+    void computeWholePermutationVector(Eigen::VectorXd p_vector_, int contacts_num_, Eigen::VectorXd touch_indexes_,  Eigen::VectorXd p_vector_full_);
+
     /** PREPAREKDL
     * @brief Function to prepare KDL jacobian solver
     *
@@ -174,6 +198,8 @@ namespace adaptive_grasping {
 
     // Permutation vector and matrix for relaxed minimization and size of whole Q_1
     Eigen::VectorXd p_vector;
+    Eigen::VectorXd p_vector_full;
+    Eigen::VectorXd touch_indexes;
     Eigen::MatrixXd P;
 
     // Frame names for world and palm
