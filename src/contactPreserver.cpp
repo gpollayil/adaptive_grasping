@@ -210,7 +210,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(DEBUG) std::cout << "pinv_R_bar_Q_tilde = " << pinv_R_bar_Q_tilde << std::endl;
   if(DEBUG) std::cout << "----------------" << std::endl;
 
-  if(DEBUG){
+  if(DEBUG || true){
     std::cout << "----------------" << std::endl;
     std::cout << "relaxation_order = " << relaxation_order << std::endl;
     std::cout << "----------------" << std::endl;
@@ -250,11 +250,11 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     // Check invertibility of block expression
     Eigen::FullPivLU<Eigen::MatrixXd> lu(C * Q_tilde * N_tilde);
     if(!lu.isInvertible()){
-      if(DEBUG) ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
+      if(DEBUG || true) ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
       x_result = x_ref;
-      if(DEBUG) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
+      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
       return false;
     }
 
@@ -289,7 +289,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
       if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
       x_ref = x_ref_old;            // Old vector is returned until good solution is found
       x_result = x_ref;
-      if(DEBUG) ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
+      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
       return false;
     }
   } else {
@@ -299,7 +299,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
     x_ref = x_ref_old;            // Old vector is returned until good solution is found
     x_result = x_ref;
-    if(DEBUG) ROS_WARN_STREAM("Relaxing because no particular solution found.");
+    if(DEBUG || true) ROS_WARN_STREAM("Relaxing because no particular solution found.");
     return false;
   }
 
@@ -313,7 +313,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   // Saving to old and return contact preserving solution
   x_ref_old = x_ref;
   x_result = x_ref;
-  if(DEBUG) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
+  if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
   return true;
 }
 
