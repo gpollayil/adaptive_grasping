@@ -524,36 +524,21 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
 
 /* COMPUTEPERMUTATIONMATRIX */
 void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int contacts_num_){
-  // Getting the size of the permutation vector and the row size of the constraint selection matrix H_i
+  // TODO : contacts_num_ is unused, change it everywhere
+  
+  // Getting the size of the permutation vector
   int length_p = p_vector_.size();
-  int rows_H_i = H_i.rows();
+  if(DEBUG || true) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The length of the permutation vector is " << length_p << ".");
 
-  // Asserting correct dimensions
-  if(length_p != rows_H_i) ROS_FATAL_STREAM("matricesCreator::computePermutationMatrix The length of the permutation vector is different from the rows of H_i: please change in yaml file!!!");
-
-  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The length of the permutation vector is " << length_p << ".");
-
-  // Creating permutation matrix for 1 contact
-  Eigen::MatrixXd P_i = Eigen::MatrixXd::Zero(rows_H_i, rows_H_i);
+  // Creating permutation matrix from p_vector_
+  Eigen::MatrixXd P_temp = Eigen::MatrixXd::Zero(length_p, length_p);
   for(int i = 0; i < length_p; i++){
-    P_i(i, p_vector_(i) - 1) = 1;
+    P_temp(i, p_vector_(i) - 1) = 1;
   }
 
-  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The ith permutation matrix: \n" << P_i << ".");
-
-  // Creating a block diagonal of permutation matrix for n contacts
-  Eigen::MatrixXd P_temp = Eigen::MatrixXd::Zero(rows_H_i * contacts_num_, rows_H_i * contacts_num_);
-
-  int index = 0;
-  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix Entering the blocks creating for.");
-  for(int i = 0; i < contacts_num_; i++){
-    P_temp.block(index, index, rows_H_i, rows_H_i) = P_i;
-    index += rows_H_i;
-  }
+  if(DEBUG || true) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The total permutation matrix: \n" << P_temp << ".");
 
   // Setting the permutation matrix
   P = P_temp;
-
-  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The final permutation matrix: \n" << P << ".");
 
 }
