@@ -367,14 +367,18 @@ void adaptiveGrasper::spinGrasper(){
             this->my_matrices_creator.setJointsMap(this->read_joints_map);
             this->my_matrices_creator.setObjectPose(this->object_pose);
             
-            // Single contact -> fully constrained / Multiple contacts -> position constrained
+            /* // Single contact -> fully constrained / Multiple contacts -> position constrained
             if(this->read_contacts_map.size() > 1 && this->touch_change){
                 this->my_matrices_creator.changeContactType(this->H_i_2);
                 this->my_matrices_creator.setPermutationVector(this->p_vector_2);
             } else {
                 this->my_matrices_creator.changeContactType(this->H_i);
                 this->my_matrices_creator.setPermutationVector(this->p_vector);
-            }
+            } */
+
+            // Setting the contact type and the permutation vector
+            this->my_matrices_creator.changeContactType(this->H_i);
+            this->my_matrices_creator.setPermutationVector(this->p_vector);
 
             // Setting the other stuff for whole permutation computation in matricesCreator
             this->my_matrices_creator.setOtherPermutationStuff(this->touch_indexes);
@@ -404,12 +408,13 @@ void adaptiveGrasper::spinGrasper(){
             this->my_contact_preserver.changeHandType(this->S);
 
             // Setting the reference motion to the desired one (Single/Multiple)
-            if(this->read_contacts_map.size() > 1 && this->touch_change){
+            this->x_ref = this->x_d;
+            /* if(this->read_contacts_map.size() > 1 && this->touch_change){
                 this->x_ref = this->x_d_2;
                 if(DEBUG) ROS_INFO_STREAM("adaptiveGrasper::spinGrasper Two contacts, changing x_d!");
             } else {
                 this->x_ref = this->x_d;
-            }
+            } */
 
             // Performing the minimization only if there are contacts (i.e. the matrices are not empty)
             if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0){
@@ -417,12 +422,13 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
 
                 // Setting minimization and relaxation parameters
-                if(this->read_contacts_map.size() > 1 && this->touch_change){
+                /* if(this->read_contacts_map.size() > 1 && this->touch_change){
                     this->my_contact_preserver.setMinimizationParams(this->x_d_2, this->A_tilde);
                     if(DEBUG) ROS_WARN_STREAM("adaptiveGrasper::spinGrasper Two contacts, changing x_d and A_tilde!");
                 } else {
                     this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
-                }
+                } */
+                this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
                 // Performing minimization
