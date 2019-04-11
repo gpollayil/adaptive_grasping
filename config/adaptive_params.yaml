@@ -63,7 +63,7 @@ adaptive_grasping:
   scaling: 1.0
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
-    - [6, 3, 4, 5, 1, 2]              # fully constrained
+    - [19, 17, 18, 5, 6, 7, 2, 3, 4, 16, 14, 15, 8, 9, 10, 11, 12, 13, 1]              # fully constrained
   p_vector_2:
     - [2, 3, 1]                       # position constrained
   # The vector containing the indexes of the touch constraints
