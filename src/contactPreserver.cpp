@@ -74,26 +74,14 @@ bool contactPreserver::setRMatrix(){
 
   // Build R case by case
   if(relaxation_order == 0){
+
     R = Eigen::MatrixXd::Zero(1, Q_tilde.rows());
-  } else if(relaxation_order <= x_d.size()) {
-    R = Eigen::MatrixXd::Identity(relaxation_order, Q_tilde.rows());
+
   } else {
-    int residual = relaxation_order - x_d.size();
 
-    if(DEBUG) std::cout << "setRMatrix residual = " << residual << " - num_contacts = " << num_contacts << " - x_d.size() = " <<
-      x_d.size() << " - P.cols() = " << P.cols() << std::endl;
+    R = Eigen::MatrixXd::Zero(relaxation_order, Q_tilde.cols());
+    R.block(0, 0, relaxation_order, Q_tilde.cols()) = P.block(0, 0, relaxation_order, Q_tilde.cols());
 
-    R = Eigen::MatrixXd::Zero(x_d.size() + num_contacts * residual, x_d.size() + P.cols());
-    R.block(0, 0, x_d.size(), x_d.size()) = Eigen::MatrixXd::Identity(x_d.size(), x_d.size());
-
-    int index_x = x_d.size();
-    int index_y = x_d.size();
-    if(DEBUG) ROS_INFO_STREAM("contactPreserver::setRMatrix Entering the blocks creating for.");
-    for(int i = 0; i < num_contacts; i++){
-      R.block(index_x, index_y, residual, P.cols() / num_contacts) = P.block(0, 0, residual, P.cols() / num_contacts);
-      index_x += residual;
-      index_y += P.cols() / num_contacts;
-    }
   }
 
   if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
