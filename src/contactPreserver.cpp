@@ -89,8 +89,8 @@ bool contactPreserver::setRMatrix(){
 
   }
 
-  if(DEBUG || true) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
-  if(DEBUG || true) std::cout << R << std::endl;
+  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
+  if(DEBUG) std::cout << R << std::endl;
 
   // Compute R_bar as N(R) transpose
   if(relaxation_order == 0){
@@ -100,8 +100,8 @@ bool contactPreserver::setRMatrix(){
     R_bar = lu.kernel().transpose();
   }
 
-  if(DEBUG || true) std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; 
-  if(DEBUG || true) std::cout << R_bar << std::endl;
+  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; 
+  if(DEBUG) std::cout << R_bar << std::endl;
 
   return true;
 }
@@ -275,7 +275,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     if(DEBUG) std::cout << "----------------" << std::endl;
     
     // Checking the second condition of algorithm
-    if(x_ref.head(S.cols()).norm() < 0.000001){
+    if(x_ref.head(S.cols()).norm() < 0.00001){
       /*  If the condition for norm is not valid, relax (increase relaxation_order) 
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
       */
