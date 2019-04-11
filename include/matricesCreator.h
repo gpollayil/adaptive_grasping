@@ -140,7 +140,7 @@ namespace adaptive_grasping {
     void setOtherPermutationStuff(Eigen::VectorXd touch_indexes_);
 
     /** COMPLETEPEWHOLERMUTATIONVECTOR
-    * @brief Function to make a complete perm. vec. according to the  number of touches
+    * @brief Function to make a complete perm. vec. according to the  number of touches and sets the p_vector_full of this class
     *
     * @param p_vector_
     *   the permutation vector
@@ -148,11 +148,9 @@ namespace adaptive_grasping {
     *   the number of fingers in contact
     * @param touch_indexes_
     *   a vector containing the indexes of the touch constraints
-    * @param p_vector_full_
-    *   the whole permutation vector which considers the number of touches
     * @return null
     */
-    void computeWholePermutationVector(Eigen::VectorXd p_vector_, int contacts_num_, Eigen::VectorXd touch_indexes_,  Eigen::VectorXd p_vector_full_);
+    void computeWholePermutationVector(Eigen::VectorXd p_vector_, int contacts_num_, Eigen::VectorXd touch_indexes_);
 
     /** PREPAREKDL
     * @brief Function to prepare KDL jacobian solver

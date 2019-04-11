@@ -9,7 +9,7 @@
 
 // The bool for keeping the constraints relaxed (if true... otherwise relaxation order is reset)
 // TODO : parse this bool from adaptive_params.yaml
-const bool keep_relaxed = true;
+const bool keep_relaxed = false;
 
 /**
 * @brief The following are functions of the class contactPreserver.
@@ -84,13 +84,13 @@ bool contactPreserver::setRMatrix(){
 
   } else {
 
-    R = Eigen::MatrixXd::Zero(relaxation_order, Q_tilde.cols());
-    R.block(0, 0, relaxation_order, Q_tilde.cols()) = P.block(0, 0, relaxation_order, Q_tilde.cols());
+    R = Eigen::MatrixXd::Zero(relaxation_order, Q_tilde.rows());
+    R.block(0, 0, relaxation_order, Q_tilde.rows()) = P.block(0, 0, relaxation_order, Q_tilde.rows());
 
   }
 
-  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
-  if(DEBUG) std::cout << R << std::endl;
+  if(DEBUG || true) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
+  if(DEBUG || true) std::cout << R << std::endl;
 
   // Compute R_bar as N(R) transpose
   if(relaxation_order == 0){
@@ -100,8 +100,8 @@ bool contactPreserver::setRMatrix(){
     R_bar = lu.kernel().transpose();
   }
 
-  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; 
-  if(DEBUG) std::cout << R_bar << std::endl;
+  if(DEBUG || true) std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; 
+  if(DEBUG || true) std::cout << R_bar << std::endl;
 
   return true;
 }
