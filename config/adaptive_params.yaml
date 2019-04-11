@@ -48,8 +48,9 @@ adaptive_grasping:
     - [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10000]
   # The following array is the desired x motion
   x_d:
+    - [0.1, 0.001, 0, -0.001, 0, -0.005, 0, 0, 0, 0, 0, 0, 0]  # for going down with wrist
+    # - [0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]                 # for simple grasp?
     # - [0.1, 0.01, 0, -0.01, 0, -0.05, 0, 0, 0, 0, 0, 0, 0]      # for other fingers mainly?
-    - [0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]                   # for simple grasp?
     # - [0.1, 0, 0, -0.01, 0.05, 0, 0, 0, 0, 0, 0, 0, 0]          # for thumb mainly?
     # - [0.5, 0.00, 0, -0.05, 0, -0.09, 0, 0, 0, 0, 0, 0, 0]      # random stuff 1
     # - [0.5, 0.00, 0, -0.05, 0, 0.00, 0, 0, 0, 0, 0, 0, 0]       # random stuff 2
@@ -64,7 +65,9 @@ adaptive_grasping:
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
     # - [19, 17, 18, 5, 6, 7, 2, 3, 4, 16, 14, 15, 8, 9, 10, 11, 12, 13, 1]              # Giorgio order - OK 1 touch (only position), NOT OK more touches (strange)
-    - [5, 6, 7, 2, 3, 4, 19, 17, 18, 16, 14, 15, 8, 9, 10, 11, 12, 13, 1]              # Other order
+    # - [5, 6, 7, 2, 3, 4, 19, 17, 18, 16, 14, 15, 8, 9, 10, 11, 12, 13, 1]              # George First order - NOT BAD for middle but hand goes up for thumb
+    # - [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 19, 17, 18, 16, 14, 15, 1]              # George Second order - NOT BAD for middle bun thumb not still - 2 fingers ok
+    - [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 15, 16, 14]              # Old order -
   p_vector_2:
     - [2, 3, 1]                       # position constrained
   # The vector containing the indexes of the touch constraints
