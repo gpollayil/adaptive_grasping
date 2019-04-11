@@ -136,7 +136,7 @@ void matricesCreator::computeWholePermutationVector(Eigen::VectorXd p_vector_, i
 
     // Pushing back the indexes according to is_in_touch_indexes
     if (is_in_touch_indexes && (contacts_num_ > 0)) {
-      if(DEBUG || true) std::cout << "Starting to pushback touch_indexes stuff because is_in_touch_indexes is " << is_in_touch_indexes
+      if(DEBUG) std::cout << "Starting to pushback touch_indexes stuff because is_in_touch_indexes is " << is_in_touch_indexes
         << " and contacts_num_ is " << contacts_num_ << std::endl;
       for (int con_it = 0; con_it < contacts_num_; con_it++) {
         temp_vector_full.push_back(p_vector_(j) + con_it*touch_indexes_.size());
@@ -148,7 +148,7 @@ void matricesCreator::computeWholePermutationVector(Eigen::VectorXd p_vector_, i
 
   Eigen::VectorXd temp_eig = Eigen::VectorXd::Map(temp_vector_full.data(), temp_vector_full.size());
   
-  if (DEBUG || true) ROS_INFO_STREAM("matricesCreator::computeWholePermutationVector : the computed whole perm. vector is \n " << temp_eig);
+  if (DEBUG) ROS_INFO_STREAM("matricesCreator::computeWholePermutationVector : the computed whole perm. vector is \n " << temp_eig);
 
   this->p_vector_full = temp_eig;
 }
@@ -539,7 +539,7 @@ void matricesCreator::computePermutationMatrix(Eigen::VectorXd p_vector_, int co
     P_temp(i, p_vector_(i) - 1) = 1;
   }
 
-  if(DEBUG || true) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The total permutation matrix: \n" << P_temp << ".");
+  if(DEBUG) ROS_INFO_STREAM("matricesCreator::computePermutationMatrix The total permutation matrix: \n" << P_temp << ".");
 
   // Setting the permutation matrix
   P = P_temp;
