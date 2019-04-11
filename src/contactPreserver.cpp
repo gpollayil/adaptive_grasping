@@ -6,6 +6,11 @@
 #define CLASS_NAMESPACE   "contact_preserver"
 #define DEBUG             0   // print out additional info
 #define N_DEBUG           0   // sends as reference column of N(Q)
+
+// The bool for keeping the constraints relaxed (if true... otherwise relaxation order is reset)
+// TODO : parse this bool from adaptive_params.yaml
+const bool keep_relaxed = true;
+
 /**
 * @brief The following are functions of the class contactPreserver.
 *
@@ -142,7 +147,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(first_it){
     Q_old = Q;
   } else {
-    if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001) && (relaxation_order > x_d.size())){
+    if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001) && (relaxation_order > x_d.size()) && !keep_relaxed){
       relaxation_order = 0;                     // Reset relaxation
       if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
       if(DEBUG) std::cout << "----------------" << std::endl;
@@ -168,7 +173,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   y << x_d, Eigen::VectorXd::Zero(H.rows());
 
   // If the desired motion has changed, reset R and R_bar
-  if(!(x_d - x_d_old).isMuchSmallerThan(0.0001) || first_it){
+  if( (!(x_d - x_d_old).isMuchSmallerThan(0.0001) && !keep_relaxed) || first_it){
     relaxation_order = 0;               // Nothing is to be relaxed
     if(first_it) first_it = false;
     if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
