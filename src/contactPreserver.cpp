@@ -9,7 +9,7 @@
 
 // The bool for keeping the constraints relaxed (if true... otherwise relaxation order is reset)
 // TODO : parse this bool from adaptive_params.yaml
-const bool keep_relaxed = false;
+const bool keep_relaxed = true;
 
 /**
 * @brief The following are functions of the class contactPreserver.
@@ -149,7 +149,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   } else {
     if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001) && (relaxation_order > x_d.size()) && !keep_relaxed){
       relaxation_order = 0;                     // Reset relaxation
-      if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
+      if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
       if(DEBUG) std::cout << "----------------" << std::endl;
       if(DEBUG) std::cout << "Q = " << Q << std::endl;
       if(DEBUG) std::cout << "Q_old = " << Q_old << std::endl;
@@ -176,7 +176,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if( (!(x_d - x_d_old).isMuchSmallerThan(0.0001) && !keep_relaxed) || first_it){
     relaxation_order = 0;               // Nothing is to be relaxed
     if(first_it) first_it = false;
-    if(DEBUG) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
+    if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
   }
 
   x_d_old = x_d;
