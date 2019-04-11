@@ -275,7 +275,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     if(DEBUG) std::cout << "----------------" << std::endl;
     
     // Checking the second condition of algorithm
-    if(x_ref.head(S.cols()).norm() < 0.00001){
+    if(x_ref.head(S.cols()).norm() < 0.0001){
       /*  If the condition for norm is not valid, relax (increase relaxation_order) 
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
       */
