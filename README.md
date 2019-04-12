@@ -14,7 +14,7 @@ A ROS Package for the Touch-Based Adaptive Grasping strategy.
 This package depends on ROS Kinetic or newer.
 
 Needed Packages (from Centro Piaggio GitHub):
-`franka_ros` (branch ?), `panda-softhand` (branch ?), `pisa-iit-soft-hand` (branch ?), `IMU` (NMMI GitHub), `imu_glove_finger_touch_utils` (branch ?)
+`franka_ros` (branch `soma-devel`), `panda-softhand` (branch `master`), `pisa-iit-soft-hand` (branch `demo-march-2019`), `IMU` (NMMI GitHub), `imu_glove_finger_touch_utils` (branch `demo-march-2019`), `finger_fk` (branch `demo-march-2019`)
 
 ### Installing
 
@@ -22,18 +22,18 @@ To install this package just clone into your catkin_ws and catkin_make.
 
 ## Running the Adaptive Grasping Package
 
-(If REAL ROBOT remember to set correctly robot_ip and set load_gripper to false in launchPandaSoftHand.launch)
+(If REAL ROBOT remember to set correctly `robot_ip` and set `load_gripper` to `false` in `launchPandaSoftHand.launch`)
 
-(Most of the parameters of Adaptive Grasping can be changed from adaptive_params.yaml)
+(Most of the parameters of Adaptive Grasping can be changed from `adaptive_params.yaml` and `full_grasp_params.yaml`)
 
 ### Launch Order (Temporary)
 
-1. `roslaunch adaptive_grasping launchLWRSoftHandTwist.launch` (Launches Robot in RViz + Gazebo / Real Robot)
-2. `rosrun adaptive_grasping adaptive_grasping_robotCommander` (Sends the commands given by the adaptive_grasping_node to the robot controllers)
-3. `rosrun adaptive_grasping adaptive_grasping_node` (The main package which updates the state of contacts, computes the main matrices and performs minimization for finding the references to be sent to robotCommander)
-4. `rosrun finger_fk finger_joints_service` (Needed by contactState of adaptive_grasping_node for getting the states of the fingers)
-5. (TODO: SHOULD BE GIVEN BY VISION IN FUTURE) `rostopic pub /object_pose_topic geometry_msgs/Pose "position: ... orientation: ..."`
+1. `roslaunch adaptive_grasping launchPandaSoftHand.launch` (Launches Robot in RViz + Real Robot)
+2. `roslaunch panda_softhand_control launchControlServer.launch ` (Launches a server node which provides services for joint control, pose control, ecc.)
+3. (TODO: SHOULD BE GIVEN BY VISION IN FUTURE) `roslaunch panda_softhand_control launchSimulateObjectPose.launch"` (change this file for changing object pose)
+4. `roslaunch adaptive_grasping launchRobotCommAdaptiveGrasp.launch ` (The main server for adaptive grasping, and launches robotCommander)
+5. `rosservice call /adaptive_task_service "data: true""` (To start the whole adaptive grasping process)
 6. `rostopic pub -r 50 /touching_finger_topic std_msgs/Int8 "data: 4"` (From 0 to 5 for fingers from thumb to pinky)
-7. `rosservice call /adaptive_grasper_service "run_adaptive_grasp: true"` (To start the grasping)
+
 
 
