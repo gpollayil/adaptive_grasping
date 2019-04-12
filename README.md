@@ -11,10 +11,10 @@ A ROS Package for the Touch-Based Adaptive Grasping strategy.
 
 ### Prerequisites
 
-This package depends on ROS Indigo or newer.
+This package depends on ROS Kinetic or newer.
 
 Needed Packages (from Centro Piaggio GitHub):
-`kuka-lwr` (branch soma_devel), `pisa-iit-soft-hand` (branch qb_interface_devel), `IMU` (NMMI GitHub), `imu_glove_finger_touch_utils`
+`franka_ros` (branch ?), `panda-softhand` (branch ?), `pisa-iit-soft-hand` (branch ?), `IMU` (NMMI GitHub), `imu_glove_finger_touch_utils` (branch ?)
 
 ### Installing
 
@@ -22,7 +22,7 @@ To install this package just clone into your catkin_ws and catkin_make.
 
 ## Running the Adaptive Grasping Package
 
-(If REAL ROBOT remember to set use_gazebo to false in launchLWRSoftHandTwist.launch)
+(If REAL ROBOT remember to set correctly robot_ip and set load_gripper to false in launchPandaSoftHand.launch)
 
 (Most of the parameters of Adaptive Grasping can be changed from adaptive_params.yaml)
 
