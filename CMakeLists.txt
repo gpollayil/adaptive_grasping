@@ -165,6 +165,7 @@ set(ADAPTIVE_SOURCE_FILES
 	src/matricesCreator.cpp
 	src/contactPreserver.cpp
 	src/robotCommander.cpp
+        src/basicTask.cpp
 )
 
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)
