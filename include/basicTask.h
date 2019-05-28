@@ -1,6 +1,10 @@
 #ifndef BASICTASK_H
 #define BASICTASK_H
 
+/*
+    BASIC TASK CLASS
+    This object is a container for jacobian and other entities of a task.
+*/
 
 // Basic Includes
 #include <Eigen/Dense>
