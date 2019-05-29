@@ -15,21 +15,25 @@ basicTask::basicTask(){
 }
 
 // Overloaded Constructor
-basicTask::basicTask(Eigen::MatrixXd task_jacobian, int task_priority){
+basicTask::basicTask(Eigen::MatrixXd task_jacobian, int task_priority) {
     set_task_jacobian(task_jacobian);
     set_task_priority(task_priority);
 }
 
 // Destructor
-basicTask::~basicTask(){
+basicTask::~basicTask() {
     // Nothing to do here for now
 }
 
 // Public Auxiliary Fuctions
-void basicTask::set_task_jacobian(Eigen::MatrixXd jacobian){
+void basicTask::set_task_jacobian(Eigen::MatrixXd jacobian) {
     this->task_jacobian_ = jacobian;
 }
 
-void basicTask::set_task_priority(int priority){
+void basicTask::set_task_priority(int priority) {
     this->task_priority_ = priority;
+}
+
+Eigen::MatrixXd basicTask::get_task_jacobian() {
+    return this->task_jacobian_;
 }

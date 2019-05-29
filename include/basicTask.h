@@ -27,6 +27,7 @@ public:
     // Public Auxiliary Fuctions
     void set_task_jacobian(Eigen::MatrixXd jacobian);
     void set_task_priority(int priority);
+    Eigen::MatrixXd get_task_jacobian();
 
 private:
 
