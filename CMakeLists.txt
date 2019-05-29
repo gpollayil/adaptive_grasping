@@ -166,6 +166,7 @@ set(ADAPTIVE_SOURCE_FILES
 	src/contactPreserver.cpp
 	src/robotCommander.cpp
         src/basicTask.cpp
+        src/reversePriorityManager.cpp
 )
 
 add_executable(${PROJECT_NAME}_tf_listener src/tf_listener.cpp)

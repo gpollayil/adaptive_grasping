@@ -7,6 +7,7 @@
 */
 
 // Basic Includes
+#include <vector>
 
 // Custom Includes
 #include "basicTask.h"
@@ -19,18 +20,31 @@ class reversePriorityManager {
 public:
 
     // Default Constructor
-    reversePriorityManager();
+    reversePriorityManager(int dim_config_space);
 
     // Overloaded Constructor
-    // reversePriorityManager();
+    reversePriorityManager(int dim_config_space, std::vector<basicTask> starting_task_set);
 
     // Destructor
     ~reversePriorityManager();
 
+    // Auxiliary Public Functions
+    void insert_tasks(std::vector<basicTask> tasks);    // Inserts a given task into the task set
+    void remove_task(int task_priority);                // Removes a task with a certain priority from the task set
+    void reorder_set();                                 // Reorders the task set from higher to lower priority (1, 2, 3, ...)
+    void clear_set();                                   // Clears the task set
+    Eigen::VectorXd solve_inv_kin();                    // Gives the reverse priority inverse kinematics solution for the task set
+
 private:
+
+    // Dimension of the configuration space
+    int dim_config_space_;
 
     // Set of tasks ordered by priority
     std::vector<basicTask> task_set_;
+
+    // Set of projection matrices Tk (ref. reverse priority)
+    std::vector<Eigen::MatrixXd> t_proj_mat_set_;
 
 };
 
