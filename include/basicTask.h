@@ -28,6 +28,17 @@ public:
     void set_task_jacobian(Eigen::MatrixXd jacobian);
     void set_task_priority(int priority);
     Eigen::MatrixXd get_task_jacobian();
+    inline int get_task_priority() {
+        return this->task_priority_;
+    }
+
+    /*
+     Sort Predicate as operator< (This is needed to sort the task set in RP Manager)
+     Indicates the if the current basicTask is greater or smaller than another basicTask
+    */
+    bool operator < (const basicTask& task) const {
+        return (this->task_priority_ < task.task_priority_);
+    }
 
 private:
 
