@@ -33,6 +33,7 @@ public:
     void remove_task(int task_priority);                // Removes a task with a certain priority from the task set
     void reorder_set();                                 // Reorders the task set from higher to lower priority (1, 2, 3, ...)
     void clear_set();                                   // Clears the task set
+    void print_set();                                   // Prints to screen the whole task set
     Eigen::VectorXd solve_inv_kin();                    // Gives the reverse priority inverse kinematics solution for the task set
 
 private:
@@ -45,6 +46,10 @@ private:
 
     // Set of projection matrices Tk (ref. reverse priority)
     std::vector<Eigen::MatrixXd> t_proj_mat_set_;
+
+    // Private Auxiliary Fuctions
+    Eigen::MatrixXd damped_pseudo_inv(Eigen::MatrixXd input_mat, double damping_coeff, double epsilon);
+    Eigen::MatrixXd rank_update(Eigen::MatrixXd J, Eigen::MatrixXd Jra_pinv);
 
 };
 

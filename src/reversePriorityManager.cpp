@@ -42,6 +42,53 @@ reversePriorityManager::reversePriorityManager(int dim_config_space, std::vector
 }
 
 // Auxiliary Public Functions
-void reversePriorityManager::insert_tasks(std::vector<basicTask> tasks){
+void reversePriorityManager::insert_tasks(std::vector<basicTask> tasks) {
+    // Appending the input task vector to the existing task set
+    this->task_set_.insert(this->task_set_.end(), tasks.begin(), tasks.end());
+}
+
+void reversePriorityManager::remove_task(int task_priority) {
+    // Finding the index of the element with given task_priority
+    int index = 0;
+    for (std::vector<basicTask>::iterator it = this->task_set_.begin(); it != this->task_set_.end(); ++it) {
+        if (it->get_task_priority() == task_priority) {
+            break;
+        } else {
+            index++;
+        }
+    }
+
+    // Removing the element with found index
+    this->task_set_.erase(this->task_set_.begin() + index);
+}
+
+void reversePriorityManager::reorder_set() {
+    std::sort(this->task_set_.begin(), this->task_set_.end());
+}
+
+void reversePriorityManager::clear_set() {
+    this->task_set_.clear();
+}
+
+void reversePriorityManager::print_set() {
+    ROS_INFO_STREAM("The task set is: ");
+    for (std::vector<basicTask>::iterator it = this->task_set_.begin(); it != this->task_set_.end(); ++it) {
+        std::cout << "---------------------" << std::endl;
+        std::cout << "priority: " << it->get_task_priority() << std::endl;
+        std::cout << "jacobian: " << it->get_task_jacobian() << std::endl;
+    }
+    std::cout << "---------------------" << std::endl;
+}
+
+Eigen::VectorXd reversePriorityManager::solve_inv_kin() {
+
+}
+
+// Private Auxiliary Fuctions
+Eigen::MatrixXd reversePriorityManager::damped_pseudo_inv(Eigen::MatrixXd input_mat, double damping_coeff, double epsilon) {
+
+}
+
+Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::MatrixXd Jra_pinv) {
 
 }
