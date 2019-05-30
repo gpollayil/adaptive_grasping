@@ -91,7 +91,22 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
         return false;
     }
 
+    // Size of task set
+    auto task_set_dim = this->task_set_.size();
 
+    // Creating vector of RP recursion and its last element is the initial guess
+    std::vector<Eigen::VectorXd> q_vec;
+    q_vec.resize(task_set_dim);
+    q_vec.at(task_set_dim) = Eigen::VectorXd::Zero(this->dim_config_space_);
+
+    // The RP recursion (ref. paper)
+    for (int i = int (task_set_dim) - 1; i >= 0; i--) {
+        // DO THIS!!!!!!
+        // DO THIS!!!!!!
+        // DO THIS!!!!!!
+        // DO THIS!!!!!!
+        // DO THIS!!!!!!
+    }
 }
 
 bool reversePriorityManager::compute_T_mats() {
