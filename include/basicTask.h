@@ -19,14 +19,16 @@ public:
     basicTask();
 
     // Overloaded Constructor
-    basicTask(Eigen::MatrixXd task_jacobian, int task_priority);
+    basicTask(Eigen::VectorXd task_x_dot, Eigen::MatrixXd task_jacobian, int task_priority);
 
     // Destructor
     ~basicTask();
 
     // Public Auxiliary Fuctions
+    void set_task_x_dot(Eigen::VectorXd x_dot);
     void set_task_jacobian(Eigen::MatrixXd jacobian);
     void set_task_priority(int priority);
+    Eigen::VectorXd get_task_x_dot();
     Eigen::MatrixXd get_task_jacobian();
     inline int get_task_priority() {
         return this->task_priority_;
@@ -41,6 +43,9 @@ public:
     }
 
 private:
+
+    // Task velocity vector
+    Eigen::VectorXd task_x_dot_;
 
     // Task Jacobian
     Eigen::MatrixXd task_jacobian_;
