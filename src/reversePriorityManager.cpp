@@ -101,20 +101,43 @@ bool reversePriorityManager::compute_T_mats() {
         return false;
     }
 
-    // Initializing the vector of pinvs of aug. jac. and resizing the T matrices vector
-    std::vector<Eigen::MatrixXd> Jra_pinv_vec;
+    // Resizing the T matrices vector
     auto task_set_dim = this->task_set_.size();
-    Jra_pinv_vec.resize(task_set_dim);
     this->t_proj_mat_set_.resize(task_set_dim - 1);
 
     // Initial step of computation of T matrices
-    auto n_cols = this->task_set_.at(task_set_dim).get_task_jacobian().cols();
     auto n_rows = this->task_set_.at(task_set_dim).get_task_jacobian().rows();
+    auto n_cols = this->task_set_.at(task_set_dim).get_task_jacobian().cols();
 
     Eigen::MatrixXd J_aug = this->task_set_.at(task_set_dim).get_task_jacobian();   // taking the last jacobian of the task set
-    Eigen::MatrixXd Jra_pinv = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
+    Eigen::MatrixXd J_aug_pinv = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
+    Eigen::MatrixXd T_aux = this->rank_update(J_aug, J_aug_pinv);
+    this->t_proj_mat_set_.at(task_set_dim - 1) = T_aux;
 
+    // Recursion for the other T matrices
+    for (int i = int (task_set_dim) - 2; i >= 0; i--) { // TODO : Test this (I feel this is not correct!)
+        // Getting the new task jacobian
+        Eigen::MatrixXd Jcurr = this->task_set_.at(i).get_task_jacobian();
 
+        // New number of rows and columns (of the new task jacobian)
+        n_rows = Jcurr.rows();
+        n_cols = Jcurr.cols();
+
+        // Append the new task jacobian
+        J_aug.resize(J_aug.rows() + Jcurr.rows(), J_aug.cols());
+        J_aug.block(0, 0, n_rows, n_cols) = Jcurr;
+        J_aug.block(n_rows, 0, J_aug.rows(), J_aug.cols()) = J_aug;
+
+        // Temporary variables
+        Eigen::MatrixXd Jpinv_tmp;
+        Eigen::MatrixXd Aux_mat;
+
+        // Pseudo inversion and rank update
+        Jpinv_tmp = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
+        Aux_mat = this->rank_update(J_aug, Jpinv_tmp);
+
+        this->t_proj_mat_set_.at(i) = Aux_mat;
+    }
 }
 
 // Private Auxiliary Fuctions
