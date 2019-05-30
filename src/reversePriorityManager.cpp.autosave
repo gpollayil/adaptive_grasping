@@ -101,20 +101,19 @@ bool reversePriorityManager::compute_T_mats() {
         return false;
     }
 
-    // Initializing the vector of pinvs of aug. jac. and resizing the T matrices vector
-    std::vector<Eigen::MatrixXd> Jra_pinv_vec;
+    // Resizing the T matrices vector
     auto task_set_dim = this->task_set_.size();
-    Jra_pinv_vec.resize(task_set_dim);
     this->t_proj_mat_set_.resize(task_set_dim - 1);
 
     // Initial step of computation of T matrices
-    auto n_cols = this->task_set_.at(task_set_dim).get_task_jacobian().cols();
     auto n_rows = this->task_set_.at(task_set_dim).get_task_jacobian().rows();
+    auto n_cols = this->task_set_.at(task_set_dim).get_task_jacobian().cols();
 
     Eigen::MatrixXd J_aug = this->task_set_.at(task_set_dim).get_task_jacobian();   // taking the last jacobian of the task set
     Eigen::MatrixXd Jra_pinv = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
 
-
+    Eigen::MatrixXd T_aux = this->rank_update(J_aug, Jra_pinv);
+    this->t_proj_mat_set_.at()
 }
 
 // Private Auxiliary Fuctions
