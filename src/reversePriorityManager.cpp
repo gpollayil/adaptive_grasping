@@ -101,12 +101,19 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 
     // The RP recursion (ref. paper)
     for (int i = int (task_set_dim) - 1; i >= 0; i--) {
-        // DO THIS!!!!!!
-        // DO THIS!!!!!!
-        // DO THIS!!!!!!
-        // DO THIS!!!!!!
-        // DO THIS!!!!!!
+        // Computing the needed variables for recursion
+        Eigen::VectorXd x_dot_i = this->task_set_.at(i).get_task_x_dot();
+        Eigen::MatrixXd J_i = this->task_set_.at(i).get_task_jacobian();
+        Eigen::MatrixXd T_i = this->t_proj_mat_set_.at(i);
+        Eigen::MatrixXd pinv_J_i_T_i = (J_i * T_i).completeOrthogonalDecomposition().pseudoInverse();
+
+        // Recursive formula
+        q_vec.at(i) = q_vec.at(i+1) + pinv_J_i_T_i * (x_dot_i - J_i * q_vec.at(i+1));
     }
+
+    // Returning the result
+    q_sol = q_vec.at(0);
+    return true;
 }
 
 bool reversePriorityManager::compute_T_mats() {
