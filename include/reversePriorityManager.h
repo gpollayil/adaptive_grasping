@@ -29,7 +29,7 @@ public:
     ~reversePriorityManager();
 
     // Auxiliary Public Functions
-    void insert_tasks(std::vector<basicTask> tasks);        // Inserts a given task into the task set
+    bool insert_tasks(std::vector<basicTask> tasks);        // Inserts a given task into the task set
     void remove_task(int task_priority);                    // Removes a task with a certain priority from the task set
     void reorder_set();                                     // Reorders the task set from higher to lower priority (1, 2, 3, ...)
     void clear_set();                                       // Clears the task set
