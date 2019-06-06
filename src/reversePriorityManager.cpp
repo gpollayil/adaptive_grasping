@@ -3,7 +3,7 @@
 // ROS Includes
 #include <ros/ros.h>
 
-#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
 
 /**
 * @brief The following are functions of the class reversePriorityManager.
@@ -27,18 +27,8 @@ reversePriorityManager::reversePriorityManager(int dim_config_space, double lamb
     this->lambda_max_ = lambda_max;
     this->epsilon_ = epsilon;
 
-    // Checking that all the tasks of the task set have the same configuration space dimensions
-    bool tasks_ok = true;
-    for (std::vector<basicTask>::iterator it = starting_task_set.begin(); it != starting_task_set.end(); ++it) {
-        if (it->get_task_jacobian().cols() != this->dim_config_space_) {
-            ROS_ERROR_STREAM("The " << it - starting_task_set.begin() <<
-                             "th task has a number of columns != configuration space dimension! This won't work anymore!");
-            tasks_ok = false;
-        }
-    }
-
-    if (!tasks_ok) ros::shutdown();
-    else this->insert_tasks(starting_task_set);
+    // Inserting the tasks
+    if (!this->insert_tasks(starting_task_set)) ros::shutdown();
 }
 
 // Destructor
@@ -47,7 +37,20 @@ reversePriorityManager::~reversePriorityManager() {
 }
 
 // Auxiliary Public Functions
-void reversePriorityManager::insert_tasks(std::vector<basicTask> tasks) {
+bool reversePriorityManager::insert_tasks(std::vector<basicTask> tasks) {
+    // Checking that all the tasks of the task set have the same configuration space dimensions
+    bool tasks_ok = true;
+    for (std::vector<basicTask>::iterator it = tasks.begin(); it != tasks.end(); ++it) {
+        if (it->get_task_jacobian().cols() != this->dim_config_space_) {
+            ROS_ERROR_STREAM("The " << it - tasks.begin() <<
+                             "th task has a number of columns != configuration space dimension! This won't work anymore!");
+            tasks_ok = false;
+        }
+    }
+
+    // If no consistency between tasks return false
+    if (!tasks_ok) return false;
+
     // Appending the input task vector to the existing task set
     this->task_set_.insert(this->task_set_.end(), tasks.begin(), tasks.end());
 }
@@ -92,6 +95,7 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 
     // Ordering the task set
     this->reorder_set();
+    if (DEBUG) this->print_set();
 
     // Computing all the T matrices
     if (!this->compute_T_mats()) {      // If this fails, return false and solution is zeros
@@ -106,15 +110,24 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
     // Creating vector of RP recursion and its last element is the initial guess
     std::vector<Eigen::VectorXd> q_vec;
     q_vec.resize(task_set_dim);
-    q_vec.at(task_set_dim) = Eigen::VectorXd::Zero(this->dim_config_space_);
+    q_vec.at(int (task_set_dim - 1)) = Eigen::VectorXd::Zero(this->dim_config_space_);
 
     // The RP recursion (ref. paper)
-    for (int i = int (task_set_dim) - 1; i >= 0; i--) {
+    for (int i = int (task_set_dim) - 2; i >= 0; i--) {
         // Computing the needed variables for recursion
         Eigen::VectorXd x_dot_i = this->task_set_.at(i).get_task_x_dot();
         Eigen::MatrixXd J_i = this->task_set_.at(i).get_task_jacobian();
         Eigen::MatrixXd T_i = this->t_proj_mat_set_.at(i);
         Eigen::MatrixXd pinv_J_i_T_i = (J_i * T_i).completeOrthogonalDecomposition().pseudoInverse();
+
+        // Debug print outs
+        if (DEBUG) {
+            ROS_INFO_STREAM("The quantities for the " << i << "th recursion formula are: ");
+            std::cout << "q_vec.at(i+1): " << q_vec.at(i+1) << std::endl;
+            std::cout << "pinv_J_i_T_i: \n" << pinv_J_i_T_i << std::endl;
+            std::cout << "x_dot_i: \n" << x_dot_i << std::endl;
+            std::cout << "J_i: \n" << J_i << std::endl;
+        }
 
         // Recursive formula
         q_vec.at(i) = q_vec.at(i+1) + pinv_J_i_T_i * (x_dot_i - J_i * q_vec.at(i+1));
@@ -134,16 +147,19 @@ bool reversePriorityManager::compute_T_mats() {
 
     // Resizing the T matrices vector
     auto task_set_dim = this->task_set_.size();
-    this->t_proj_mat_set_.resize(task_set_dim - 1);
+    this->t_proj_mat_set_.resize(task_set_dim);
 
     // Initial step of computation of T matrices
-    auto n_rows = this->task_set_.at(task_set_dim).get_task_jacobian().rows();
-    auto n_cols = this->task_set_.at(task_set_dim).get_task_jacobian().cols();
+    auto n_rows = this->task_set_.at(task_set_dim - 1).get_task_jacobian().rows();
+    auto n_cols = this->task_set_.at(task_set_dim - 1).get_task_jacobian().cols();
 
-    Eigen::MatrixXd J_aug = this->task_set_.at(task_set_dim).get_task_jacobian();   // taking the last jacobian of the task set
+    Eigen::MatrixXd J_aug = this->task_set_.at(task_set_dim - 1).get_task_jacobian();   // taking the last jacobian of the task set
     Eigen::MatrixXd J_aug_pinv = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
     Eigen::MatrixXd T_aux = this->rank_update(J_aug, J_aug_pinv);
     this->t_proj_mat_set_.at(task_set_dim - 1) = T_aux;
+
+    // Auxiliary Matrix for next loop
+    Eigen::MatrixXd J_aux;
 
     // Recursion for the other T matrices
     for (int i = int (task_set_dim) - 2; i >= 0; i--) { // TODO : Test this (I feel this is not correct!)
@@ -154,10 +170,13 @@ bool reversePriorityManager::compute_T_mats() {
         n_rows = Jcurr.rows();
         n_cols = Jcurr.cols();
 
+        // Saving termporarily the old J_aug
+        J_aux = J_aug;
+
         // Append the new task jacobian
-        J_aug.resize(J_aug.rows() + Jcurr.rows(), J_aug.cols());
+        J_aug.resize(J_aux.rows() + Jcurr.rows(), J_aux.cols());
         J_aug.block(0, 0, n_rows, n_cols) = Jcurr;
-        J_aug.block(n_rows, 0, J_aug.rows(), J_aug.cols()) = J_aug;
+        J_aug.block(int (n_rows - 1), 0, J_aux.rows(), J_aux.cols()) = J_aux;
 
         // Temporary variables
         Eigen::MatrixXd Jpinv_tmp;
@@ -169,6 +188,8 @@ bool reversePriorityManager::compute_T_mats() {
 
         this->t_proj_mat_set_.at(i) = Aux_mat;
     }
+
+    return true;
 }
 
 // Private Auxiliary Fuctions
