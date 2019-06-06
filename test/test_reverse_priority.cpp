@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     // Creating the objects
     std::vector<basicTask> task_vec;
     task_vec.clear();
-    reversePriorityManager rp_manager(13, 0.0, 0.01);
+    reversePriorityManager rp_manager(10, 1000, 0.1);
 
     // Temporary variables
     basicTask tmp_task;
