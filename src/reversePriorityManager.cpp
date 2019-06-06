@@ -41,6 +41,11 @@ reversePriorityManager::reversePriorityManager(int dim_config_space, double lamb
     else this->insert_tasks(starting_task_set);
 }
 
+// Destructor
+reversePriorityManager::~reversePriorityManager() {
+    // Nothing to do here for now
+}
+
 // Auxiliary Public Functions
 void reversePriorityManager::insert_tasks(std::vector<basicTask> tasks) {
     // Appending the input task vector to the existing task set
@@ -75,7 +80,8 @@ void reversePriorityManager::print_set() {
     for (std::vector<basicTask>::iterator it = this->task_set_.begin(); it != this->task_set_.end(); ++it) {
         std::cout << "---------------------" << std::endl;
         std::cout << "priority: " << it->get_task_priority() << std::endl;
-        std::cout << "jacobian: " << it->get_task_jacobian() << std::endl;
+        std::cout << "x_dot: \n" << it->get_task_x_dot() << std::endl;
+        std::cout << "jacobian: \n" << it->get_task_jacobian() << std::endl;
     }
     std::cout << "---------------------" << std::endl;
 }
@@ -84,8 +90,11 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
     // Initializing the result vector
     Eigen::VectorXd q_res; q_res.resize(this->dim_config_space_); q_res.setZero();
 
+    // Ordering the task set
+    this->reorder_set();
+
     // Computing all the T matrices
-    if (this->compute_T_mats()) {
+    if (!this->compute_T_mats()) {      // If this fails, return false and solution is zeros
         ROS_ERROR("Could not compute any task! Won't solve anything!");
         q_sol = q_res;
         return false;
