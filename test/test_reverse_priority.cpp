@@ -67,9 +67,6 @@ int main(int argc, char **argv) {
     rp_manager.clear_set();
     rp_manager.insert_tasks(task_vec);
 
-    // Print out of the task set
-    rp_manager.print_set();
-
     // Computing and couting the RP solution
     Eigen::VectorXd x_ref;
     if(rp_manager.solve_inv_kin(x_ref)) ROS_INFO_STREAM("The RP Solution is \n" << x_ref);
