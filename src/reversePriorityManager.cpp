@@ -109,28 +109,28 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 
     // Creating vector of RP recursion and its last element is the initial guess
     std::vector<Eigen::VectorXd> q_vec;
-    q_vec.resize(task_set_dim);
-    q_vec.at(int (task_set_dim - 1)) = Eigen::VectorXd::Zero(this->dim_config_space_);
+    q_vec.resize(task_set_dim + 1);
+    q_vec.at(int (task_set_dim)) = Eigen::VectorXd::Zero(this->dim_config_space_);
 
     // The RP recursion (ref. paper)
-    for (int i = int (task_set_dim) - 2; i >= 0; i--) {
+    for (int i = int (task_set_dim) - 1; i >= 0; i--) {
         // Computing the needed variables for recursion
         Eigen::VectorXd x_dot_i = this->task_set_.at(i).get_task_x_dot();
         Eigen::MatrixXd J_i = this->task_set_.at(i).get_task_jacobian();
         Eigen::MatrixXd T_i = this->t_proj_mat_set_.at(i);
-        Eigen::MatrixXd pinv_J_i_T_i = (J_i * T_i).completeOrthogonalDecomposition().pseudoInverse();
+        Eigen::MatrixXd pinv_J_i_T_i = this->damped_pseudo_inv((J_i*T_i), this->lambda_max_, this->epsilon_);
 
         // Debug print outs
         if (DEBUG) {
             ROS_INFO_STREAM("The quantities for the " << i << "th recursion formula are: ");
-            std::cout << "q_vec.at(i+1): " << q_vec.at(i+1) << std::endl;
+            std::cout << "q_vec.at(" << i+1 << "): \n" << q_vec.at(i+1) << std::endl;
             std::cout << "pinv_J_i_T_i: \n" << pinv_J_i_T_i << std::endl;
             std::cout << "x_dot_i: \n" << x_dot_i << std::endl;
             std::cout << "J_i: \n" << J_i << std::endl;
         }
 
         // Recursive formula
-        q_vec.at(i) = q_vec.at(i+1) + pinv_J_i_T_i * (x_dot_i - J_i * q_vec.at(i+1));
+        q_vec.at(i) = q_vec.at(i+1) + T_i * pinv_J_i_T_i * (x_dot_i - J_i * q_vec.at(i+1));
     }
 
     // Returning the result
@@ -158,6 +158,13 @@ bool reversePriorityManager::compute_T_mats() {
     Eigen::MatrixXd T_aux = this->rank_update(J_aug, J_aug_pinv);
     this->t_proj_mat_set_.at(task_set_dim - 1) = T_aux;
 
+    if (DEBUG) {
+        ROS_INFO_STREAM("The quantities for the " << int (task_set_dim) - 1 << "th T matrix computation are: ");
+        std::cout << "J_aug: \n" << J_aug << std::endl;
+        std::cout << "J_aug_pinv: \n" << J_aug_pinv << std::endl;
+        std::cout << "T_aux: \n" << T_aux << std::endl;
+    }
+
     // Auxiliary Matrix for next loop
     Eigen::MatrixXd J_aux;
 
@@ -176,17 +183,20 @@ bool reversePriorityManager::compute_T_mats() {
         // Append the new task jacobian
         J_aug.resize(J_aux.rows() + Jcurr.rows(), J_aux.cols());
         J_aug.block(0, 0, n_rows, n_cols) = Jcurr;
-        J_aug.block(int (n_rows - 1), 0, J_aux.rows(), J_aux.cols()) = J_aux;
-
-        // Temporary variables
-        Eigen::MatrixXd Jpinv_tmp;
-        Eigen::MatrixXd Aux_mat;
+        J_aug.block(int (n_rows), 0, J_aux.rows(), J_aux.cols()) = J_aux;
 
         // Pseudo inversion and rank update
-        Jpinv_tmp = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
-        Aux_mat = this->rank_update(J_aug, Jpinv_tmp);
+        J_aug_pinv = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
+        T_aux = this->rank_update(Jcurr, J_aug_pinv);
 
-        this->t_proj_mat_set_.at(i) = Aux_mat;
+        if (DEBUG) {
+            ROS_INFO_STREAM("The quantities for the " << i << "th T matrix computation are: ");
+            std::cout << "J_aug: \n" << J_aug << std::endl;
+            std::cout << "J_aug_pinv: \n" << J_aug_pinv << std::endl;
+            std::cout << "T_aux: \n" << T_aux << std::endl;
+        }
+
+        this->t_proj_mat_set_.at(i) = T_aux;
     }
 
     return true;
@@ -238,6 +248,10 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
             Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(T);
             auto rank_t = lu_decomp.rank();
             if (rank_t == i + 1) { // rank changed because new column is lin. indep.
+                if (DEBUG) {
+                    ROS_INFO_STREAM("Inside rank_update a new column has been added: " << i << " rank with " << j << "th column ");
+                    std::cout << "T: \n" << T << std::endl;
+                }
                 i++; break;
             } else { // rank didn't change so removing column
                 T.conservativeResize(T.rows(), T.cols() - 1);
