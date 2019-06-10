@@ -20,21 +20,25 @@ class reversePriorityManager {
 public:
 
     // Default Constructor
+    reversePriorityManager();
+
+    // Overloaded Constructor 1
     reversePriorityManager(int dim_config_space, double lambda_max, double epsilon);
 
-    // Overloaded Constructor
+    // Overloaded Constructor 2
     reversePriorityManager(int dim_config_space, double lambda_max, double epsilon, std::vector<basicTask> starting_task_set);
 
     // Destructor
     ~reversePriorityManager();
 
     // Auxiliary Public Functions
-    bool insert_tasks(std::vector<basicTask> tasks);        // Inserts a given task into the task set
-    void remove_task(int task_priority);                    // Removes a task with a certain priority from the task set
-    void reorder_set();                                     // Reorders the task set from higher to lower priority (1, 2, 3, ...)
-    void clear_set();                                       // Clears the task set
-    void print_set();                                       // Prints to screen the whole task set
-    bool solve_inv_kin(Eigen::VectorXd &q_sol);             // Gives the reverse priority inverse kinematics solution for the task set
+    bool set_basics(int dim_config_space, double lambda_max, double epsilon);         // Sets basic stuff as in overloaded constructor 1
+    bool insert_tasks(std::vector<basicTask> tasks);                                    // Inserts a given task into the task set
+    void remove_task(int task_priority);                                                // Removes a task with a certain priority from the task set
+    void reorder_set();                                                                 // Reorders the task set from higher to lower priority (1, 2, 3, ...)
+    void clear_set();                                                                   // Clears the task set
+    void print_set();                                                                   // Prints to screen the whole task set
+    bool solve_inv_kin(Eigen::VectorXd &q_sol);                                         // Gives the reverse priority inverse kinematics solution for the task set
 
 private:
 

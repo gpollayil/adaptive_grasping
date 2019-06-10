@@ -13,6 +13,11 @@
 using namespace adaptive_grasping;
 
 // Default Constructor
+reversePriorityManager::reversePriorityManager(){
+    // Nothing to do here
+}
+
+// Overloaded Constructor 1
 reversePriorityManager::reversePriorityManager(int dim_config_space, double lambda_max, double epsilon) {
     // Setting the dimension of the configuration space of the tasks and the RP constants
     this->dim_config_space_ = dim_config_space;
@@ -20,7 +25,7 @@ reversePriorityManager::reversePriorityManager(int dim_config_space, double lamb
     this->epsilon_ = epsilon;
 }
 
-// Overloaded Constructor
+// Overloaded Constructor 2
 reversePriorityManager::reversePriorityManager(int dim_config_space, double lambda_max, double epsilon, std::vector<basicTask> starting_task_set) {
     // Setting the dimension of the configuration space of the tasks and the RP constants
     this->dim_config_space_ = dim_config_space;
@@ -37,6 +42,14 @@ reversePriorityManager::~reversePriorityManager() {
 }
 
 // Auxiliary Public Functions
+bool reversePriorityManager::set_basics(int dim_config_space, double lambda_max, double epsilon) {
+    // Setting the dimension of the configuration space of the tasks and the RP constants
+    this->dim_config_space_ = dim_config_space;
+    this->lambda_max_ = lambda_max;
+    this->epsilon_ = epsilon;
+}
+
+
 bool reversePriorityManager::insert_tasks(std::vector<basicTask> tasks) {
     // Checking that all the tasks of the task set have the same configuration space dimensions
     bool tasks_ok = true;
