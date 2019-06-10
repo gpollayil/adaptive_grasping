@@ -57,6 +57,8 @@ int main(int argc, char** argv){
     param_names.push_back("p_vector_2");
     param_names.push_back("x_d_2");
     param_names.push_back("touch_indexes");
+    param_names.push_back("num_tasks");
+    param_names.push_back("dim_tasks");
 
     adaptive_grasper.initialize(param_names);
 

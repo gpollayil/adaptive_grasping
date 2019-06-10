@@ -173,6 +173,8 @@ namespace adaptive_grasping {
     double syn_thresh;                                  // Contains threshold on the synergy joint value for stopping the grasping motion (for Adaptive Grasper)
     bool relax_to_zero = false;                         // Contains bool to decide to set zero ref if relaxation happens
     bool touch_change = false;                          // Contains bool to decide if to change contact selection when touch occurs
+    int num_tasks;                                      // The number of tasks for the RP Manger (Contact Preserver)
+    std::vector<int> dim_tasks;                         // The dimensions of the tasks for the RP Manger (Contact Preserver)
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;

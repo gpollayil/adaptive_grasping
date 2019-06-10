@@ -2,6 +2,7 @@
 #define CONTACT_PRESERVER_H
 
 #include <iostream>
+#include <vector>
 #include <Eigen/Dense>
 
 /**
@@ -33,6 +34,19 @@ namespace adaptive_grasping {
     */
     contactPreserver(Eigen::MatrixXd S_);
 
+    /** OTHER OVERLOADED CONSTRUCTOR
+    * @brief Overloaded constructor for contactPreserver
+    *
+    * @param S_
+    *   the synergy matrix of the hand (if hand fully actuated S = I)
+    * @param num_tasks_
+    *   the number of tasks for RP Mangager
+    * @param dim_tasks_
+    *   the dim of each task for RP Mangager
+    * @return null
+    */
+    contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_);
+
     /** DESTRUCTOR
     * @brief Default destructor for contactPreserver
     *
@@ -53,11 +67,25 @@ namespace adaptive_grasping {
     */
     bool initialize(Eigen::MatrixXd S_);
 
+    /** INITIALIZE
+    * @brief Private function to initialize the object
+    *
+    * @param S_
+    *   the synergy matrix of the hand (if hand fully actuated S = I)
+    * @param num_tasks_
+    *   the number of tasks for RP Mangager
+    * @param dim_tasks_
+    *   the dim of each task for RP Mangager
+    * @return null
+    */
+    bool initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_);
+
     /** CHANGEHANDTYPE
     * @brief Function to eventually change the hand type (set new S)
     *
     * @param S_
     *   the new synergy matrix
+    *
     * @return null
     */
     void changeHandType(Eigen::MatrixXd S_);
@@ -202,6 +230,12 @@ namespace adaptive_grasping {
 
     // Number of contacting fingers
     int num_contacts;
+
+    // Number of tasks for RP Manager
+    int num_tasks;
+
+    // The dimensions of each task for RP Manager (Obviously it must have same no of elements as num_tasks)
+    std::vector<int> dim_tasks;
 
     // Null space basis of Q_tilde
     Eigen::MatrixXd N_tilde;

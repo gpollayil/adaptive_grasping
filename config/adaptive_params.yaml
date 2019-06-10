@@ -79,5 +79,11 @@ adaptive_grasping:
   relax_to_zero: false
   # The bool to decide if to change contact selection when touch occurs
   touch_change: true
+  # The number of tasks for the RP Manger (Contact Preserver)
+  num_tasks: 4
+  # The dimensions of the tasks for the RP Manger (Contact Preserver)
+  # Please remember that the last tasks dimension changes because no of contacts (so, all the exceeding and remaining rows will be included)
+  dim_tasks:
+    - [1, 6, 6, 6]
 
 

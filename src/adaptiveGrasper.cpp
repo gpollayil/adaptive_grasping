@@ -80,6 +80,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->my_contact_state.intialize(this->touch_topic_name, this->link_names_map, this->params_map);
     this->my_matrices_creator.initialize(this->H_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
+    this->my_contact_preserver.initialize_tasks(this->num_tasks, this->dim_tasks);
 
     // Resetting the reference motion to zero
     this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
@@ -124,6 +125,12 @@ void adaptiveGrasper::printParsed(){
     ROS_INFO_STREAM("\nThe max synergy threshold is: \n" << this->syn_thresh << ".");
     ROS_INFO_STREAM("\nThe bool relax_to_zero is: \n" << this->relax_to_zero << ".");
     ROS_INFO_STREAM("\nThe bool touch_change is: \n" << this->touch_change << ".");
+    ROS_INFO_STREAM("\nThe int num_tasks is: \n" << this->num_tasks << ".");
+    ROS_INFO_STREAM("\nThe vector of dim_tasks is:");
+    std::cout << "[ ";
+    for(auto it : this->dim_tasks){
+        std::cout << it << " ";
+    }
 }
 
 /* PRINTCONTACTSINFO */
@@ -193,6 +200,9 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     Eigen::MatrixXd temp_touch_indexes;
     parseParameter(params_xml, temp_touch_indexes, param_names[17]);
     this->touch_indexes = temp_touch_indexes.transpose().col(0);
+
+    parseParameter(params_xml, this->num_tasks, param_names[18]);
+    parseParameter(params_xml, this->dim_tasks, param_names[19]);
 }
 
 /* SETCOMMANDANDSEND */

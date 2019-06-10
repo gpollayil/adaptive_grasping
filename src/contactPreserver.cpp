@@ -29,6 +29,15 @@ contactPreserver::contactPreserver(Eigen::MatrixXd S_){
   initialized = initialize(S_);
 }
 
+/* OTHER OVERLOADED CONSTRUCTOR */
+contactPreserver::contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_){
+  // Initializing the object
+  initialized = initialize(S_);
+
+  // Initializing RP tasks stuff
+  this->initialize_tasks(num_tasks_, dim_tasks_);
+}
+
 /* DESTRUCTOR */
 contactPreserver::~contactPreserver(){
   // Nothing to do
@@ -42,6 +51,13 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
   // Setting temporary values of x_d and x_d_old
   x_d_old = Eigen::VectorXd::Ones(S_.cols() + 6 + 6);
   x_ref_old = Eigen::VectorXd::Zero(x_d_old.size());
+}
+
+/* INITIALIZE */
+bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_){
+  // Set the tasks stuff for RP Manager
+  this->num_tasks = num_tasks_;
+  this->dim_tasks = dim_tasks_;
 }
 
 /* CHANGEHANDTYPE */
