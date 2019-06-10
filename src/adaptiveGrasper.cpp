@@ -80,7 +80,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->my_contact_state.intialize(this->touch_topic_name, this->link_names_map, this->params_map);
     this->my_matrices_creator.initialize(this->H_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
-    this->my_contact_preserver.initialize_tasks(this->num_tasks, this->dim_tasks);
+    this->my_contact_preserver.initialize_tasks(this->num_tasks, this->dim_tasks, this->lambda_max, this->epsilon);
 
     // Resetting the reference motion to zero
     this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
@@ -131,6 +131,8 @@ void adaptiveGrasper::printParsed(){
     for(auto it : this->dim_tasks){
         std::cout << it << " ";
     }
+    ROS_INFO_STREAM("\nThe int lambda_max for RP is: \n" << this->lambda_max << ".");
+    ROS_INFO_STREAM("\nThe int epsilon for RP is: \n" << this->epsilon << ".");
 }
 
 /* PRINTCONTACTSINFO */
@@ -203,6 +205,8 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
 
     parseParameter(params_xml, this->num_tasks, param_names[18]);
     parseParameter(params_xml, this->dim_tasks, param_names[19]);
+    parseParameter(params_xml, this->lambda_max, param_names[20]);
+    parseParameter(params_xml, this->epsilon, param_names[21]);
 }
 
 /* SETCOMMANDANDSEND */
@@ -441,8 +445,13 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
-                // Performing minimization
-                bool no_relaxation = this->my_contact_preserver.performMinimization(this->x_ref);
+                // Performing minimization (from here on check if the RP Changes are OK)
+                bool no_relaxation = true;
+                if (this->num_tasks <= 2) {
+                    no_relaxation = this->my_contact_preserver.performMinimization(this->x_ref);
+                } else {
+                    // Implement performPureRP
+                }
 
                 // Publish the twist for debug
                 if (DEBUG_PUB){

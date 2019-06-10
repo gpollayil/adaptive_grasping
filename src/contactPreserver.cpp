@@ -30,12 +30,12 @@ contactPreserver::contactPreserver(Eigen::MatrixXd S_){
 }
 
 /* OTHER OVERLOADED CONSTRUCTOR */
-contactPreserver::contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_){
+contactPreserver::contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_){
   // Initializing the object
   initialized = initialize(S_);
 
   // Initializing RP tasks stuff
-  this->initialize_tasks(num_tasks_, dim_tasks_);
+  this->initialize_tasks(num_tasks_, dim_tasks_, lambda_max_, epsilon_);
 }
 
 /* DESTRUCTOR */
@@ -54,10 +54,13 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
 }
 
 /* INITIALIZE */
-bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_){
+bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_){
   // Set the tasks stuff for RP Manager
   this->num_tasks = num_tasks_;
   this->dim_tasks = dim_tasks_;
+  this->lambda_max = lambda_max_;
+  this->epsilon = epsilon_;
+  this->rp_manager.set_basics(this->x_d.size(), this->lambda_max, this->epsilon);
 }
 
 /* CHANGEHANDTYPE */
@@ -230,67 +233,37 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
 
   // Check the first condition of algorithm
   if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001) && !all_relaxed){
-    // Compute a basis of the null space of Q_tilde by using LU decomposition
-    if(DEBUG) std::cout << "-- Step 3 --" << std::endl;
-    if(DEBUG) std::cout << "R_bar = " << R_bar << std::endl;
-    if(DEBUG) std::cout << "Q_tilde = " << Q_tilde << std::endl;
-    if(DEBUG) std::cout << "R_bar * Q_tilde = " << R_bar * Q_tilde << std::endl;
+    // Fill in the tasks in the RP Manager (The highest priority task first -> R_bar)
+    Eigen::VectorXd tmp_x_dot = R_bar * y;
+    Eigen::MatrixXd tmp_jacobian = R_bar * Q_tilde;
+    int tmp_priority = 1;
 
-    Eigen::FullPivLU<Eigen::MatrixXd> luN(R_bar * Q_tilde);
-    N_tilde = luN.kernel();
-    ROS_DEBUG_STREAM("N_tilde(Q) = \n" << N_tilde << ".");
+    this->tmp_task.set_task_x_dot(tmp_x_dot);
+    this->tmp_task.set_task_jacobian(tmp_jacobian);
+    this->tmp_task.set_task_priority(tmp_priority);
 
-    if(DEBUG) std::cout << "-- Step 4 --" << std::endl;
+    this->tmp_task_vec.clear();
+    this->tmp_task_vec.push_back(tmp_task);
 
-    if(DEBUG) std::cout << "----------------" << std::endl;
-    if(DEBUG) std::cout << "N_tilde = " << N_tilde << std::endl;
-    if(DEBUG) std::cout << "----------------" << std::endl;
+    // Fill up the lower priority task
+    tmp_x_dot = R * y;
+    tmp_jacobian = R * Q_tilde;
+    tmp_priority = 2;
 
-    // Print message for debug
-    if(DEBUG) std::cout << "Computed N_tilde(Q) in contactPreserver!" << std::endl;
+    this->tmp_task.set_task_x_dot(tmp_x_dot);
+    this->tmp_task.set_task_jacobian(tmp_jacobian);
+    this->tmp_task.set_task_priority(tmp_priority);
 
-    // Updating A_tilde to comply with the dimensions of R
-    updateAMatrix();
+    this->tmp_task_vec.push_back(tmp_task);
 
-    // Computing the solution (formulas in paper)
-    C = N_tilde.transpose() * Q_tilde.transpose() * R.transpose() * A_tilde * R;
-    x_star = pinv_R_bar_Q_tilde * R_bar * y;
+    // Set the RP Manager
+    this->rp_manager.insert_tasks(this->tmp_task_vec);
 
-    // Check invertibility of block expression
-    Eigen::FullPivLU<Eigen::MatrixXd> lu(C * Q_tilde * N_tilde);
-    if(!lu.isInvertible()){
-      if(DEBUG || true) ROS_FATAL_STREAM("Non invertible C * Q_tilde * N_tilde!");
-      if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-      x_ref = x_ref_old;            // Old vector is returned until good solution is found
-      x_result = x_ref;
-      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because Non invertible C * Q_tilde * N_tilde.");
-      return false;
-    }
-
-    // Compute reference
-    x_ref = x_star + N_tilde * (C * Q_tilde * N_tilde).inverse() * C * (y - Q_tilde * x_star);
+    // Compute reference as solution of RP Algorithm
+    if(this->rp_manager.solve_inv_kin(x_ref)) ROS_INFO_STREAM("The RP Solution is \n" << x_ref);
+    else ROS_ERROR("RP Manager could not find solution!");
     
-    // **********************************************************************************************//
-    // JacobiSVD<MatrixXd> svd(C * Q_tilde * N_tilde,  ComputeThinV | ComputeThinU);
-    // Eigen::MatrixXd temp_matriv = svd.singularValues().asDiagonal();
-    // for(int i = 0; i < temp_matriv.rows(); i++)
-    // {
-    //   if (std::abs(temp_matriv(i,i)) > 0.001) temp_matriv(i,i) = 1.0 / temp_matriv(i,i);
-    // }
-    // Eigen::MatrixXd some_inv = (svd.matrixV().transpose() * temp_matriv * svd.matrixU().transpose());
-    // x_ref = x_star + N_tilde * some_inv * C * (y - Q_tilde * x_star);
-    // **********************************************************************************************//
-
-    if(DEBUG) std::cout << "----------------" << std::endl;
-    if(DEBUG) std::cout << "x_star = " << x_star << std::endl;
-    if(DEBUG) std::cout << "N_tilde = " << N_tilde << std::endl;
-    if(DEBUG) std::cout << "(C * Q_tilde * N_tilde) = " << (C * Q_tilde * N_tilde) << std::endl;
-    if(DEBUG) std::cout << "(C * Q_tilde * N_tilde).inverse() = " << (C * Q_tilde * N_tilde).inverse() << std::endl;
-    if(DEBUG) std::cout << "C = " << C << std::endl;
-    if(DEBUG) std::cout << "(y - Q_tilde * x_star) = " << (y - Q_tilde * x_star) << std::endl;
-    if(DEBUG) std::cout << "----------------" << std::endl;
-    
-    // Checking the second condition of algorithm
+    // Checking the second condition of algorithm (norm of sigma)
     if(x_ref.head(S.cols()).norm() < 0.0001){
       /*  If the condition for norm is not valid, relax (increase relaxation_order) 
         Recomputation of the R matrices will be performed by setRMatrix at next iteration 
