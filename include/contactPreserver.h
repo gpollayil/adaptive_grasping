@@ -5,6 +5,8 @@
 #include <vector>
 #include <Eigen/Dense>
 
+#include "reversePriorityManager.h"
+
 /**
 * @brief This class is called by the adaptive_grasping method to compute the
 * contact preserving reference motions.
@@ -43,9 +45,11 @@ namespace adaptive_grasping {
     *   the number of tasks for RP Mangager
     * @param dim_tasks_
     *   the dim of each task for RP Mangager
+    * @param lamda_max_ and epsilon_
+    *   the lamda_max_ and epsilon_ for RP Mangager
     * @return null
     */
-    contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_);
+    contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_);
 
     /** DESTRUCTOR
     * @brief Default destructor for contactPreserver
@@ -76,9 +80,11 @@ namespace adaptive_grasping {
     *   the number of tasks for RP Mangager
     * @param dim_tasks_
     *   the dim of each task for RP Mangager
+    * @param lamda_max_ and epsilon_
+    *   the lamda_max_ and epsilon_ for RP Mangager
     * @return null
     */
-    bool initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_);
+    bool initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_);
 
     /** CHANGEHANDTYPE
     * @brief Function to eventually change the hand type (set new S)
@@ -236,6 +242,21 @@ namespace adaptive_grasping {
 
     // The dimensions of each task for RP Manager (Obviously it must have same no of elements as num_tasks)
     std::vector<int> dim_tasks;
+
+    // The lambda_max for RP Manager
+    double lambda_max;
+
+    // The epsilon for RP Manager
+    double epsilon;
+
+    // A Reverse Priority Manager
+    reversePriorityManager rp_manager;
+
+    // Temporary task for filling up the task vec
+    basicTask tmp_task;
+
+    // Temporary task vector for filling up the rp_manager
+    std::vector<basicTask> tmp_task_vec;
 
     // Null space basis of Q_tilde
     Eigen::MatrixXd N_tilde;
