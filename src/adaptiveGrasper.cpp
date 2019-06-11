@@ -58,6 +58,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     if(this->initialized == false){
         ROS_ERROR_STREAM("adaptiveGrasper::initialize could not find the needed params");
     }
+    ROS_INFO_STREAM("adaptiveGrasper::initialize PARSING ONE BY ONE!");
     this->initialized = this->parseParams(this->adaptive_params, param_names);
 
     // Subscribing to panda softhand safety
@@ -480,16 +481,16 @@ void adaptiveGrasper::spinGrasper(){
 
             // Scaling the reference and sending to the robot commander
             this->x_ref = this->scaling * this->x_ref;
-            if(DEBUG) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
+            if(DEBUG || true) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
 
             if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
-                ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending x_ref!");
+                // ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending x_ref!");
             }
         } else {
             // If the run bool is false publish zero twist and speed
             zero_ref = Eigen::VectorXd::Zero(this->x_ref.size());
             if(!this->setCommandAndSend(zero_ref, this->ref_command)){
-                ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending zeros!");
+                // ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending zeros!");
             }
         }
 

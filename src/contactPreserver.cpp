@@ -250,6 +250,9 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     this->tmp_task_vec.clear();
     this->tmp_task_vec.push_back(tmp_task);
 
+    if (DEBUG) std::cout << "The jacobian of task 1 is \n" << tmp_jacobian << std::endl;
+    if (DEBUG) std::cout << "The x_dot of task 1 is \n" << tmp_x_dot << std::endl;
+
     // Fill up the lower priority task
     tmp_x_dot = R * y;
     tmp_jacobian = R * Q_tilde;
@@ -260,6 +263,9 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     this->tmp_task.set_task_priority(tmp_priority);
 
     this->tmp_task_vec.push_back(tmp_task);
+
+    if (DEBUG) std::cout << "The jacobian of task 2 is \n" << tmp_jacobian << std::endl;
+    if (DEBUG) std::cout << "The x_dot of task 2 is \n" << tmp_x_dot << std::endl;
 
     // Set the RP Manager
     this->rp_manager.insert_tasks(this->tmp_task_vec);
