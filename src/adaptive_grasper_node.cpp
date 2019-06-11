@@ -59,6 +59,9 @@ int main(int argc, char** argv){
     param_names.push_back("touch_indexes");
     param_names.push_back("num_tasks");
     param_names.push_back("dim_tasks");
+    param_names.push_back("prio_tasks");
+    param_names.push_back("lambda_max");
+    param_names.push_back("epsilon");
 
     adaptive_grasper.initialize(param_names);
 

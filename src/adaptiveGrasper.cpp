@@ -80,7 +80,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->my_contact_state.intialize(this->touch_topic_name, this->link_names_map, this->params_map);
     this->my_matrices_creator.initialize(this->H_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
-    this->my_contact_preserver.initialize_tasks(this->num_tasks, this->dim_tasks, this->lambda_max, this->epsilon);
+    this->my_contact_preserver.initialize_tasks(this->num_tasks, this->dim_tasks, this->prio_tasks, this->lambda_max, this->epsilon);
 
     // Resetting the reference motion to zero
     this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
@@ -129,6 +129,11 @@ void adaptiveGrasper::printParsed(){
     ROS_INFO_STREAM("\nThe vector of dim_tasks is:");
     std::cout << "[ ";
     for(auto it : this->dim_tasks){
+        std::cout << it << " ";
+    }
+    ROS_INFO_STREAM("\nThe vector of prio_tasks is:");
+    std::cout << "[ ";
+    for(auto it : this->prio_tasks){
         std::cout << it << " ";
     }
     ROS_INFO_STREAM("\nThe int lambda_max for RP is: \n" << this->lambda_max << ".");
@@ -205,8 +210,9 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
 
     parseParameter(params_xml, this->num_tasks, param_names[18]);
     parseParameter(params_xml, this->dim_tasks, param_names[19]);
-    parseParameter(params_xml, this->lambda_max, param_names[20]);
-    parseParameter(params_xml, this->epsilon, param_names[21]);
+    parseParameter(params_xml, this->prio_tasks, param_names[20]);
+    parseParameter(params_xml, this->lambda_max, param_names[21]);
+    parseParameter(params_xml, this->epsilon, param_names[22]);
 }
 
 /* SETCOMMANDANDSEND */

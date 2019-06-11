@@ -30,12 +30,12 @@ contactPreserver::contactPreserver(Eigen::MatrixXd S_){
 }
 
 /* OTHER OVERLOADED CONSTRUCTOR */
-contactPreserver::contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_){
+contactPreserver::contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_, double lambda_max_, double epsilon_){
   // Initializing the object
   initialized = initialize(S_);
 
   // Initializing RP tasks stuff
-  this->initialize_tasks(num_tasks_, dim_tasks_, lambda_max_, epsilon_);
+  this->initialize_tasks(num_tasks_, dim_tasks_, prio_tasks_, lambda_max_, epsilon_);
 }
 
 /* DESTRUCTOR */
@@ -54,10 +54,11 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
 }
 
 /* INITIALIZE */
-bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_){
+bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_, double lambda_max_, double epsilon_){
   // Set the tasks stuff for RP Manager
   this->num_tasks = num_tasks_;
   this->dim_tasks = dim_tasks_;
+  this->prio_tasks = prio_tasks_;
   this->lambda_max = lambda_max_;
   this->epsilon = epsilon_;
   this->rp_manager.set_basics(this->x_d.size(), this->lambda_max, this->epsilon);
@@ -297,6 +298,21 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   x_result = x_ref;
   if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
   return true;
+}
+
+/* PERFORMSIMPLERP */
+bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
+    // Preparing to fill in the tasks in the RP Manager
+    Eigen::VectorXd tmp_x_dot;
+    Eigen::MatrixXd tmp_jacobian;
+    int tmp_priority = 1;
+
+    this->tmp_task.set_task_x_dot(tmp_x_dot);
+    this->tmp_task.set_task_jacobian(tmp_jacobian);
+    this->tmp_task.set_task_priority(tmp_priority);
+
+    this->tmp_task_vec.clear();
+    this->tmp_task_vec.push_back(tmp_task);
 }
 
 /* PRINTALL */

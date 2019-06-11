@@ -49,7 +49,7 @@ namespace adaptive_grasping {
     *   the lamda_max_ and epsilon_ for RP Mangager
     * @return null
     */
-    contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_);
+    contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_, double lambda_max_, double epsilon_);
 
     /** DESTRUCTOR
     * @brief Default destructor for contactPreserver
@@ -84,7 +84,7 @@ namespace adaptive_grasping {
     *   the lamda_max_ and epsilon_ for RP Mangager
     * @return null
     */
-    bool initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, double lambda_max_, double epsilon_);
+    bool initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_, double lambda_max_, double epsilon_);
 
     /** CHANGEHANDTYPE
     * @brief Function to eventually change the hand type (set new S)
@@ -156,6 +156,15 @@ namespace adaptive_grasping {
     * @return bool success if no relaxation happens and nothing goes wrong
     */
     bool performMinimization(Eigen::VectorXd& x_result);
+
+    /** PERFORMSIMPLERP
+    * @brief Function to perform a simple reverse priority with task (num_tasks and dim_tasks)
+    *
+    * @param x_result
+    *   the resulting motion that preserves contacts
+    * @return bool success if the found result is a valid one
+    */
+    bool performSimpleRP(Eigen::VectorXd& x_result);
 
     /** PRINTALL
     * @brief Function to print out to console all relevant variables
@@ -242,6 +251,9 @@ namespace adaptive_grasping {
 
     // The dimensions of each task for RP Manager (Obviously it must have same no of elements as num_tasks)
     std::vector<int> dim_tasks;
+
+    // The priority of the above defined tasks
+    std::vector<int> prio_tasks;
 
     // The lambda_max for RP Manager
     double lambda_max;

@@ -175,8 +175,9 @@ namespace adaptive_grasping {
     bool touch_change = false;                          // Contains bool to decide if to change contact selection when touch occurs
     int num_tasks;                                      // The number of tasks for the RP Manger (Contact Preserver)
     std::vector<int> dim_tasks;                         // The dimensions of the tasks for the RP Manger (Contact Preserver)
-    double lambda_max;                                  // The lambda max for the pseudo inversion in RP Manager
-    double epsilon;                                     // The epsilon for the diagonal loading in singular value decomposition in RP Manager
+    std::vector<int> prio_tasks;                        // The priority of the above defined tasks (Contact Preserver)
+    double lambda_max;                                  // The lambda max for the pseudo inversion in RP Manager (Contact Preserver)
+    double epsilon;                                     // The epsilon for the diagonal loading in singular value decomposition in RP Manager (Contact Preserver)
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
