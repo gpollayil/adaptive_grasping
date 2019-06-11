@@ -1,6 +1,7 @@
 #include "contactPreserver.h"
 #include "ros/ros.h"
 #include "utils/pseudo_inversion.h"
+#include <numeric>      // std::partial_sum
 
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "contact_preserver"
@@ -145,6 +146,9 @@ void contactPreserver::updateAMatrix(){
 
 /* PERFORMMINIMIZATION */
 bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
+  // Print message for debug
+  if(DEBUG) std::cout << "Entered performMinimization in ContactPreserver!" << std::endl;
+
   // Resize Q to be of correct size
   Q.resize(H.rows(), x_d.size());
 
@@ -302,17 +306,92 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
 
 /* PERFORMSIMPLERP */
 bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
+    // Print message for debug
+    if(DEBUG) std::cout << "Entered performSimpleRP in ContactPreserver!" << std::endl;
+
+    // Resize Q to be of correct size
+    Q.resize(H.rows(), x_d.size());
+
+    // Print message for debug
+    if(DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
+
+    // Now create the block matrix
+    Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
+    Q << H*J*S, H*T, NullMatrix-H*G.transpose();
+
+    // For debugging purpouses (real line is above)
+    if(N_DEBUG){
+      Eigen::FullPivLU<Eigen::MatrixXd> luN_debug(Q);
+      Eigen::MatrixXd N_debug = luN_debug.kernel();
+      x_result = N_debug.col(0);
+      return true;
+    }
+
+    // Print message for debug
+    if(DEBUG) std::cout << "Computed Q in contactPreserver!" << std::endl;
+
+    // Now create Q_tilde by appending Q under Identity matrix
+    Q_tilde.resize(x_d.size() + H.rows(), x_d.size());
+    Q_tilde << Eigen::MatrixXd::Identity(x_d.size(), x_d.size()), Q;
+
+    // Print message for debug
+    if(DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
+
+    // Compute vector y
+    y.resize(x_d.size() + H.rows());
+    y << x_d, Eigen::VectorXd::Zero(H.rows());
+
     // Preparing to fill in the tasks in the RP Manager
     Eigen::VectorXd tmp_x_dot;
     Eigen::MatrixXd tmp_jacobian;
-    int tmp_priority = 1;
+    int tmp_priority;
+    int row_index;
 
-    this->tmp_task.set_task_x_dot(tmp_x_dot);
-    this->tmp_task.set_task_jacobian(tmp_jacobian);
-    this->tmp_task.set_task_priority(tmp_priority);
+    int index = 0;
+    this->tmp_task_vec.clear();     // Clearing the vector of tasks
 
-    this->tmp_task_vec.clear();
-    this->tmp_task_vec.push_back(tmp_task);
+    for (int i = 0; i < this->num_tasks; i++) {
+        // Fill up the ith task
+        if (i == 0) { // if the first task
+            tmp_x_dot = y.block(0, 0, this->dim_tasks[i], y.cols());
+            tmp_jacobian = Q_tilde.block(0, 0, this->dim_tasks[i], Q_tilde.cols());
+            tmp_priority = this->prio_tasks[i];
+        } else if (i != this->num_tasks - 1) { // if not the first nor the last task
+            // The row index is the sum of the previous dimensions
+            row_index = 0;
+            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(i);
+            tmp_x_dot = y.block(row_index, 0, this->dim_tasks[i], y.cols());
+            tmp_jacobian = Q_tilde.block(row_index, 0, this->dim_tasks[i], Q_tilde.cols());
+            tmp_priority = this->prio_tasks[i];
+        } else { // if last task, take all the remaining rows
+            // The row index is the sum of the previous dimensions
+            row_index = 0;
+            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(i);
+            tmp_x_dot = y.block(row_index, 0, y.rows() - row_index, y.cols());
+            tmp_jacobian = Q_tilde.block(row_index, 0, Q_tilde.rows() - row_index, Q_tilde.cols());
+            tmp_priority = this->prio_tasks[i];
+        }
+
+        // Push in tmp variables
+        this->tmp_task.set_task_x_dot(tmp_x_dot);
+        this->tmp_task.set_task_jacobian(tmp_jacobian);
+        this->tmp_task.set_task_priority(tmp_priority);
+        this->tmp_task_vec.push_back(tmp_task);
+    }
+
+    // Pushing into RP Mangager and printing out
+    this->rp_manager.insert_tasks(this->tmp_task_vec);
+    this->rp_manager.print_set();
+
+    // Compute reference as solution of RP Algorithm
+    if(this->rp_manager.solve_inv_kin(x_ref)) {
+        ROS_INFO_STREAM("The RP Solution is \n" << x_ref);
+        return true;
+    } else {
+        ROS_ERROR("RP Manager could not find solution!");
+        return false;
+    }
+
 }
 
 /* PRINTALL */

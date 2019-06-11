@@ -456,7 +456,7 @@ void adaptiveGrasper::spinGrasper(){
                 if (this->num_tasks <= 2) {
                     no_relaxation = this->my_contact_preserver.performMinimization(this->x_ref);
                 } else {
-                    // Implement performPureRP
+                    no_relaxation = this->my_contact_preserver.performSimpleRP(this->x_ref);
                 }
 
                 // Publish the twist for debug
