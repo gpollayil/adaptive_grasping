@@ -229,6 +229,7 @@ Eigen::MatrixXd reversePriorityManager::damped_pseudo_inv(Eigen::MatrixXd input_
     double min_sing_val = sing_vals(sing_vals.size() - 1);
     if (min_sing_val < epsilon) {
         lambda_sq = (1 - pow((min_sing_val / epsilon), 2)) * pow(damping_coeff, 2);
+        ROS_WARN("Damping the pseudo inverse!!!");
     }
 
     // Changing the diagonal sv matrix

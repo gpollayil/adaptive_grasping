@@ -72,7 +72,7 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     }
     
     // Debug message
-    if(DEBUG || true) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
+    if(DEBUG) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
         << "\n" << this->x_ref << ".");
 
     // Checking if the reference contains NaNs
