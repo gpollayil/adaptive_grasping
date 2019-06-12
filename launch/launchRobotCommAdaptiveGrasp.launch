@@ -20,8 +20,8 @@ The needed nodes and params for launching the Adaptive Grasping
 	</node>
 
     <!-- RUNNING THE ROBOT COMMANDER NODE -->
-	<!-- <node name="adaptive_grasping_robotCommander_node" pkg="adaptive_grasping" type="adaptive_grasping_robotCommander" respawn="false" output="screen">
-	</node> -->
+	<node name="adaptive_grasping_robotCommander_node" pkg="adaptive_grasping" type="adaptive_grasping_robotCommander" respawn="false" output="screen">
+	</node>
 
     <!-- RUNNING THE ADAPTIVEGRASPER AND FULLGRASPER NODES -->
 	<node name="adaptive_grasping_node" pkg="adaptive_grasping" type="adaptive_grasping_ag_node" respawn="false" output="screen">
