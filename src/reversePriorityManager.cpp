@@ -3,7 +3,7 @@
 // ROS Includes
 #include <ros/ros.h>
 
-#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
 
 /**
 * @brief The following are functions of the class reversePriorityManager.
@@ -47,6 +47,8 @@ bool reversePriorityManager::set_basics(int dim_config_space, double lambda_max,
     this->dim_config_space_ = dim_config_space;
     this->lambda_max_ = lambda_max;
     this->epsilon_ = epsilon;
+
+    ROS_INFO_STREAM("This RP Manager has dim_config_space_ " << this->dim_config_space_ << " lambda_max_ " << this->lambda_max_ << " epsilon " << this->epsilon_ << ".");
 }
 
 
@@ -56,7 +58,8 @@ bool reversePriorityManager::insert_tasks(std::vector<basicTask> tasks) {
     for (std::vector<basicTask>::iterator it = tasks.begin(); it != tasks.end(); ++it) {
         if (it->get_task_jacobian().cols() != this->dim_config_space_) {
             ROS_ERROR_STREAM("The " << it - tasks.begin() <<
-                             "th task has a number of columns != configuration space dimension! This won't work anymore!");
+                             "th task has a number of columns (" << it->get_task_jacobian().cols() << 
+                             ") != configuration space dimension (" << this->dim_config_space_ << ")! This won't work anymore!");
             tasks_ok = false;
         }
     }

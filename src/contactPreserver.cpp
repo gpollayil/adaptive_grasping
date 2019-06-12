@@ -50,7 +50,8 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
   changeHandType(S_);
 
   // Setting temporary values of x_d and x_d_old
-  x_d_old = Eigen::VectorXd::Ones(S_.cols() + 6 + 6);
+  x_d_old = Eigen::VectorXd::Ones(1 + 6 + 6);
+  ROS_WARN_STREAM("The number of rows of x_d_old is " << this->x_d_old.rows());
   x_ref_old = Eigen::VectorXd::Zero(x_d_old.size());
 }
 
@@ -62,7 +63,7 @@ bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tas
   this->prio_tasks = prio_tasks_;
   this->lambda_max = lambda_max_;
   this->epsilon = epsilon_;
-  this->rp_manager.set_basics(this->x_d.size(), this->lambda_max, this->epsilon);
+  this->rp_manager.set_basics(this->x_d_old.rows(), this->lambda_max, this->epsilon);
 }
 
 /* CHANGEHANDTYPE */
@@ -250,8 +251,8 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     this->tmp_task_vec.clear();
     this->tmp_task_vec.push_back(tmp_task);
 
-    if (DEBUG) std::cout << "The jacobian of task 1 is \n" << tmp_jacobian << std::endl;
-    if (DEBUG) std::cout << "The x_dot of task 1 is \n" << tmp_x_dot << std::endl;
+    if (DEBUG || true) std::cout << "The jacobian of task 1 is \n" << tmp_jacobian << std::endl;
+    if (DEBUG || true) std::cout << "The x_dot of task 1 is \n" << tmp_x_dot << std::endl;
 
     // Fill up the lower priority task
     tmp_x_dot = R * y;
@@ -264,8 +265,8 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
 
     this->tmp_task_vec.push_back(tmp_task);
 
-    if (DEBUG) std::cout << "The jacobian of task 2 is \n" << tmp_jacobian << std::endl;
-    if (DEBUG) std::cout << "The x_dot of task 2 is \n" << tmp_x_dot << std::endl;
+    if (DEBUG || true) std::cout << "The jacobian of task 2 is \n" << tmp_jacobian << std::endl;
+    if (DEBUG || true) std::cout << "The x_dot of task 2 is \n" << tmp_x_dot << std::endl;
 
     // Set the RP Manager
     this->rp_manager.insert_tasks(this->tmp_task_vec);
@@ -355,24 +356,21 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
 
     int index = 0;
     this->tmp_task_vec.clear();     // Clearing the vector of tasks
+    this->rp_manager.clear_set();   // Clearing the rp set
 
     for (int i = 0; i < this->num_tasks; i++) {
         // Fill up the ith task
-        if (i == 0) { // if the first task
-            tmp_x_dot = y.block(0, 0, this->dim_tasks[i], y.cols());
-            tmp_jacobian = Q_tilde.block(0, 0, this->dim_tasks[i], Q_tilde.cols());
-            tmp_priority = this->prio_tasks[i];
-        } else if (i != this->num_tasks - 1) { // if not the first nor the last task
+        if (i < this->num_tasks - 1) { // if not the last task
             // The row index is the sum of the previous dimensions
             row_index = 0;
-            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(i);
+            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(k);
             tmp_x_dot = y.block(row_index, 0, this->dim_tasks[i], y.cols());
             tmp_jacobian = Q_tilde.block(row_index, 0, this->dim_tasks[i], Q_tilde.cols());
             tmp_priority = this->prio_tasks[i];
         } else { // if last task, take all the remaining rows
             // The row index is the sum of the previous dimensions
             row_index = 0;
-            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(i);
+            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(k);
             tmp_x_dot = y.block(row_index, 0, y.rows() - row_index, y.cols());
             tmp_jacobian = Q_tilde.block(row_index, 0, Q_tilde.rows() - row_index, Q_tilde.cols());
             tmp_priority = this->prio_tasks[i];
@@ -392,9 +390,13 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     // Compute reference as solution of RP Algorithm
     if(this->rp_manager.solve_inv_kin(x_ref)) {
         ROS_INFO_STREAM("The RP Solution is \n" << x_ref);
+        x_ref_old = x_ref;
+        x_result = x_ref;
+        if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
         return true;
     } else {
         ROS_ERROR("RP Manager could not find solution!");
+        x_result = x_ref_old;
         return false;
     }
 
