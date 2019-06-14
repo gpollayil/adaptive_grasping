@@ -61,6 +61,12 @@ bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tas
   this->num_tasks = num_tasks_;
   this->dim_tasks = dim_tasks_;
   this->prio_tasks = prio_tasks_;
+
+  // Double checking for consistency of previous vectors
+  if (this->dim_tasks.size() <= this->num_tasks || this->prio_tasks.size() <= this->num_tasks ||
+    this->dim_tasks.size() != this->prio_tasks.size()) {
+  	ROS_ERROR("Attention!!! There is some incongurency between num_tasks, dim_tasks and prio_tasks... This won't work anymore!");
+  }
   this->lambda_max = lambda_max_;
   this->epsilon = epsilon_;
   this->rp_manager.set_basics(this->x_d_old.rows(), this->lambda_max, this->epsilon);
@@ -354,27 +360,18 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     int tmp_priority;
     int row_index;
 
-    int index = 0;
     this->tmp_task_vec.clear();     // Clearing the vector of tasks
     this->rp_manager.clear_set();   // Clearing the rp set
+    int dim_reached = 0;            // Temporary sum of dimension for understanding if the contacts part has been reached
 
-    for (int i = 0; i < this->num_tasks; i++) {
-        // Fill up the ith task
-        if (i < this->num_tasks - 1) { // if not the last task
-            // The row index is the sum of the previous dimensions
-            row_index = 0;
-            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(k);
-            tmp_x_dot = y.block(row_index, 0, this->dim_tasks[i], y.cols());
-            tmp_jacobian = Q_tilde.block(row_index, 0, this->dim_tasks[i], Q_tilde.cols());
-            tmp_priority = this->prio_tasks[i];
-        } else { // if last task, take all the remaining rows
-            // The row index is the sum of the previous dimensions
-            row_index = 0;
-            for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(k);
-            tmp_x_dot = y.block(row_index, 0, y.rows() - row_index, y.cols());
-            tmp_jacobian = Q_tilde.block(row_index, 0, Q_tilde.rows() - row_index, Q_tilde.cols());
-            tmp_priority = this->prio_tasks[i];
-        }
+    for (int i = 0; i < this->num_tasks; i++) { // Filling in the tasks except the contact ones
+    	// The row index is the sum of the previous dimensions
+    	row_index = 0;
+    	for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(k);
+    	tmp_x_dot = y.block(row_index, 0, this->dim_tasks[i], y.cols());
+    	tmp_jacobian = Q_tilde.block(row_index, 0, this->dim_tasks[i], Q_tilde.cols());
+    	tmp_priority = this->prio_tasks[i];
+    	dim_reached += row_index;
 
         // Push in tmp variables
         this->tmp_task.set_task_x_dot(tmp_x_dot);
@@ -383,7 +380,24 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
         this->tmp_task_vec.push_back(tmp_task);
     }
 
-    // Pushing into RP Mangager and printing out
+    for (int i = 0; i < this->num_contacts; i++) { // Filling in the tasks regarding the contacts
+    	// Iterating and pushing back the tasks in which the contacts part is divided
+    	for (int j = this->num_tasks; j < this->dim_tasks.size(); j++) {
+		    // The row index is the sum of the previous dimensions
+		    tmp_x_dot = y.block(dim_reached, 0, this->dim_tasks[j], y.cols());
+		    tmp_jacobian = Q_tilde.block(dim_reached, 0, this->dim_tasks[j], Q_tilde.cols());
+		    tmp_priority = this->prio_tasks[j];
+		    dim_reached += this->dim_tasks[j];
+
+		    // Push in tmp variables
+		    this->tmp_task.set_task_x_dot(tmp_x_dot);
+		    this->tmp_task.set_task_jacobian(tmp_jacobian);
+		    this->tmp_task.set_task_priority(tmp_priority);
+		    this->tmp_task_vec.push_back(tmp_task);
+	    }
+    }
+
+    // Pushing into RP Manager and printing out
     this->rp_manager.insert_tasks(this->tmp_task_vec);
     this->rp_manager.print_set();
 
