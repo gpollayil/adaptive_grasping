@@ -9,7 +9,7 @@
 
 // The bool for keeping the constraints relaxed (if true... otherwise relaxation order is reset)
 // TODO : parse this bool from adaptive_params.yaml
-const bool keep_relaxed = true;
+const bool keep_relaxed = false;
 
 /**
 * @brief The following are functions of the class contactPreserver.
