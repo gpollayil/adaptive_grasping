@@ -257,8 +257,8 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
 
     // The rank update procedure (ref Matlab implementation)
     int i = 1; int j = 1;
-    ROS_INFO_STREAM("The first while stops at " << rank_j - 1 << "th iteration.");
-    ROS_INFO_STREAM("The second while stops at " << dim_jra - 1 << "th iteration.");
+    ROS_INFO_STREAM("The first while stops at " << rank_j << "th iteration.");
+    ROS_INFO_STREAM("The second while stops at " << dim_jra << "th iteration.");
     while (i <= rank_j - 1) {
         ROS_INFO_STREAM("This is the " << i << "th iteration of the first while.");
         while (j <= dim_jra - 1) {
@@ -283,7 +283,7 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
                 ROS_INFO("conservativeResize");
             }
         }
-        // TODO : Debug here!!! If j (second loop) reaches dim_jra - 1 and never breaks (so the rank of T does not increase),
+        // TODO : Debug here!!! If j (second loop) reaches dim_jra and never breaks (so the rank of T does not increase),
         // the code will block inside first loop (i)
     }
 
