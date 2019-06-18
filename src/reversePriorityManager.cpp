@@ -286,7 +286,10 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
         // TODO : Debug here!!! If j (second loop) reaches dim_jra and never breaks (so the rank of T does not increase),
         // the code will block inside first loop (i)
         // Break if this loop becomes a trap (Don't know if this is the correct approach)
-        if (!(j <= dim_jra - 1)) break;
+        if (!(j <= dim_jra - 1)) {
+            ROS_ERROR("I had to exit this loop because it was a trap!");
+            break;
+        }
     }
 
     // Checking for bounty of result
