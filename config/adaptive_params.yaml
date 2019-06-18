@@ -87,8 +87,8 @@ adaptive_grasping:
   # The priority of the above defined tasks (The last ones from the num_task_th element are the ones on touch)
   prio_tasks: [1, 6, 7, 4, 5, 2, 3]  # PLEASE DOUBLE CHECK THIS SO THAT IT COMPLIES WITH dim_tasks
   # The lambda max for the pseudo inversion in RP Manager
-  lambda_max: 0.01
+  lambda_max: 0.00001
   # The epsilon for the diagonal loading in singular value decomposition in RP Manager
-  epsilon: 0.0001
+  epsilon: 0.00001
 
 
