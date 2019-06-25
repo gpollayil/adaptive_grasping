@@ -3,7 +3,8 @@
 // ROS Includes
 #include <ros/ros.h>
 
-#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
+#define BRUTAL_T        1           // If 1 the T matrices are computed without the rank_update by extracting the block
 
 /**
 * @brief The following are functions of the class reversePriorityManager.
@@ -247,6 +248,12 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
     Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(J);
     auto rank_j = lu_decomp.rank();
     auto dim_jra = Jra_pinv.cols();
+    auto dim_j = J.cols();
+
+    if (BRUTAL_T) {
+    	ROS_WARN("I am brutally extracting T matrix from pseudo inverse of J!");
+    	return Jra_pinv.block(0, 0, this->dim_config_space_, dim_j);
+    }
 
     // At first T is the first column of Jra_pinv
     Eigen::MatrixXd T; T.resize(Jra_pinv.rows(), 1);
