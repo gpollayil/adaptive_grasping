@@ -90,8 +90,9 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->marker_pub = ag_nh.advertise<visualization_msgs::Marker>("object_marker", 1);
     this->obj_marker.header.frame_id = "/world";
 
-    // Setting up the publisher for twist
+    // Setting up the publisher for twist and error
     this->pub_twist_debug = this->ag_nh.advertise<geometry_msgs::WrenchStamped>("/x_ref_debug" , 1);
+    this->pub_error_tracking = this->ag_nh.advertise<std_msgs::Float64>("/x_ref_error" , 1);
 
     ROS_INFO_STREAM("adaptiveGrasper::initialize FINISHED BUILDING THE OBJECTS!");
 }
@@ -368,6 +369,9 @@ void adaptiveGrasper::spinGrasper(){
 
     // (TODO: might need to start an AsyncSpinner here.)
 
+    // Creating tracking error message to be published
+    std_msgs::Float64 track_error;
+
     // Starting the ROS loop
     while(ros::ok()){
         // Spinning once to process callbacks
@@ -486,6 +490,10 @@ void adaptiveGrasper::spinGrasper(){
             if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
                 // ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending x_ref!");
             }
+
+            // Publishing the tracking error
+            track_error.data = (this->x_ref - this->x_d).norm();
+            this->pub_error_tracking.publish(track_error);
         } else {
             // If the run bool is false publish zero twist and speed
             zero_ref = Eigen::VectorXd::Zero(this->x_ref.size());

@@ -9,6 +9,7 @@
 #include "contactPreserver.h"
 
 // Msgs Includes
+#include "std_msgs/Float64.h"
 #include <geometry_msgs/WrenchStamped.h>
 
 // Service Includes
@@ -129,6 +130,7 @@ namespace adaptive_grasping {
     ros::Subscriber op_sub;                               // Subscriber to object pose
     ros::Publisher marker_pub;                            // Publisher for object marker to RViz
     ros::Publisher pub_twist_debug;                       // To visualize the twist in rqt_plot
+    ros::Publisher pub_error_tracking;                    // To save tracking error
     ros::ServiceClient client_rc;                         // Service client to robot commander
     ros::ServiceServer server_ag;                         // Service server for adaptive grasper
     ros::ServiceClient end_client;                        // Service client to signal that adaptive grasping ended
