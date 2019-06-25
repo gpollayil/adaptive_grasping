@@ -81,7 +81,7 @@ adaptive_grasping:
   # The bool to decide if to change contact selection when touch occurs
   touch_change: true
   # The number of tasks for the RP Manger (Excluding contact tasks) (Contact Preserver) if num_tasks == 2 -> basic two tasks relaxation RP
-  num_tasks: 5
+  num_tasks: 2
   # The dimensions of the tasks for the RP Manger (Contact Preserver) (The last ones from the num_task_th element are the ones on touch)
   dim_tasks: [1, 3, 3, 3, 3, 3, 3]  # PLEASE DOUBLE CHECK THIS SO THAT IT COMPLIES WITH prio_tasks
   # The priority of the above defined tasks (The last ones from the num_task_th element are the ones on touch)

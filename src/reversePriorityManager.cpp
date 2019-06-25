@@ -4,7 +4,7 @@
 #include <ros/ros.h>
 
 #define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
-#define BRUTAL_T        1           // If 1 the T matrices are computed without the rank_update by extracting the block
+#define BRUTAL_T        0           // If 1 the T matrices are computed without the rank_update by extracting the block
 
 /**
 * @brief The following are functions of the class reversePriorityManager.
