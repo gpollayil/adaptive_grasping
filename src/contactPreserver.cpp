@@ -354,6 +354,12 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     y.resize(x_d.size() + H.rows());
     y << x_d, Eigen::VectorXd::Zero(H.rows());
 
+    // DEBUG PRINTS
+    if(DEBUG || true) std::cout << "----------------" << std::endl;
+    if(DEBUG || true) std::cout << "Q_tilde = " << Q_tilde << std::endl;
+    if(DEBUG || true) std::cout << "y = " << y << std::endl;
+    if(DEBUG || true) std::cout << "----------------" << std::endl;
+
     // Preparing to fill in the tasks in the RP Manager
     Eigen::VectorXd tmp_x_dot;
     Eigen::MatrixXd tmp_jacobian;
@@ -371,7 +377,7 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     	tmp_x_dot = y.block(row_index, 0, this->dim_tasks[i], y.cols());
     	tmp_jacobian = Q_tilde.block(row_index, 0, this->dim_tasks[i], Q_tilde.cols());
     	tmp_priority = this->prio_tasks[i];
-    	dim_reached += row_index;
+    	dim_reached += this->dim_tasks[i];
 
         // Push in tmp variables
         this->tmp_task.set_task_x_dot(tmp_x_dot);
