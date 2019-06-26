@@ -5,7 +5,7 @@
 <launch>
     
     <!-- LAUNCH ARGUMENTS -->
-    <arg name="topics" default="/x_ref_error"/>
+    <arg name="topics" default="/x_ref_error /right_hand/velocity_controller/command/ /panda_arm/cartesian_velocity_controller/command/ /x_ref_object_debug"/>
     <arg name="path" default="/home/george/Desktop/Adaptive_Bags/"/>
 
     <!-- START LAUNCH -->
