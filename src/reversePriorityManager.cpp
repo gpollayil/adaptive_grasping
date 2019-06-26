@@ -245,7 +245,7 @@ Eigen::MatrixXd reversePriorityManager::damped_pseudo_inv(Eigen::MatrixXd input_
 
 Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::MatrixXd Jra_pinv) {
 
-    ROS_INFO("Entered RANK UPDATE!!!");
+    if (DEBUG) ROS_INFO("Entered RANK UPDATE!!!");
 
     // Getting the rank of J and the number of columns of Jra_pinv
     Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(J);
@@ -264,12 +264,12 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
 
     // The rank update procedure (ref Matlab implementation)
     int i = 1; int j = 1;
-    ROS_INFO_STREAM("The first while stops at " << rank_j << "th iteration.");
-    ROS_INFO_STREAM("The second while stops at " << dim_jra << "th iteration.");
+    if (DEBUG) ROS_INFO_STREAM("The first while stops at " << rank_j << "th iteration.");
+    if (DEBUG) ROS_INFO_STREAM("The second while stops at " << dim_jra << "th iteration.");
     while (i <= rank_j - 1) {
-        ROS_INFO_STREAM("This is the " << i << "th iteration of the first while.");
+        if (DEBUG)ROS_INFO_STREAM("This is the " << i << "th iteration of the first while.");
         while (j <= dim_jra - 1) {
-            ROS_INFO_STREAM("This is the " << j << "th iteration of the second while.");
+            if (DEBUG) ROS_INFO_STREAM("This is the " << j << "th iteration of the second while.");
             // Adding the ith column to T
             T.conservativeResize(T.rows(), T.cols() + 1);
             T.col(T.cols() - 1) = Jra_pinv.col(j);
@@ -280,14 +280,14 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
             auto rank_t = lu_decomp.rank();
             if (rank_t == i + 1) { // rank changed because new column is lin. indep.
                 if (DEBUG) {
-                    ROS_INFO_STREAM("Inside rank_update a new column has been added: " << i << " rank with " << j << "th column ");
+                    if (DEBUG) ROS_INFO_STREAM("Inside rank_update a new column has been added: " << i << " rank with " << j << "th column ");
                     std::cout << "T: \n" << T << std::endl;
                 }
-                ROS_INFO("Breaking");
+                if (DEBUG) ROS_INFO("Breaking");
                 i++; break;
             } else { // rank didn't change so removing column
                 T.conservativeResize(T.rows(), T.cols() - 1);
-                ROS_INFO("conservativeResize");
+                if (DEBUG) ROS_INFO("conservativeResize");
             }
         }
         // TODO : Debug here!!! If j (second loop) reaches dim_jra and never breaks (so the rank of T does not increase),
@@ -302,7 +302,7 @@ Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::Ma
     // Checking for bounty of result
     if (T.cols() < rank_j) ROS_ERROR_STREAM("The rank update procedure did not lead to good results!");
 
-    ROS_INFO("Exiting RANK UPDATE!!!");
+    if (DEBUG) ROS_INFO("Exiting RANK UPDATE!!!");
 
     return T;
 }
