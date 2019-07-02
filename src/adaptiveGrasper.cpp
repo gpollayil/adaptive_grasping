@@ -133,11 +133,13 @@ void adaptiveGrasper::printParsed(){
     for(auto it : this->dim_tasks){
         std::cout << it << " ";
     }
+    std::cout << "]" << std::endl;
     ROS_INFO_STREAM("\nThe vector of prio_tasks is:");
     std::cout << "[ ";
     for(auto it : this->prio_tasks){
         std::cout << it << " ";
     }
+    std::cout << "]" << std::endl;
     ROS_INFO_STREAM("\nThe int lambda_max for RP is: \n" << this->lambda_max << ".");
     ROS_INFO_STREAM("\nThe int epsilon for RP is: \n" << this->epsilon << ".");
 }
