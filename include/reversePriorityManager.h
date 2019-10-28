@@ -50,13 +50,16 @@ private:
     // Set of tasks ordered by priority
     std::vector<basicTask> task_set_;
 
-    // Set of projection matrices Tk (ref. reverse priority)
-    std::vector<Eigen::MatrixXd> t_proj_mat_set_;
+    // Set of projection matrices Pk+1 (ref. reverse priority)
+    std::vector<Eigen::MatrixXd> proj_mat_set_;
 
     // Private Auxiliary Fuctions
-    bool compute_T_mats();              // Computes all the T matrices for the object using the task set
     Eigen::MatrixXd damped_pseudo_inv(Eigen::MatrixXd input_mat, double damping_coeff, double epsilon);
-    Eigen::MatrixXd rank_update(Eigen::MatrixXd J, Eigen::MatrixXd Jra_pinv);
+	Eigen::MatrixXd trunk_pseudo_inv(Eigen::MatrixXd input_mat, double epsilon);
+    bool compute_proj_mats();
+
+	// This one cleans the augmented jacobian from the rows that are lin. dep. on the current jacobian
+    Eigen::MatrixXd clean_jac(Eigen::MatrixXd Jt, Eigen::MatrixXd Jrat);
 
 };
 

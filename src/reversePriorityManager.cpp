@@ -114,8 +114,8 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
     this->reorder_set();
     if (DEBUG) this->print_set();
 
-    // Computing all the T matrices
-    if (!this->compute_T_mats()) {      // If this fails, return false and solution is zeros
+    // Computing all the Projection matrices
+    if (!this->compute_proj_mats()) {      // If this fails, return false and solution is zeros
         ROS_ERROR("Could not compute any task! Won't solve anything!");
         q_sol = q_res;
         return false;
@@ -134,20 +134,20 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
         // Computing the needed variables for recursion
         Eigen::VectorXd x_dot_i = this->task_set_.at(i).get_task_x_dot();
         Eigen::MatrixXd J_i = this->task_set_.at(i).get_task_jacobian();
-        Eigen::MatrixXd T_i = this->t_proj_mat_set_.at(i);
-        Eigen::MatrixXd pinv_J_i_T_i = this->damped_pseudo_inv((J_i*T_i), this->lambda_max_, this->epsilon_);
+        Eigen::MatrixXd P_i1 = this->proj_mat_set_.at(i+1);
+        Eigen::MatrixXd pinv_J_i_P_i1 = this->damped_pseudo_inv((J_i*P_i1), this->lambda_max_, this->epsilon_);
 
         // Debug print outs
         if (DEBUG) {
             ROS_INFO_STREAM("The quantities for the " << i << "th recursion formula are: ");
             std::cout << "q_vec.at(" << i+1 << "): \n" << q_vec.at(i+1) << std::endl;
-            std::cout << "pinv_J_i_T_i: \n" << pinv_J_i_T_i << std::endl;
+            std::cout << "pinv_J_i_P_i1: \n" << pinv_J_i_P_i1 << std::endl;
             std::cout << "x_dot_i: \n" << x_dot_i << std::endl;
             std::cout << "J_i: \n" << J_i << std::endl;
         }
 
         // Recursive formula
-        q_vec.at(i) = q_vec.at(i+1) + T_i * pinv_J_i_T_i * (x_dot_i - J_i * q_vec.at(i+1));
+        q_vec.at(i) = q_vec.at(i+1) + pinv_J_i_P_i1 * (x_dot_i - J_i * q_vec.at(i+1));
     }
 
     // Returning the result
@@ -155,7 +155,7 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
     return true;
 }
 
-bool reversePriorityManager::compute_T_mats() {
+bool reversePriorityManager::compute_proj_mats() {
     // Checking if there are any tasks in the set
     if (this->task_set_.empty()) {
         ROS_ERROR("There are no tasks in the set! Won't compute anything!");
@@ -164,29 +164,27 @@ bool reversePriorityManager::compute_T_mats() {
 
     // Resizing the T matrices vector
     auto task_set_dim = this->task_set_.size();
-    this->t_proj_mat_set_.resize(task_set_dim);
+    this->proj_mat_set_.resize(task_set_dim);
 
     // Initial step of computation of T matrices
     auto n_rows = this->task_set_.at(task_set_dim - 1).get_task_jacobian().rows();
     auto n_cols = this->task_set_.at(task_set_dim - 1).get_task_jacobian().cols();
 
-    Eigen::MatrixXd J_aug = this->task_set_.at(task_set_dim - 1).get_task_jacobian();   // taking the last jacobian of the task set
-    Eigen::MatrixXd J_aug_pinv = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
-    Eigen::MatrixXd T_aux = this->rank_update(J_aug, J_aug_pinv);
-    this->t_proj_mat_set_.at(task_set_dim - 1) = T_aux;
+    Eigen::MatrixXd J_now = this->task_set_.at(task_set_dim - 1).get_task_jacobian();   // taking the last jacobian of the task set
+    Eigen::MatrixXd J_aug = Eigen::MatrixXd::Zero(J_now.rows(), J_now.cols());
+    this->proj_mat_set_.at(task_set_dim) = Eigen::MatrixXd::Identity(J_now.cols(), J_now.cols());
 
     if (DEBUG) {
-        ROS_INFO_STREAM("The quantities for the " << int (task_set_dim) - 1 << "th T matrix computation are: ");
+        ROS_INFO_STREAM("The quantities for the " << int (task_set_dim) - 1 << "th Proj matrix computation are: ");
+        std::cout << "J_now: \n" << J_now << std::endl;
         std::cout << "J_aug: \n" << J_aug << std::endl;
-        std::cout << "J_aug_pinv: \n" << J_aug_pinv << std::endl;
-        std::cout << "T_aux: \n" << T_aux << std::endl;
     }
 
     // Auxiliary Matrix for next loop
     Eigen::MatrixXd J_aux;
 
     // Recursion for the other T matrices
-    for (int i = int (task_set_dim) - 2; i >= 0; i--) { // TODO : Test this (I feel this is not correct!)
+    for (int i = int (task_set_dim) - 1; i >= 0; i--) { // TODO : Test this (Inspired from new implementation in matlab)
         // Getting the new task jacobian
         Eigen::MatrixXd Jcurr = this->task_set_.at(i).get_task_jacobian();
 
@@ -202,18 +200,17 @@ bool reversePriorityManager::compute_T_mats() {
         J_aug.block(0, 0, n_rows, n_cols) = Jcurr;
         J_aug.block(int (n_rows), 0, J_aux.rows(), J_aux.cols()) = J_aux;
 
-        // Pseudo inversion and rank update
-        J_aug_pinv = this->damped_pseudo_inv(J_aug, this->lambda_max_, this->epsilon_);
-        T_aux = this->rank_update(Jcurr, J_aug_pinv);
+        // Clean jac and projection matrix
+        Eigen::MatrixXd J_tilde = this->clean_jac(Jcurr.transpose(), J_aug.transpose()).transpose();
+        Eigen::MatrixXd pinv_J_tilde = this->damped_pseudo_inv(J_tilde, this->lambda_max_, this->epsilon_);
 
         if (DEBUG) {
-            ROS_INFO_STREAM("The quantities for the " << i << "th T matrix computation are: ");
+            ROS_INFO_STREAM("The quantities for the " << i << "th Proj matrix computation are: ");
             std::cout << "J_aug: \n" << J_aug << std::endl;
-            std::cout << "J_aug_pinv: \n" << J_aug_pinv << std::endl;
-            std::cout << "T_aux: \n" << T_aux << std::endl;
+            std::cout << "J_tilde: \n" << J_tilde << std::endl;
         }
 
-        this->t_proj_mat_set_.at(i) = T_aux;
+        this->proj_mat_set_.at(i) = Eigen::MatrixXd::Identity(J_tilde.cols(), J_tilde.cols()) - pinv_J_tilde * J_tilde;
     }
 
     return true;
@@ -243,66 +240,66 @@ Eigen::MatrixXd reversePriorityManager::damped_pseudo_inv(Eigen::MatrixXd input_
     return Eigen::MatrixXd(svd.matrixV() * S.transpose() * svd.matrixU().transpose());
 }
 
-Eigen::MatrixXd reversePriorityManager::rank_update(Eigen::MatrixXd J, Eigen::MatrixXd Jra_pinv) {
+Eigen::MatrixXd reversePriorityManager::trunk_pseudo_inv(Eigen::MatrixXd input_mat, double epsilon) {
+	// Computing the singular values
+	Eigen::JacobiSVD<Eigen::MatrixXd> svd(input_mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	Eigen::JacobiSVD<Eigen::MatrixXd>::SingularValuesType sing_vals = svd.singularValues();
 
-    if (DEBUG) ROS_INFO("Entered RANK UPDATE!!!");
+	// Checking if the smallest sing val is really small
+	bool really_small = false;
+	double min_sing_val = sing_vals(sing_vals.size() - 1);
+	if (min_sing_val < epsilon) {
+		really_small = true;
+		ROS_WARN("The min sing val is really small! Will set it to zero for the pseudo inverse!!!");
+	}
 
-    // Getting the rank of J and the number of columns of Jra_pinv
-    Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(J);
-    auto rank_j = lu_decomp.rank();
-    auto dim_jra = Jra_pinv.cols();
-    auto dim_j = J.cols();
+	// Changing the min sing value in the sv matrix
+	Eigen::MatrixXd S = input_mat;
+	S(sing_vals.size() - 1, sing_vals.size() - 1) = 0.0;
 
-    if (BRUTAL_T) {
-    	ROS_WARN("I am brutally extracting T matrix from pseudo inverse of J!");
-    	return Jra_pinv.block(0, 0, this->dim_config_space_, dim_j);
+	// Return the svd based damped pseudoinverse
+	return Eigen::MatrixXd(svd.matrixV() * S.transpose() * svd.matrixU().transpose());
+}
+
+Eigen::MatrixXd reversePriorityManager::clean_jac(Eigen::MatrixXd Jt, Eigen::MatrixXd Jrat) {
+
+	//  CLEAN_JAC chooses the columns of Jrat that are not lin. dep. on Jt and returns a matrix that
+	//  will have full column rank
+	//  Returns: the mat with columns of Jrat that are not lin. dep. on Jt
+
+    if (DEBUG) ROS_INFO("Entered CLEAN JAC!!!");
+
+    // Getting the number of columns of Jrat
+    auto dim_jrat = Jrat.cols();
+
+    // At first T is Jt itself
+    Eigen::MatrixXd T; T.resize(Jt.rows(), Jt.cols());
+    T << Jt;
+
+	// Computing the rank of T
+	Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(T);
+	int prev_rank = lu_decomp.rank();
+
+	// Now for all columns of Jrat checking if lin dep and adding
+    for (int k = 0; k < dim_jrat; k++) {
+    	// Appending the kth column of Jrat
+    	T.conservativeResize(T.rows(), T.cols() + 1);
+    	T.col(T.cols() - 1) = Jrat.col(k);
+
+	    // Checking if rank increased
+	    Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(T);
+	    int curr_rank = lu_decomp.rank();
+	    if (curr_rank > prev_rank) {
+	    	prev_rank = curr_rank;
+	    	if (DEBUG) ROS_INFO("Rank increased in CLEAN JAC!!!");
+	    } else {
+		    if (DEBUG) ROS_INFO("Rank did not increase in CLEAN JAC!!! Removing column!");
+		    T.conservativeResize(T.rows(), T.cols() - 1);
+		    if (DEBUG) ROS_INFO("In CLEAN JAC removed column!");
+	    }
     }
 
-    // At first T is the first column of Jra_pinv
-    Eigen::MatrixXd T; T.resize(Jra_pinv.rows(), 1);
-    T << Jra_pinv.col(0);
-
-    // The rank update procedure (ref Matlab implementation)
-    int i = 1; int j = 1;
-    if (DEBUG) ROS_INFO_STREAM("The first while stops at " << rank_j << "th iteration.");
-    if (DEBUG) ROS_INFO_STREAM("The second while stops at " << dim_jra << "th iteration.");
-    while (i <= rank_j - 1) {
-        if (DEBUG)ROS_INFO_STREAM("This is the " << i << "th iteration of the first while.");
-        while (j <= dim_jra - 1) {
-            if (DEBUG) ROS_INFO_STREAM("This is the " << j << "th iteration of the second while.");
-            // Adding the ith column to T
-            T.conservativeResize(T.rows(), T.cols() + 1);
-            T.col(T.cols() - 1) = Jra_pinv.col(j);
-            j++;
-
-            // Looking if rank changed
-            Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(T);
-            auto rank_t = lu_decomp.rank();
-            if (rank_t == i + 1) { // rank changed because new column is lin. indep.
-                if (DEBUG) {
-                    if (DEBUG) ROS_INFO_STREAM("Inside rank_update a new column has been added: " << i << " rank with " << j << "th column ");
-                    std::cout << "T: \n" << T << std::endl;
-                }
-                if (DEBUG) ROS_INFO("Breaking");
-                i++; break;
-            } else { // rank didn't change so removing column
-                T.conservativeResize(T.rows(), T.cols() - 1);
-                if (DEBUG) ROS_INFO("conservativeResize");
-            }
-        }
-        // TODO : Debug here!!! If j (second loop) reaches dim_jra and never breaks (so the rank of T does not increase),
-        // the code will block inside first loop (i)
-        // Break if this loop becomes a trap (Don't know if this is the correct approach)
-        if (!(j <= dim_jra - 1)) {
-            ROS_ERROR("I had to exit this loop because it was a trap!");
-            break;
-        }
-    }
-
-    // Checking for bounty of result
-    if (T.cols() < rank_j) ROS_ERROR_STREAM("The rank update procedure did not lead to good results!");
-
-    if (DEBUG) ROS_INFO("Exiting RANK UPDATE!!!");
+    if (DEBUG) ROS_INFO("Exiting CLEAN JAC!!!");
 
     return T;
 }
