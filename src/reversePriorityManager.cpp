@@ -3,7 +3,7 @@
 // ROS Includes
 #include <ros/ros.h>
 
-#define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG           1           // Prints out additional info (additional to ROS_DEBUG)
 #define BRUTAL_T        0           // If 1 the T matrices are computed without the rank_update by extracting the block
 
 /**
@@ -164,7 +164,7 @@ bool reversePriorityManager::compute_proj_mats() {
 
     // Resizing the T matrices vector
     auto task_set_dim = this->task_set_.size();
-    this->proj_mat_set_.resize(task_set_dim);
+    this->proj_mat_set_.resize(task_set_dim + 1);
 
     // Initial step of computation of T matrices
     auto n_rows = this->task_set_.at(task_set_dim - 1).get_task_jacobian().rows();
@@ -184,20 +184,21 @@ bool reversePriorityManager::compute_proj_mats() {
     Eigen::MatrixXd J_aux;
 
     // Recursion for the other T matrices
-    for (int i = int (task_set_dim) - 1; i >= 0; i--) { // TODO : Test this (Inspired from new implementation in matlab)
+    for (int i = int (task_set_dim) - 2; i >= 0; i--) { // TODO : Test this (Inspired from new implementation in matlab)
         // Getting the new task jacobian
         Eigen::MatrixXd Jcurr = this->task_set_.at(i).get_task_jacobian();
+        Eigen::MatrixXd Jprev = this->task_set_.at(i + 1).get_task_jacobian();
 
         // New number of rows and columns (of the new task jacobian)
-        n_rows = Jcurr.rows();
-        n_cols = Jcurr.cols();
+        n_rows = Jprev.rows();
+        n_cols = Jprev.cols();
 
         // Saving termporarily the old J_aug
         J_aux = J_aug;
 
         // Append the new task jacobian
-        J_aug.resize(J_aux.rows() + Jcurr.rows(), J_aux.cols());
-        J_aug.block(0, 0, n_rows, n_cols) = Jcurr;
+        J_aug.resize(J_aux.rows() + Jprev.rows(), J_aux.cols());
+        J_aug.block(0, 0, n_rows, n_cols) = Jprev;
         J_aug.block(int (n_rows), 0, J_aux.rows(), J_aux.cols()) = J_aux;
 
         // Clean jac and projection matrix
@@ -210,7 +211,7 @@ bool reversePriorityManager::compute_proj_mats() {
             std::cout << "J_tilde: \n" << J_tilde << std::endl;
         }
 
-        this->proj_mat_set_.at(i) = Eigen::MatrixXd::Identity(J_tilde.cols(), J_tilde.cols()) - pinv_J_tilde * J_tilde;
+        this->proj_mat_set_.at(i + 1) = Eigen::MatrixXd::Identity(J_tilde.cols(), J_tilde.cols()) - pinv_J_tilde * J_tilde;
     }
 
     return true;
@@ -275,6 +276,8 @@ Eigen::MatrixXd reversePriorityManager::clean_jac(Eigen::MatrixXd Jt, Eigen::Mat
     // At first T is Jt itself
     Eigen::MatrixXd T; T.resize(Jt.rows(), Jt.cols());
     T << Jt;
+    bool first_it = true;
+    Eigen::MatrixXd Tt;
 
 	// Computing the rank of T
 	Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(T);
@@ -292,6 +295,13 @@ Eigen::MatrixXd reversePriorityManager::clean_jac(Eigen::MatrixXd Jt, Eigen::Mat
 	    if (curr_rank > prev_rank) {
 	    	prev_rank = curr_rank;
 	    	if (DEBUG) ROS_INFO("Rank increased in CLEAN JAC!!!");
+            if (first_it) {
+                Tt.resize(T.rows(),1);
+                first_it = false;
+            } else {
+                Tt.conservativeResize(T.rows(),Tt.cols() + 1);
+            }
+            Tt.col(Tt.cols() - 1) = Jrat.col(k);
 	    } else {
 		    if (DEBUG) ROS_INFO("Rank did not increase in CLEAN JAC!!! Removing column!");
 		    T.conservativeResize(T.rows(), T.cols() - 1);
@@ -301,5 +311,5 @@ Eigen::MatrixXd reversePriorityManager::clean_jac(Eigen::MatrixXd Jt, Eigen::Mat
 
     if (DEBUG) ROS_INFO("Exiting CLEAN JAC!!!");
 
-    return T;
+    return Tt;
 }
