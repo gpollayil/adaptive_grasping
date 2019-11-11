@@ -115,14 +115,13 @@ void adaptiveGrasper::printParsed(){
     }
     std::cout << "]" << std::endl;
     ROS_INFO_STREAM("\nThe contact selection matrix H is: \n" << this->H_i << ".");
-    ROS_INFO_STREAM("\nThe contact selection matrix H_2 is: \n" << this->H_i_2 << ".");
-    ROS_INFO_STREAM("\nThe min. weight matrix A tilde is: \n" << this->A_tilde << ".");
+	ROS_INFO_STREAM("\nThe contact stiffness matrix Kc is: \n" << this->Kc_i << ".");
     ROS_INFO_STREAM("\nThe desired motion x_d is: \n" << this->x_d << ".");
-    ROS_INFO_STREAM("\nThe desired motion x_d_2 is: \n" << this->x_d_2 << ".");
+    ROS_INFO_STREAM("\nThe desired force f_d_d is: \n" << this->f_d_d << ".");
     ROS_INFO_STREAM("\nThe object pose topic is: " << this->object_topic_name << ".");
+	ROS_INFO_STREAM("\nThe object twist topic is: " << this->object_twist_topic_name << ".");
     ROS_INFO_STREAM("\nThe reference scaling factor is: " << this->scaling << ".");
     ROS_INFO_STREAM("\nThe permutation vector is: \n" << this->p_vector << ".");
-    ROS_INFO_STREAM("\nThe permutation vector 2 is: \n" << this->p_vector_2 << ".");
     ROS_INFO_STREAM("\nThe touch indexes vector 2 is: \n" << this->touch_indexes << ".");
     ROS_INFO_STREAM("\nThe max synergy threshold is: \n" << this->syn_thresh << ".");
     ROS_INFO_STREAM("\nThe bool relax_to_zero is: \n" << this->relax_to_zero << ".");
@@ -142,7 +141,6 @@ void adaptiveGrasper::printParsed(){
     std::cout << "]" << std::endl;
     ROS_INFO_STREAM("\nThe int lambda_max for RP is: \n" << this->lambda_max << ".");
     ROS_INFO_STREAM("\nThe int epsilon for RP is: \n" << this->epsilon << ".");
-	ROS_INFO_STREAM("\nThe contact stiffness matrix Kc is: \n" << this->Kc_i << ".");
 }
 
 /* PRINTCONTACTSINFO */
@@ -176,49 +174,41 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     parseParameter(params_xml, this->params_map, param_names[2]);
     parseParameter(params_xml, this->joint_numbers, param_names[3]);
     parseParameter(params_xml, this->H_i, param_names[4]);
-    parseParameter(params_xml, this->A_tilde, param_names[5]);
+	parseParameter(params_xml, this->Kc_i, param_names[5]);
 
     // x_d (vector) needs to be parsed differently using the parsing function for matrix
     Eigen::MatrixXd temp_x_d;
     parseParameter(params_xml, temp_x_d, param_names[6]);
     this->x_d = temp_x_d.transpose().col(0);
 
-    parseParameter(params_xml, this->spin_rate, param_names[7]);
-    parseParameter(params_xml, this->object_topic_name, param_names[8]);
-    parseParameter(params_xml, this->scaling, param_names[9]);
+	// f_d_d (vector) needs to be parsed differently using the parsing function for matrix
+	Eigen::MatrixXd temp_f_d_d;
+	parseParameter(params_xml, temp_f_d_d, param_names[7]);
+	this->f_d_d = temp_f_d_d.transpose().col(0);
+
+    parseParameter(params_xml, this->spin_rate, param_names[8]);
+    parseParameter(params_xml, this->object_topic_name, param_names[9]);
+	parseParameter(params_xml, this->object_twist_topic_name, param_names[10]);
+    parseParameter(params_xml, this->scaling, param_names[11]);
 
     // p_vector (vector) needs to be parsed differently using the parsing function for matrix
     Eigen::MatrixXd temp_p_vector;
-    parseParameter(params_xml, temp_p_vector, param_names[10]);
+    parseParameter(params_xml, temp_p_vector, param_names[12]);
     this->p_vector = temp_p_vector.transpose().col(0);
 
-    parseParameter(params_xml, this->syn_thresh, param_names[11]);
-    parseParameter(params_xml, this->relax_to_zero, param_names[12]);
-    parseParameter(params_xml, this->touch_change, param_names[13]);
+	// touch_indexes (vector) needs to be parsed differently using the parsing function for matrix
+	Eigen::MatrixXd temp_touch_indexes;
+	parseParameter(params_xml, temp_touch_indexes, param_names[13]);
+	this->touch_indexes = temp_touch_indexes.transpose().col(0);
 
-    parseParameter(params_xml, this->H_i_2, param_names[14]);
-
-    // p_vector_2 (vector) needs to be parsed differently using the parsing function for matrix
-    Eigen::MatrixXd temp_p_vector_2;
-    parseParameter(params_xml, temp_p_vector_2, param_names[15]);
-    this->p_vector_2 = temp_p_vector_2.transpose().col(0);
-
-    // x_d_2 (vector) needs to be parsed differently using the parsing function for matrix
-    Eigen::MatrixXd temp_x_d_2;
-    parseParameter(params_xml, temp_x_d_2, param_names[16]);
-    this->x_d_2 = temp_x_d_2.transpose().col(0);
-
-    // touch_indexes (vector) needs to be parsed differently using the parsing function for matrix
-    Eigen::MatrixXd temp_touch_indexes;
-    parseParameter(params_xml, temp_touch_indexes, param_names[17]);
-    this->touch_indexes = temp_touch_indexes.transpose().col(0);
-
-    parseParameter(params_xml, this->num_tasks, param_names[18]);
-    parseParameter(params_xml, this->dim_tasks, param_names[19]);
-    parseParameter(params_xml, this->prio_tasks, param_names[20]);
-    parseParameter(params_xml, this->lambda_max, param_names[21]);
-    parseParameter(params_xml, this->epsilon, param_names[22]);
-	parseParameter(params_xml, this->Kc_i, param_names[23]);
+    parseParameter(params_xml, this->syn_thresh, param_names[14]);
+    parseParameter(params_xml, this->relax_to_zero, param_names[15]);
+    parseParameter(params_xml, this->touch_change, param_names[16]);
+    parseParameter(params_xml, this->num_tasks, param_names[17]);
+    parseParameter(params_xml, this->dim_tasks, param_names[18]);
+    parseParameter(params_xml, this->prio_tasks, param_names[19]);
+    parseParameter(params_xml, this->lambda_max, param_names[20]);
+    parseParameter(params_xml, this->epsilon, param_names[21]);
 }
 
 /* SETCOMMANDANDSEND */
@@ -395,15 +385,6 @@ void adaptiveGrasper::spinGrasper(){
             this->my_matrices_creator.setContactsMap(this->read_contacts_map);
             this->my_matrices_creator.setJointsMap(this->read_joints_map);
             this->my_matrices_creator.setObjectPose(this->object_pose);
-            
-            /* // Single contact -> fully constrained / Multiple contacts -> position constrained
-            if(this->read_contacts_map.size() > 1 && this->touch_change){
-                this->my_matrices_creator.changeContactType(this->H_i_2);
-                this->my_matrices_creator.setPermutationVector(this->p_vector_2);
-            } else {
-                this->my_matrices_creator.changeContactType(this->H_i);
-                this->my_matrices_creator.setPermutationVector(this->p_vector);
-            } */
 
             // Setting the contact type and the permutation vector
             this->my_matrices_creator.changeContactType(this->H_i, this->Kc_i);
@@ -436,14 +417,8 @@ void adaptiveGrasper::spinGrasper(){
             // Setting the synergy matrix in preserver
             this->my_contact_preserver.changeHandType(this->S);
 
-            // Setting the reference motion to the desired one (Single/Multiple)
+            // Setting the reference motion to the desired one
             this->x_ref = this->x_d;
-            /* if(this->read_contacts_map.size() > 1 && this->touch_change){
-                this->x_ref = this->x_d_2;
-                if(DEBUG) ROS_INFO_STREAM("adaptiveGrasper::spinGrasper Two contacts, changing x_d!");
-            } else {
-                this->x_ref = this->x_d;
-            } */
 
             // Performing the minimization only if there are contacts (i.e. the matrices are not empty)
             if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0){
@@ -451,13 +426,7 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
 
                 // Setting minimization and relaxation parameters
-                /* if(this->read_contacts_map.size() > 1 && this->touch_change){
-                    this->my_contact_preserver.setMinimizationParams(this->x_d_2, this->A_tilde);
-                    if(DEBUG) ROS_WARN_STREAM("adaptiveGrasper::spinGrasper Two contacts, changing x_d and A_tilde!");
-                } else {
-                    this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
-                } */
-                this->my_contact_preserver.setMinimizationParams(this->x_d, this->A_tilde);
+                this->my_contact_preserver.setMinimizationParams(this->x_d);
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
                 // Performing minimization (from here on check if the RP Changes are OK)

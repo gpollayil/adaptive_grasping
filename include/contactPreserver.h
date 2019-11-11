@@ -34,7 +34,7 @@ namespace adaptive_grasping {
     *   the synergy matrix of the hand (if hand fully actuated S = I)
     * @return null
     */
-    contactPreserver(Eigen::MatrixXd S_);
+    explicit contactPreserver(Eigen::MatrixXd S_);
 
     /** OTHER OVERLOADED CONSTRUCTOR
     * @brief Overloaded constructor for contactPreserver
@@ -117,11 +117,9 @@ namespace adaptive_grasping {
     *
     * @param x_d_
     *   the desired motion of the hand given by some high level planner
-    * @param A_tilde_
-    *   the weight matrix in the cost function of the minimization
     * @return null
     */
-    void setMinimizationParams(Eigen::VectorXd x_d_, Eigen::MatrixXd A_tilde_);
+    void setMinimizationParams(Eigen::VectorXd x_d_);
 
     /** SETPERMUTATIONPARAMS
     * @brief Function to set new permutation matrix for the relaxed minimization problem (used to compute R)
@@ -140,13 +138,6 @@ namespace adaptive_grasping {
     * @return bool
     */
     bool setRMatrix();
-
-    /** UPDATEAMATRIX
-    * @brief Function to update A_tilde according to R
-    *
-    * @return void
-    */
-    void updateAMatrix();
 
     /** PERFORMMINIMIZATION
     * @brief Function to perform the minimization using current values
@@ -201,9 +192,6 @@ namespace adaptive_grasping {
     // Previous planner desired motions
     Eigen::VectorXd x_d_old;
 
-    // Particular solution x_star
-    Eigen::VectorXd x_star;
-
     // Full minimization solution
     Eigen::VectorXd x_ref;
 
@@ -212,12 +200,6 @@ namespace adaptive_grasping {
 
     // Constant term for Q_tilde (obtained by appending zeros under x_d)
     Eigen::VectorXd y;
-
-    // Minimization weights parsed
-    Eigen::MatrixXd A_tilde_parsed;
-
-    // Minimization weights current, complies with R
-    Eigen::MatrixXd A_tilde;
 
     // Contact relation matrix
     Eigen::MatrixXd Q;

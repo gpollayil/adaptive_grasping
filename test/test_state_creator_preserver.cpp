@@ -464,7 +464,7 @@ int main(int argc, char **argv){
         x_d(0) = 0.1; 
         // x_d(1) = 0.01;
         x_d(3) = -0.01; x_d(5) = -0.05;
-        preserver.setMinimizationParams(x_d, A_tilde);
+        // preserver.setMinimizationParams(x_d, A_tilde); (THIS FUNCTION IS NO MORE IMPLEMENTED)
 
         // Performing minimization
         bool relaxed = preserver.performMinimization(x_ref);

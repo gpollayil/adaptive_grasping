@@ -87,10 +87,9 @@ void contactPreserver::setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_,
 }
 
 /* SETMINIMIZATIONPARAMS */
-void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_,
-  Eigen::MatrixXd A_tilde_){
+void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_){
   // Set the new desired motion vector and weight matrix
-  x_d = x_d_; A_tilde_parsed = A_tilde_;
+  x_d = x_d_;
 }
 
 /* SETPERMUTATIONMATRIX */
@@ -132,23 +131,6 @@ bool contactPreserver::setRMatrix(){
   if(DEBUG) std::cout << R_bar << std::endl;
 
   return true;
-}
-
-/* UPDATEAMATRIX */
-void contactPreserver::updateAMatrix(){
-  // If R matrix is smaller than A_tilde_parsed no need to add extra diagonal identity
-  if(R.rows() <= A_tilde_parsed.rows()){
-    A_tilde = A_tilde_parsed.block(0, 0, R.rows(), R.rows());
-  } else {
-    A_tilde = Eigen::MatrixXd::Zero(R.rows(), R.rows());
-    A_tilde.block(0, 0, A_tilde_parsed.rows(), A_tilde_parsed.rows()) = A_tilde_parsed;
-    int rem_rows = R.rows() - A_tilde_parsed.rows();
-    // For now the weight on the contacts is hard-coded (TODO: parse also this param)
-    A_tilde.block(A_tilde_parsed.rows(), A_tilde_parsed.rows(), rem_rows, rem_rows) = 10000 * Eigen::MatrixXd::Identity(rem_rows, rem_rows);
-  }
-
-  if(DEBUG) std::cout << "contactPreserver::updateAMatrix Updated A_tilde =" << std::endl; 
-  if(DEBUG) std::cout << A_tilde << std::endl;
 }
 
 /* PERFORMMINIMIZATION */
@@ -430,7 +412,6 @@ void contactPreserver::printAll(){
   std::cout << "T =" << std::endl; std::cout << T << std::endl;
   std::cout << "H =" << std::endl; std::cout << H << std::endl;
   std::cout << "S =" << std::endl; std::cout << S << std::endl;
-  std::cout << "A_tilde =" << std::endl; std::cout << A_tilde << std::endl;
   std::cout << "x_d =" << std::endl; std::cout << x_d << std::endl;
   std::cout << "Q =" << std::endl; std::cout << Q << std::endl;
   std::cout << "N_tilde =" << std::endl; std::cout << N_tilde << std::endl;

@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     x_d << -1, 1, -1, -1, 1, -1, -1, 0, 0, 0;
 
     // Setting minimization parameters
-    preserver.setMinimizationParams(x_d, A_tilde);
+    // preserver.setMinimizationParams(x_d, A_tilde); (THIS FUNCTION IS NO MORE IMPLEMENTED)
 
     // Size check print outs
     std::cout<<"J = " << J.rows() << "x" << J.cols() <<std::endl;

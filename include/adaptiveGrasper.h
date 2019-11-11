@@ -119,7 +119,7 @@ namespace adaptive_grasping {
 
     // The desired motion provided from outside
     Eigen::VectorXd x_d;                                // Contains the desired x motion (for Contact Preserver)
-    Eigen::VectorXd x_d_2;                              // Contains the desired x motion (for 2 contact case)
+    Eigen::VectorXd f_d_d;                              // Contains the desired contact force variation (for Contact Preserver)
 
   private:
 
@@ -163,14 +163,13 @@ namespace adaptive_grasping {
     std::map<std::string, std::string> params_map;      // Contains mainly frame names (for Contact State)
     std::vector<int> joint_numbers;                     // Contains the number of links of each finger (for Matrix Creator)
     Eigen::MatrixXd H_i;                                // Contains contact selection matrix H fully constrained(for Matrix Creator)
-    Eigen::MatrixXd H_i_2;                              // Contains contact selection matrix H position constrained (for Matrix Creator)
+    Eigen::MatrixXd Kc_i;                               // Contains stiffness matrix Kc fully constrained(for Matrix Creator)
     Eigen::MatrixXd S;                                  // Contains the synergy matrix (for Contact Preserver)
-    Eigen::MatrixXd A_tilde;                            // Contains the weigth matrix (for Contact Preserver)
     Eigen::VectorXd x_ref;                              // Contains the result of minimization x reference (from Contact Preserver)
     std::string object_topic_name;                      // Contains the name of the topic where the object poses are published (for Matrix Creator)
+    std::string object_twist_topic_name;                // Contains the name of the topic where the object twists are published (for Contact Preserver)
     double scaling;                                     // Contains the scaling factor for x reference
     Eigen::VectorXd p_vector;                           // Contains the permutation vector for relaxed minimization fully constrained (for Matrices Creator)
-    Eigen::VectorXd p_vector_2;                         // Contains the permutation vector for relaxed minimization position constrained (for Matrices Creator)
     Eigen::VectorXd touch_indexes;                      // Contains the vector with the indexes of the touch constraints (for Matrices Creator)
     double syn_thresh;                                  // Contains threshold on the synergy joint value for stopping the grasping motion (for Adaptive Grasper)
     bool relax_to_zero = false;                         // Contains bool to decide to set zero ref if relaxation happens
@@ -180,7 +179,6 @@ namespace adaptive_grasping {
     std::vector<int> prio_tasks;                        // The priority of the above defined tasks (Contact Preserver)
     double lambda_max;                                  // The lambda max for the pseudo inversion in RP Manager (Contact Preserver)
     double epsilon;                                     // The epsilon for the diagonal loading in singular value decomposition in RP Manager (Contact Preserver)
-    Eigen::MatrixXd Kc_i;                               // Contains stiffness matrix Kc fully constrained(for Matrix Creator)
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
