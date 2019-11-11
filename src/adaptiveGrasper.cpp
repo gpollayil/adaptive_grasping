@@ -79,7 +79,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     ROS_INFO_STREAM("adaptiveGrasper::initialize STARTING TO BUILD THE OBJECTS!");
 
     this->my_contact_state.intialize(this->touch_topic_name, this->link_names_map, this->params_map);
-    this->my_matrices_creator.initialize(this->H_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
+    this->my_matrices_creator.initialize(this->H_i, this->Kc_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
     this->my_contact_preserver.initialize_tasks(this->num_tasks, this->dim_tasks, this->prio_tasks, this->lambda_max, this->epsilon);
 
@@ -142,6 +142,7 @@ void adaptiveGrasper::printParsed(){
     std::cout << "]" << std::endl;
     ROS_INFO_STREAM("\nThe int lambda_max for RP is: \n" << this->lambda_max << ".");
     ROS_INFO_STREAM("\nThe int epsilon for RP is: \n" << this->epsilon << ".");
+	ROS_INFO_STREAM("\nThe contact stiffness matrix Kc is: \n" << this->Kc_i << ".");
 }
 
 /* PRINTCONTACTSINFO */
@@ -217,6 +218,7 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     parseParameter(params_xml, this->prio_tasks, param_names[20]);
     parseParameter(params_xml, this->lambda_max, param_names[21]);
     parseParameter(params_xml, this->epsilon, param_names[22]);
+	parseParameter(params_xml, this->Kc_i, param_names[23]);
 }
 
 /* SETCOMMANDANDSEND */
@@ -404,7 +406,7 @@ void adaptiveGrasper::spinGrasper(){
             } */
 
             // Setting the contact type and the permutation vector
-            this->my_matrices_creator.changeContactType(this->H_i);
+            this->my_matrices_creator.changeContactType(this->H_i, this->Kc_i);
             this->my_matrices_creator.setPermutationVector(this->p_vector);
 
             // Setting the other stuff for whole permutation computation in matricesCreator

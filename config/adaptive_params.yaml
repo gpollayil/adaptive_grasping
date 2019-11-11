@@ -90,5 +90,13 @@ adaptive_grasping:
   lambda_max: 0.00001
   # The epsilon for the diagonal loading in singular value decomposition in RP Manager
   epsilon: 0.00001
+  # The stiffness matrix for the contact forces
+  k_matrix:     # fully constrained
+    - [10, 0, 0, 0, 0, 0]
+    - [0, 10, 0, 0, 0, 0]
+    - [0, 0, 10, 0, 0, 0]
+    - [0, 0, 0, 10, 0, 0]
+    - [0, 0, 0, 0, 10, 0]
+    - [0, 0, 0, 0, 0, 10]
 
 

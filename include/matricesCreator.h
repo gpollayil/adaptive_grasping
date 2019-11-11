@@ -49,6 +49,22 @@ namespace adaptive_grasping {
     matricesCreator(Eigen::MatrixXd H_i_, std::string world_frame_name_,
       std::string palm_frame_name_, std::vector<int> joint_numbers_);
 
+	/** CONSTRUCTOR 2
+    * @brief Overloaded constructor for matricesCreator
+    *
+    * @param H_i_
+    *   the basic contact selection matrix of the hand (in local frames)
+    * @param Kc_i_
+    *   the basic contact stiffness matrix
+    * @param world_frame_name_, palm_frame_name_
+    *   the names of global and palm frames
+    * @param joint_numbers_
+    *   the number of joints of each finger in a vector
+    * @return null
+    */
+	matricesCreator(Eigen::MatrixXd H_i_, Eigen::MatrixXd Kc_i_, std::string world_frame_name_,
+			std::string palm_frame_name_, std::vector<int> joint_numbers_);
+
     /** DESTRUCTOR
     * @brief Default destructor for matricesCreator
     *
@@ -74,6 +90,22 @@ namespace adaptive_grasping {
     bool initialize(Eigen::MatrixXd H_i_, std::string world_frame_name_,
       std::string palm_frame_name_, std::vector<int> joint_numbers_);
 
+	/** INITIALIZE 2
+    * @brief A public function for initializing the object
+    *
+    * @param H_i_
+    *   the basic contact selection matrix of the hand (in local frames)
+    * @param Kc_i_
+    *   the basic contact stiffness matrix
+    * @param world_frame_name_, palm_frame_name_
+    *   the names of global and palm frames
+    * @param joint_numbers_
+    *   the number of joints of each finger in a vector
+    * @return null
+    */
+	bool initialize(Eigen::MatrixXd H_i_, Eigen::MatrixXd Kc_i_, std::string world_frame_name_,
+			std::string palm_frame_name_, std::vector<int> joint_numbers_);
+
     /** CHANGECONTACTTYPE
     * @brief Function to eventually change the hand type (set new H_i)
     *
@@ -82,6 +114,17 @@ namespace adaptive_grasping {
     * @return null
     */
     void changeContactType(Eigen::MatrixXd H_i_);
+
+	/** CHANGECONTACTTYPE 2
+    * @brief Function to eventually change the hand type (set new H_i)
+    *
+    * @param H_i_
+    *   the new contact selection matrix
+    * @param Kc_i_
+    *   the basic contact stiffness matrix
+    * @return null
+    */
+	void changeContactType(Eigen::MatrixXd H_i_, Eigen::MatrixXd Kc_i_);
 
     /** CHANGEFRAMENAMES
     * @brief Function to eventually change the world and palm frame names
@@ -191,10 +234,12 @@ namespace adaptive_grasping {
     // ROS Node Handle for parsing parameters
     ros::NodeHandle nh;
 
-    // Basic contact selection matrix
+    // Basic contact selection and stiffness matrix
     Eigen::MatrixXd H_i;
+    Eigen::MatrixXd Kc_i;
 
-    // Permutation vector and matrix for relaxed minimization and size of whole Q_1
+
+	  // Permutation vector and matrix for relaxed minimization and size of whole Q_1
     Eigen::VectorXd p_vector;
     Eigen::VectorXd p_vector_full;
     Eigen::VectorXd touch_indexes;

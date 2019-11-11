@@ -180,6 +180,7 @@ namespace adaptive_grasping {
     std::vector<int> prio_tasks;                        // The priority of the above defined tasks (Contact Preserver)
     double lambda_max;                                  // The lambda max for the pseudo inversion in RP Manager (Contact Preserver)
     double epsilon;                                     // The epsilon for the diagonal loading in singular value decomposition in RP Manager (Contact Preserver)
+    Eigen::MatrixXd Kc_i;                               // Contains stiffness matrix Kc fully constrained(for Matrix Creator)
 
     // A contactState element which manages the details about the contacts
     contactState my_contact_state;
