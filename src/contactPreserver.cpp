@@ -50,7 +50,7 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
   changeHandType(S_);
 
   // Setting temporary values of x_d and x_d_old
-  x_d_old = Eigen::VectorXd::Ones(1 + 6 + 6);
+  x_d_old = Eigen::VectorXd::Ones(1 + 6);
   ROS_WARN_STREAM("The number of rows of x_d_old is " << this->x_d_old.rows());
   x_ref_old = Eigen::VectorXd::Zero(x_d_old.size());
 }
@@ -154,8 +154,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   if(DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
 
   // Now create the block matrix
-  Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
-  Q << H*J*S, H*T, NullMatrix-H*G.transpose();
+  Q << H*J*S, H*T;
 
   // For debugging purpouses (real line is above)
   if(N_DEBUG){
@@ -192,7 +191,8 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
 
   // Compute vector y
   y.resize(x_d.size() + H.rows());
-  y << x_d, Eigen::VectorXd::Zero(H.rows());
+  // There is no Kc in this formula because it has already been included in H by matrixCreator
+  y << x_d, f_d_d + H*G.transpose()*xi_o;
 
   // If the desired motion has changed, reset R and R_bar
   if( (!(x_d - x_d_old).isMuchSmallerThan(0.0001) && !keep_relaxed) || first_it){
@@ -320,8 +320,7 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     if(DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
 
     // Now create the block matrix
-    Eigen::MatrixXd NullMatrix = Eigen::MatrixXd::Zero(H.rows(), G.rows());
-    Q << H*J*S, H*T, NullMatrix-H*G.transpose();
+    Q << H*J*S, H*T;
 
     // For debugging purpouses (real line is above)
     if(N_DEBUG){
@@ -341,9 +340,10 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     // Print message for debug
     if(DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
 
-    // Compute vector y
-    y.resize(x_d.size() + H.rows());
-    y << x_d, Eigen::VectorXd::Zero(H.rows());
+	// Compute vector y
+	y.resize(x_d.size() + H.rows());
+	// There is no Kc in this formula because it has already been included in H by matrixCreator
+	y << x_d, f_d_d + H*G.transpose()*xi_o;
 
     // DEBUG PRINTS
     if(DEBUG || true) std::cout << "----------------" << std::endl;
