@@ -82,6 +82,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->my_matrices_creator.initialize(this->H_i, this->Kc_i, this->params_map.at("world_name"), this->params_map.at("palm_name"), this->joint_numbers);
     this->my_contact_preserver.initialize(this->S);
     this->my_contact_preserver.initialize_tasks(this->num_tasks, this->dim_tasks, this->prio_tasks, this->lambda_max, this->epsilon);
+	this->my_contact_preserver.initialize_topics(this->object_twist_topic_name, this->ag_nh);
 
     // Resetting the reference motion to zero
     this->x_ref = Eigen::VectorXd::Zero(this->x_d.size());
@@ -426,7 +427,7 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
 
                 // Setting minimization and relaxation parameters
-                this->my_contact_preserver.setMinimizationParams(this->x_d);
+                this->my_contact_preserver.setMinimizationParams(this->x_d, this->f_d_d);
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
                 // Performing minimization (from here on check if the RP Changes are OK)

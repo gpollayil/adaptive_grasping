@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <Eigen/Dense>
+#include <ros/subscriber.h>
+#include <geometry_msgs/Twist.h>
 
 #include "reversePriorityManager.h"
 
@@ -71,11 +73,18 @@ namespace adaptive_grasping {
     */
     bool initialize(Eigen::MatrixXd S_);
 
-    /** INITIALIZE
+	/** INITIALIZETOPICS
     * @brief Private function to initialize the object
     *
-    * @param S_
-    *   the synergy matrix of the hand (if hand fully actuated S = I)
+    * @param object_twist_topic_name_
+    *   the topic where the object twist is published
+    * @return null
+    */
+	bool initialize_topics(std::string object_twist_topic_name_, ros::NodeHandle nh);
+
+    /** INITIALIZETASKS
+    * @brief Private function to initialize the object
+    *
     * @param num_tasks_
     *   the number of tasks for RP Mangager
     * @param dim_tasks_
@@ -117,9 +126,11 @@ namespace adaptive_grasping {
     *
     * @param x_d_
     *   the desired motion of the hand given by some high level planner
+    * @param f_d_d_
+    *   the desired contact force derivative
     * @return null
     */
-    void setMinimizationParams(Eigen::VectorXd x_d_);
+    void setMinimizationParams(Eigen::VectorXd x_d_, Eigen::VectorXd f_d_d_);
 
     /** SETPERMUTATIONPARAMS
     * @brief Function to set new permutation matrix for the relaxed minimization problem (used to compute R)
@@ -192,6 +203,12 @@ namespace adaptive_grasping {
     // Previous planner desired motions
     Eigen::VectorXd x_d_old;
 
+    // The object twist set by the object twist subscriber
+    Eigen::VectorXd xi_o;
+
+    // Planner desired contact forces derivative
+    Eigen::VectorXd f_d_d;
+
     // Full minimization solution
     Eigen::VectorXd x_ref;
 
@@ -221,6 +238,11 @@ namespace adaptive_grasping {
 
     // The C matrix in the algorithm
     Eigen::MatrixXd C;
+
+    // Object twist topic, subscriber and needed node handle.
+    std::string object_twist_topic_name;
+    std::unique_ptr<ros::NodeHandle> cp_nh_ptr;
+    ros::Subscriber obj_twist_sub;
 
     // Number of times the relax functon has been called for the same x_d
     int relaxation_order;
@@ -254,6 +276,16 @@ namespace adaptive_grasping {
 
     // Null space basis of Q_tilde
     Eigen::MatrixXd N_tilde;
+
+    // PRIVATE FUNCTIONS
+
+	/** OBJECTTWISTCALLBACK
+    * @brief Callback function to get the object twist from a topic
+    *
+    * @param msg
+    * @return null
+    */
+	void object_twist_callback(const geometry_msgs::Twist::ConstPtr &msg);
 
   }; // closing class
 

@@ -55,6 +55,14 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
   x_ref_old = Eigen::VectorXd::Zero(x_d_old.size());
 }
 
+/* INITIALIZETOPICS */
+bool contactPreserver::initialize_topics(std::string object_twist_topic_name_, ros::NodeHandle nh){
+	// Setting the topic
+	this->object_twist_topic_name = object_twist_topic_name_;
+	this->cp_nh_ptr = std::unique_ptr<ros::NodeHandle>(&nh);
+	this->obj_twist_sub = this->cp_nh_ptr->subscribe(this->object_twist_topic_name, 10, &contactPreserver::object_twist_callback, this);
+}
+
 /* INITIALIZE */
 bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_, double lambda_max_, double epsilon_){
   // Set the tasks stuff for RP Manager
@@ -87,9 +95,10 @@ void contactPreserver::setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_,
 }
 
 /* SETMINIMIZATIONPARAMS */
-void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_){
+void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_, Eigen::VectorXd f_d_d_){
   // Set the new desired motion vector and weight matrix
   x_d = x_d_;
+  f_d_d = f_d_d_;
 }
 
 /* SETPERMUTATIONMATRIX */
@@ -415,4 +424,18 @@ void contactPreserver::printAll(){
   std::cout << "x_d =" << std::endl; std::cout << x_d << std::endl;
   std::cout << "Q =" << std::endl; std::cout << Q << std::endl;
   std::cout << "N_tilde =" << std::endl; std::cout << N_tilde << std::endl;
+}
+
+/* OBJECTTWISTCALLBACK */
+void contactPreserver::object_twist_callback(const geometry_msgs::Twist::ConstPtr &msg){
+	// Resizing the eigen vector
+	this->xi_o.resize(6);
+
+	// Saving the msg to the eigen vector
+	this->xi_o << msg->linear.x;
+	this->xi_o << msg->linear.y;
+	this->xi_o << msg->linear.z;
+	this->xi_o << msg->angular.x;
+	this->xi_o << msg->angular.y;
+	this->xi_o << msg->angular.z;
 }
