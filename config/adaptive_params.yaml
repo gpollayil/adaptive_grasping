@@ -40,7 +40,7 @@ adaptive_grasping:
     - [0.1, 0, 0, 0, 0, 0, 0]                   # for simple grasp?
   # The following array is the desired contact force derivative
   f_d_d:
-    - [ 0, 0, 0, 0, 0, 0]
+    - [0, 0, 0, 0, 0, 0]
   # The rate of the adaptive loop
   spin_rate: 1000.0
   # The topic where the object pose is published

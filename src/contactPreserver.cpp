@@ -322,7 +322,7 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     // Now create the block matrix
     Q << H*J*S, H*T;
 
-    // For debugging purpouses (real line is above)
+    // For debugging purposes (real line is above)
     if(N_DEBUG){
       Eigen::FullPivLU<Eigen::MatrixXd> luN_debug(Q);
       Eigen::MatrixXd N_debug = luN_debug.kernel();
