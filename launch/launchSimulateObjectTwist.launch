@@ -2,7 +2,7 @@
 <launch>
 
     <!-- Temporarily publishing the object twist TODO: don't use when using vision based estimation or simulation -->
-    <node name="rostopic_object_twist_node" pkg="rostopic" type="rostopic" args="pub -r 10 object_pose geometry_msgs/Twist
+    <node name="rostopic_object_twist_node" pkg="rostopic" type="rostopic" args="pub -r 10 object_twist geometry_msgs/Twist
 	'{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}'"/>
 
 </launch>

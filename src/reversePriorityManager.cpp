@@ -3,7 +3,7 @@
 // ROS Includes
 #include <ros/ros.h>
 
-#define DEBUG           1           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
 #define BRUTAL_T        0           // If 1 the T matrices are computed without the rank_update by extracting the block
 
 /**
@@ -174,7 +174,7 @@ bool reversePriorityManager::compute_proj_mats() {
     Eigen::MatrixXd J_aug = Eigen::MatrixXd::Zero(J_now.rows(), J_now.cols());
     this->proj_mat_set_.at(task_set_dim) = Eigen::MatrixXd::Identity(J_now.cols(), J_now.cols());
 
-    if (DEBUG) {
+    if (DEBUG || true) {
         ROS_INFO_STREAM("The quantities for the " << int (task_set_dim) - 1 << "th Proj matrix computation are: ");
         std::cout << "J_now: \n" << J_now << std::endl;
         std::cout << "J_aug: \n" << J_aug << std::endl;

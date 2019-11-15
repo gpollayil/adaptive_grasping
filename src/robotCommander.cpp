@@ -3,7 +3,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "robot_commander"
 #define DEBUG             0   // print out additional info
-#define DEBUG_PUB         0   // publishes additional info for rqt_plot
+#define DEBUG_PUB         1   // publishes additional info for rqt_plot
 
 /**
 * @brief The following are functions of the class robotCommander.
@@ -29,7 +29,8 @@ robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_) 
     // Initializing the publishers
     this->pub_hand = nh_rc.advertise<std_msgs::Float64>(this->hand_topic , 1);
     this->pub_arm = nh_rc.advertise<geometry_msgs::Twist>(this->arm_topic , 1);
-    this->pub_twist_debug = nh_rc.advertise<geometry_msgs::WrenchStamped>("/twist_debug" , 1);
+    this->pub_twist_debug = nh_rc.advertise<geometry_msgs::WrenchStamped>("/rob_comm_twist_debug" , 1);
+    this->pub_sigma_debug = nh_rc.advertise<std_msgs::Float64>("/rob_comm_sigma_debug" , 1);
     
     // Resizing the Eigen Vector
     this->x_ref.resize(7);
@@ -72,7 +73,7 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     }
     
     // Debug message
-    if(DEBUG) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
+    if(DEBUG || true) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
         << "\n" << this->x_ref << ".");
 
     // Checking if the reference contains NaNs
@@ -125,6 +126,7 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     if(DEBUG_PUB) this->twist_wrench.wrench.force.y = filtered_x_ref(2); this->twist_wrench.wrench.torque.y = filtered_x_ref(5);
     if(DEBUG_PUB) this->twist_wrench.wrench.force.z = filtered_x_ref(3); this->twist_wrench.wrench.torque.z = filtered_x_ref(6);
     if(DEBUG_PUB) this->pub_twist_debug.publish(this->twist_wrench);
+    if(DEBUG_PUB) this->pub_sigma_debug.publish(this->cmd_syn);
 
     // Return the callback result
     res.success = success;

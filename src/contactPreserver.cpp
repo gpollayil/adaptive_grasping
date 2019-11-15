@@ -340,15 +340,24 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     // Print message for debug
     if(DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
 
+  // Repeating f_d_d for all contacts
+  int rep_factor = H.rows()/f_d_d.size();
+  Eigen::VectorXd f_d_d_tot = f_d_d.replicate(rep_factor, 1);
+
 	// Compute vector y
 	y.resize(x_d.size() + H.rows());
 	// There is no Kc in this formula because it has already been included in H by matrixCreator
-	y << x_d, f_d_d + H*G.transpose()*xi_o;
+  Eigen::VectorXd y_c = f_d_d_tot + H*G.transpose()*xi_o;
+	y << x_d, y_c;
 
     // DEBUG PRINTS
     if(DEBUG || true) std::cout << "----------------" << std::endl;
     if(DEBUG || true) std::cout << "Q_tilde = " << Q_tilde << std::endl;
     if(DEBUG || true) std::cout << "y = " << y << std::endl;
+    if(DEBUG || true) std::cout << "f_d_d = " << f_d_d << std::endl;
+    if(DEBUG || true) std::cout << "xi_o = " << xi_o << std::endl;
+    if(DEBUG || true) std::cout << "y_c = " << y_c << std::endl;
+    if(DEBUG || true) std::cout << "f_d_d_tot = " << f_d_d_tot << std::endl;
     if(DEBUG || true) std::cout << "----------------" << std::endl;
 
     // Preparing to fill in the tasks in the RP Manager

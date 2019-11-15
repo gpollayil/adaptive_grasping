@@ -90,6 +90,7 @@ namespace adaptive_grasping {
     // Publishers to hand and arm controllers
     ros::Publisher pub_hand;
     ros::Publisher pub_arm;
+    ros::Publisher pub_sigma_debug;
     ros::Publisher pub_twist_debug;
 
     // Command vars: messages to be published
