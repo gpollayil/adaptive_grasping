@@ -100,6 +100,7 @@ void reversePriorityManager::print_set() {
     for (std::vector<basicTask>::iterator it = this->task_set_.begin(); it != this->task_set_.end(); ++it) {
         std::cout << "---------------------" << std::endl;
         std::cout << "priority: " << it->get_task_priority() << std::endl;
+        std::cout << "sec_priority: " << it->get_sec_priority() << std::endl;
         std::cout << "x_dot: \n" << it->get_task_x_dot() << std::endl;
         std::cout << "jacobian: \n" << it->get_task_jacobian() << std::endl;
     }
@@ -112,7 +113,7 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 
     // Ordering the task set
     this->reorder_set();
-    if (DEBUG) this->print_set();
+    if (DEBUG || true) this->print_set();
 
     // Computing all the Projection matrices
     if (!this->compute_proj_mats()) {      // If this fails, return false and solution is zeros
@@ -174,7 +175,7 @@ bool reversePriorityManager::compute_proj_mats() {
     Eigen::MatrixXd J_aug = Eigen::MatrixXd::Zero(J_now.rows(), J_now.cols());
     this->proj_mat_set_.at(task_set_dim) = Eigen::MatrixXd::Identity(J_now.cols(), J_now.cols());
 
-    if (DEBUG || true) {
+    if (DEBUG) {
         ROS_INFO_STREAM("The quantities for the " << int (task_set_dim) - 1 << "th Proj matrix computation are: ");
         std::cout << "J_now: \n" << J_now << std::endl;
         std::cout << "J_aug: \n" << J_aug << std::endl;

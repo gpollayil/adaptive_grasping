@@ -49,6 +49,9 @@ bool contactPreserver::initialize(Eigen::MatrixXd S_){
   // Set the synergy matrix
   changeHandType(S_);
 
+  // Initialize xi_o
+  this->xi_o = Eigen::VectorXd::Zero(6);
+
   // Setting temporary values of x_d and x_d_old
   x_d_old = Eigen::VectorXd::Ones(1 + 6);
   ROS_WARN_STREAM("The number of rows of x_d_old is " << this->x_d_old.rows());
@@ -60,6 +63,7 @@ bool contactPreserver::initialize_topics(std::string object_twist_topic_name_, r
 	// Setting the topic
 	this->object_twist_topic_name = object_twist_topic_name_;
 	this->cp_nh_ptr = std::unique_ptr<ros::NodeHandle>(&nh);
+  geometry_msgs::Twist::ConstPtr tmp_twist_in = ros::topic::waitForMessage<geometry_msgs::Twist>(this->object_twist_topic_name, nh, ros::Duration(2.0));
 	this->obj_twist_sub = this->cp_nh_ptr->subscribe(this->object_twist_topic_name, 10, &contactPreserver::object_twist_callback, this);
 }
 
@@ -290,7 +294,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
     if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
     x_ref = x_ref_old;            // Old vector is returned until good solution is found
     x_result = x_ref;
-    if(DEBUG || true) ROS_WARN_STREAM("Relaxing because no particular solution found.");
+    if(DEBUG) ROS_WARN_STREAM("Relaxing because no particular solution found.");
     return false;
   }
 
@@ -304,7 +308,7 @@ bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
   // Saving to old and return contact preserving solution
   x_ref_old = x_ref;
   x_result = x_ref;
-  if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
+  if(DEBUG) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
   return true;
 }
 
@@ -355,9 +359,11 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
     if(DEBUG || true) std::cout << "Q_tilde = " << Q_tilde << std::endl;
     if(DEBUG || true) std::cout << "y = " << y << std::endl;
     if(DEBUG || true) std::cout << "f_d_d = " << f_d_d << std::endl;
+    if(DEBUG || true) std::cout << "f_d_d_tot = " << f_d_d_tot << std::endl;
     if(DEBUG || true) std::cout << "xi_o = " << xi_o << std::endl;
     if(DEBUG || true) std::cout << "y_c = " << y_c << std::endl;
-    if(DEBUG || true) std::cout << "f_d_d_tot = " << f_d_d_tot << std::endl;
+    if(DEBUG || true) std::cout << "rep_factor = " << rep_factor << std::endl;
+    if(DEBUG || true) std::cout << "H*G.transpose()*xi_o = " << H*G.transpose()*xi_o << std::endl;
     if(DEBUG || true) std::cout << "----------------" << std::endl;
 
     // Preparing to fill in the tasks in the RP Manager
@@ -403,16 +409,28 @@ bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
 	    }
     }
 
+    // Setting the secondary priorities (by adding +1 when first and sec priorities are same)
+    for (int i = 0; i < this->tmp_task_vec.size(); i++) {
+      for (int j = i + 1; j < this->tmp_task_vec.size(); j++) {
+        if (this->tmp_task_vec.at(i).get_task_priority() == this->tmp_task_vec.at(j).get_task_priority()) {
+          if (this->tmp_task_vec.at(i).get_sec_priority() == this->tmp_task_vec.at(j).get_sec_priority()) {
+            int curr_sec_prio = this->tmp_task_vec.at(j).get_sec_priority();
+            this->tmp_task_vec.at(j).set_sec_priority(curr_sec_prio + 1);
+          }
+        }
+      }
+    }
+
     // Pushing into RP Manager and printing out
     this->rp_manager.insert_tasks(this->tmp_task_vec);
-    this->rp_manager.print_set();
+    if(DEBUG) this->rp_manager.print_set();
 
     // Compute reference as solution of RP Algorithm
     if(this->rp_manager.solve_inv_kin(x_ref)) {
         ROS_INFO_STREAM("The RP Solution is \n" << x_ref);
         x_ref_old = x_ref;
         x_result = x_ref;
-        if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
+        if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!");
         return true;
     } else {
         ROS_ERROR("RP Manager could not find solution!");

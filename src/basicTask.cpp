@@ -26,6 +26,9 @@ basicTask::basicTask(Eigen::VectorXd task_x_dot, Eigen::MatrixXd task_jacobian, 
     set_task_x_dot(task_x_dot);
     set_task_jacobian(task_jacobian);
     set_task_priority(task_priority);
+    
+    // Default secondary priority is zero (if other values needed, use public set function)
+    this->sec_priority_ = 0;
 }
 
 // Destructor
@@ -44,6 +47,10 @@ void basicTask::set_task_jacobian(Eigen::MatrixXd jacobian) {
 
 void basicTask::set_task_priority(int priority) {
     this->task_priority_ = priority;
+}
+
+void basicTask::set_sec_priority(int sec_priority) {
+    this->sec_priority_ = sec_priority;
 }
 
 Eigen::VectorXd basicTask::get_task_x_dot() {
