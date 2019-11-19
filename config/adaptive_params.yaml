@@ -29,12 +29,12 @@ adaptive_grasping:
     - [0, 0, 0, 0, 0, 1]
   # The stiffness matrix for the contact forces
   k_matrix:     # fully constrained
-    - [10, 0, 0, 0, 0, 0]
-    - [0, 10, 0, 0, 0, 0]
-    - [0, 0, 10, 0, 0, 0]
-    - [0, 0, 0, 10, 0, 0]
-    - [0, 0, 0, 0, 10, 0]
-    - [0, 0, 0, 0, 0, 10]
+    - [0.1, 0, 0, 0, 0, 0]
+    - [0, 0.1, 0, 0, 0, 0]
+    - [0, 0, 0.1, 0, 0, 0]
+    - [0, 0, 0, 0.1, 0, 0]
+    - [0, 0, 0, 0, 0.1, 0]
+    - [0, 0, 0, 0, 0, 0.1]
   # The following array is the desired x motion
   x_d:
     - [0.1, 0, 0, 0, 0, 0, 0]                   # for simple grasp?
