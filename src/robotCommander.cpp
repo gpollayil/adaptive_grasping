@@ -31,6 +31,7 @@ robotCommander::robotCommander(std::string hand_topic_, std::string arm_topic_) 
     this->pub_arm = nh_rc.advertise<geometry_msgs::Twist>(this->arm_topic , 1);
     this->pub_twist_debug = nh_rc.advertise<geometry_msgs::WrenchStamped>("/rob_comm_twist_debug" , 1);
     this->pub_sigma_debug = nh_rc.advertise<std_msgs::Float64>("/rob_comm_sigma_debug" , 1);
+    this->pub_twist_init = nh_rc.advertise<geometry_msgs::Twist>("/rob_comm_twist_init", 1);
     
     // Resizing the Eigen Vector
     this->x_ref.resize(7);
@@ -71,9 +72,15 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     for(int i = 0; i < x_ref_arr.size(); i++){
         this->x_ref(i) = x_ref_arr[i];
     }
+
+    if (DEBUG_PUB) {
+        this->tmp_twist.linear.x = this->x_ref(0); this->tmp_twist.linear.y = this->x_ref(2); this->tmp_twist.linear.z = this->x_ref(3);
+        this->tmp_twist.angular.x = this->x_ref(3); this->tmp_twist.angular.y = this->x_ref(4); this->tmp_twist.angular.z = this->x_ref(5);
+        this->pub_twist_init.publish(this->tmp_twist);
+    }
     
     // Debug message
-    if(DEBUG || true) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
+    if(DEBUG) ROS_INFO_STREAM("robotCommander::performRobotCommand : The requested velocity vector is:" 
         << "\n" << this->x_ref << ".");
 
     // Checking if the reference contains NaNs
@@ -91,7 +98,7 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
 
     // Checking velocity limits and eventually scaling them
     if(!this->enforceLimits(this->x_ref)){
-        if(DEBUG || true){
+        if(DEBUG){
             ROS_WARN("robotCommander::performRobotCommand : velocity limits violated, scaling the reference.");
         }
     }

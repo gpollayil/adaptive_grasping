@@ -92,9 +92,11 @@ namespace adaptive_grasping {
     ros::Publisher pub_arm;
     ros::Publisher pub_sigma_debug;
     ros::Publisher pub_twist_debug;
+    ros::Publisher pub_twist_init;
 
     // Command vars: messages to be published
     geometry_msgs::Twist cmd_twist;
+    geometry_msgs::Twist tmp_twist;
     std_msgs::Float64 cmd_syn;
     geometry_msgs::WrenchStamped twist_wrench;          // Publishing twist as a wrench (For Debugging)
     double vel_limit = 0.05;                            // Upper limit for all joint velocities
