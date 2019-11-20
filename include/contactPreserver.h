@@ -7,7 +7,7 @@
 #include <ros/subscriber.h>
 #include <geometry_msgs/Twist.h>
 
-#include "reversePriorityManager.h"
+#include "task_utils/reversePriorityManager.h"
 
 /**
 * @brief This class is called by the adaptive_grasping method to compute the

@@ -5,8 +5,8 @@
 #include <ros/ros.h>
 
 
-#include "basicTask.h"
-#include "reversePriorityManager.h"
+#include "task_utils/basicTask.h"
+#include "task_utils/reversePriorityManager.h"
 
 using namespace adaptive_grasping;
 
