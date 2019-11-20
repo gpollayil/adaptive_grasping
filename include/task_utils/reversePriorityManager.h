@@ -11,6 +11,7 @@
 
 // Custom Includes
 #include "basicTask.h"
+#include "utils/inversion_utilities.h"
 
 
 namespace adaptive_grasping {
@@ -54,8 +55,6 @@ private:
     std::vector<Eigen::MatrixXd> proj_mat_set_;
 
     // Private Auxiliary Fuctions
-    Eigen::MatrixXd damped_pseudo_inv(Eigen::MatrixXd input_mat, double damping_coeff, double epsilon);
-	Eigen::MatrixXd trunk_pseudo_inv(Eigen::MatrixXd input_mat, double epsilon);
     bool compute_proj_mats();
 
 	// This one cleans the augmented jacobian from the rows that are lin. dep. on the current jacobian

@@ -4,7 +4,6 @@
 #include <ros/ros.h>
 
 #define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
-#define BRUTAL_T        0           // If 1 the T matrices are computed without the rank_update by extracting the block
 
 /**
 * @brief The following are functions of the class reversePriorityManager.
@@ -136,7 +135,7 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
         Eigen::VectorXd x_dot_i = this->task_set_.at(i).get_task_x_dot();
         Eigen::MatrixXd J_i = this->task_set_.at(i).get_task_jacobian();
         Eigen::MatrixXd P_i1 = this->proj_mat_set_.at(i+1);
-        Eigen::MatrixXd pinv_J_i_P_i1 = this->damped_pseudo_inv((J_i*P_i1), this->lambda_max_, this->epsilon_);
+        Eigen::MatrixXd pinv_J_i_P_i1 = damped_pseudo_inv((J_i*P_i1), this->lambda_max_, this->epsilon_);
 
         // Debug print outs
         if (DEBUG) {
@@ -204,7 +203,7 @@ bool reversePriorityManager::compute_proj_mats() {
 
         // Clean jac and projection matrix
         Eigen::MatrixXd J_tilde = this->clean_jac(Jcurr.transpose(), J_aug.transpose()).transpose();
-        Eigen::MatrixXd pinv_J_tilde = this->damped_pseudo_inv(J_tilde, this->lambda_max_, this->epsilon_);
+        Eigen::MatrixXd pinv_J_tilde = damped_pseudo_inv(J_tilde, this->lambda_max_, this->epsilon_);
 
         if (DEBUG) {
             ROS_INFO_STREAM("The quantities for the " << i << "th Proj matrix computation are: ");
@@ -219,50 +218,6 @@ bool reversePriorityManager::compute_proj_mats() {
 }
 
 // Private Auxiliary Fuctions
-Eigen::MatrixXd reversePriorityManager::damped_pseudo_inv(Eigen::MatrixXd input_mat, double damping_coeff, double epsilon) {
-    // Computing the singular values
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(input_mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
-    Eigen::JacobiSVD<Eigen::MatrixXd>::SingularValuesType sing_vals = svd.singularValues();
-
-    // Checking if the smallest sing val is really small
-    double lambda_sq = 0.0;
-    double min_sing_val = sing_vals(sing_vals.size() - 1);
-    if (min_sing_val < epsilon) {
-        lambda_sq = (1 - pow((min_sing_val / epsilon), 2)) * pow(damping_coeff, 2);
-        ROS_WARN("Damping the pseudo inverse!!!");
-    }
-
-    // Changing the diagonal sv matrix
-    Eigen::MatrixXd S = input_mat; S.setZero();
-    for (int i = 0; i < sing_vals.size(); i++) {
-        S(i, i) = (sing_vals(i)) / (pow(sing_vals(i), 2) + lambda_sq);
-    }
-
-    // Return the svd based damped pseudoinverse
-    return Eigen::MatrixXd(svd.matrixV() * S.transpose() * svd.matrixU().transpose());
-}
-
-Eigen::MatrixXd reversePriorityManager::trunk_pseudo_inv(Eigen::MatrixXd input_mat, double epsilon) {
-	// Computing the singular values
-	Eigen::JacobiSVD<Eigen::MatrixXd> svd(input_mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
-	Eigen::JacobiSVD<Eigen::MatrixXd>::SingularValuesType sing_vals = svd.singularValues();
-
-	// Checking if the smallest sing val is really small
-	bool really_small = false;
-	double min_sing_val = sing_vals(sing_vals.size() - 1);
-	if (min_sing_val < epsilon) {
-		really_small = true;
-		ROS_WARN("The min sing val is really small! Will set it to zero for the pseudo inverse!!!");
-	}
-
-	// Changing the min sing value in the sv matrix
-	Eigen::MatrixXd S = input_mat;
-	S(sing_vals.size() - 1, sing_vals.size() - 1) = 0.0;
-
-	// Return the svd based damped pseudoinverse
-	return Eigen::MatrixXd(svd.matrixV() * S.transpose() * svd.matrixU().transpose());
-}
-
 Eigen::MatrixXd reversePriorityManager::clean_jac(Eigen::MatrixXd Jt, Eigen::MatrixXd Jrat) {
 
 	//  CLEAN_JAC chooses the columns of Jrat that are not lin. dep. on Jt and returns a matrix that
