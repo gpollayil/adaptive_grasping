@@ -8,8 +8,6 @@
 #include "task_utils/basicTask.h"
 #include "task_utils/reversePriorityManager.h"
 
-using namespace adaptive_grasping;
-
 int main(int argc, char **argv) {
 
     // Starting the test node

@@ -1,0 +1,8 @@
+//
+// Created by george on 20/11/19.
+//
+
+#ifndef SRC_STACKOFTASKSMANAGER_H
+#define SRC_STACKOFTASKSMANAGER_H
+
+#endif //SRC_STACKOFTASKSMANAGER_H

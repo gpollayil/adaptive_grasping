@@ -9,8 +9,6 @@
 // Basic Includes
 #include <Eigen/Dense>
 
-namespace adaptive_grasping {
-
 class basicTask {
 
 public:
@@ -65,8 +63,6 @@ private:
     int sec_priority_;
 
 };
-
-}
 
 
 #endif // BASICTASK_H

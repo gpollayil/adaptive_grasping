@@ -13,9 +13,6 @@
 #include "basicTask.h"
 #include "utils/inversion_utilities.h"
 
-
-namespace adaptive_grasping {
-
 class reversePriorityManager {
 
 public:
@@ -61,7 +58,5 @@ private:
     Eigen::MatrixXd clean_jac(Eigen::MatrixXd Jt, Eigen::MatrixXd Jrat);
 
 };
-
-}
 
 #endif // REVERSEPRIORITYMANAGER_H

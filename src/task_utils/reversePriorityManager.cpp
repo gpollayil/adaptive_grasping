@@ -10,8 +10,6 @@
 *
 */
 
-using namespace adaptive_grasping;
-
 // Default Constructor
 reversePriorityManager::reversePriorityManager(){
     // Nothing to do here
