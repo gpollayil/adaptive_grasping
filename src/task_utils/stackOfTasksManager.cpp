@@ -1,4 +1,142 @@
 //
-// Created by george on 20/11/19.
+// Created by George on 20/11/19.
 //
 
+#include "task_utils/stackOfTasksManager.h"
+
+// ROS Includes
+#include <ros/ros.h>
+
+#define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
+
+/**
+* @brief The following are functions of the class stackOfTasksManager.
+*
+*/
+
+// Default Constructor
+stackOfTasksManager::stackOfTasksManager(){
+	// Nothing to do here
+}
+
+// Overloaded Constructor 1
+stackOfTasksManager::stackOfTasksManager(int dim_config_space, double lambda_max, double epsilon) {
+	// Setting the dimension of the configuration space of the tasks and the RP constants
+	this->dim_config_space_ = dim_config_space;
+	this->lambda_max_ = lambda_max;
+	this->epsilon_ = epsilon;
+}
+
+// Overloaded Constructor 2
+stackOfTasksManager::stackOfTasksManager(int dim_config_space, double lambda_max, double epsilon, std::vector<basicTask> starting_task_set) {
+	// Setting the dimension of the configuration space of the tasks and the RP constants
+	this->dim_config_space_ = dim_config_space;
+	this->lambda_max_ = lambda_max;
+	this->epsilon_ = epsilon;
+
+	// Inserting the tasks
+	if (!this->insert_tasks(starting_task_set)) ros::shutdown();
+}
+
+// Destructor
+stackOfTasksManager::~stackOfTasksManager() {
+	// Nothing to do here for now
+}
+
+// Auxiliary Public Functions
+bool stackOfTasksManager::set_basics(int dim_config_space, double lambda_max, double epsilon) {
+	// Setting the dimension of the configuration space of the tasks and the RP constants
+	this->dim_config_space_ = dim_config_space;
+	this->lambda_max_ = lambda_max;
+	this->epsilon_ = epsilon;
+
+	ROS_INFO_STREAM("This RP Manager has dim_config_space_ " << this->dim_config_space_ << " lambda_max_ " << this->lambda_max_ << " epsilon " << this->epsilon_ << ".");
+}
+
+
+bool stackOfTasksManager::insert_tasks(std::vector<basicTask> tasks) {
+	// Checking that all the tasks of the task set have the same configuration space dimensions
+	bool tasks_ok = true;
+	for (std::vector<basicTask>::iterator it = tasks.begin(); it != tasks.end(); ++it) {
+		if (it->get_task_jacobian().cols() != this->dim_config_space_) {
+			ROS_ERROR_STREAM("The " << it - tasks.begin() <<
+			                        "th task has a number of columns (" << it->get_task_jacobian().cols() <<
+			                        ") != configuration space dimension (" << this->dim_config_space_ << ")! This won't work anymore!");
+			tasks_ok = false;
+		}
+	}
+
+	// If no consistency between tasks return false
+	if (!tasks_ok) return false;
+
+	// Appending the input task vector to the existing task set
+	this->task_set_.insert(this->task_set_.end(), tasks.begin(), tasks.end());
+}
+
+void stackOfTasksManager::remove_task(int task_priority) {
+	// Finding the index of the element with given task_priority
+	int index = 0;
+	for (std::vector<basicTask>::iterator it = this->task_set_.begin(); it != this->task_set_.end(); ++it) {
+		if (it->get_task_priority() == task_priority) {
+			break;
+		} else {
+			index++;
+		}
+	}
+
+	// Removing the element with found index
+	this->task_set_.erase(this->task_set_.begin() + index);
+}
+
+void stackOfTasksManager::reorder_set() {
+	std::sort(this->task_set_.begin(), this->task_set_.end());
+}
+
+void stackOfTasksManager::clear_set() {
+	this->task_set_.clear();
+}
+
+void stackOfTasksManager::print_set() {
+	ROS_INFO_STREAM("The task set is: ");
+	for (std::vector<basicTask>::iterator it = this->task_set_.begin(); it != this->task_set_.end(); ++it) {
+		std::cout << "---------------------" << std::endl;
+		std::cout << "priority: " << it->get_task_priority() << std::endl;
+		std::cout << "sec_priority: " << it->get_sec_priority() << std::endl;
+		std::cout << "x_dot: \n" << it->get_task_x_dot() << std::endl;
+		std::cout << "jacobian: \n" << it->get_task_jacobian() << std::endl;
+	}
+	std::cout << "---------------------" << std::endl;
+}
+
+void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
+	// Initializing the result vector
+	Eigen::VectorXd q_res; q_res.resize(this->dim_config_space_); q_res.setZero();
+
+	// Ordering the task set
+	this->reorder_set();
+	if (DEBUG || true) this->print_set();
+
+	// Initialize projection matrices and the current jacobian and task vector
+	int n_rows_init = this->task_set_.at(0).get_task_jacobian().rows();
+	Eigen::MatrixXd P_i_1 = Eigen::MatrixXd::Identity(n_rows_init, n_rows_init);
+	Eigen::MatrixXd J_i;
+	Eigen::VectorXd x_dot_i;
+	Eigen::MatrixXd JP_i_pinv;
+
+	// Recursion loop (ref stack of tasks paper)
+	for (auto it : this->task_set_) {
+		// Getting the needed variables
+		x_dot_i = it.get_task_x_dot();
+		J_i = it.get_task_jacobian();
+
+		// Computing current solution
+		JP_i_pinv = damped_pseudo_inv(J_i * P_i_1, this->lambda_max_, this->epsilon_);
+		q_res = q_res + JP_i_pinv * (x_dot_i - J_i * q_res);
+
+		// Updating the projection matrix
+		P_i_1 = P_i_1 - JP_i_pinv * J_i * P_i_1;
+	}
+
+	// Returning
+	q_sol = q_res;
+}

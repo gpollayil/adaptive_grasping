@@ -167,6 +167,7 @@ set(ADAPTIVE_SOURCE_FILES
 		src/robotCommander.cpp
 		src/task_utils/basicTask.cpp
 		src/task_utils/reversePriorityManager.cpp
+		src/task_utils/stackOfTasksManager.cpp
 )
 
 add_executable(${PROJECT_NAME}_fg_node src/full_grasper_node.cpp src/fullGrasper.cpp ${ADAPTIVE_SOURCE_FILES})

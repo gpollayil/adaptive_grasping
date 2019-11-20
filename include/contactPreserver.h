@@ -8,6 +8,7 @@
 #include <geometry_msgs/Twist.h>
 
 #include "task_utils/reversePriorityManager.h"
+#include "task_utils/stackOfTasksManager.h"
 
 /**
 * @brief This class is called by the adaptive_grasping method to compute the
@@ -265,8 +266,9 @@ namespace adaptive_grasping {
     // The epsilon for RP Manager
     double epsilon;
 
-    // A Reverse Priority Manager
+    // Inverse Kinematics Managers
     reversePriorityManager rp_manager;
+    stackOfTasksManager sot_manager;
 
     // Temporary task for filling up the task vec
     basicTask tmp_task;
