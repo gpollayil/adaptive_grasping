@@ -432,11 +432,7 @@ void adaptiveGrasper::spinGrasper(){
 
                 // Performing minimization (from here on check if the RP Changes are OK)
                 bool no_relaxation = true;
-                if (this->num_tasks <= 2) {
-                    no_relaxation = this->my_contact_preserver.performMinimization(this->x_ref);
-                } else {
-                    no_relaxation = this->my_contact_preserver.performSimpleRP(this->x_ref);
-                }
+                no_relaxation = this->my_contact_preserver.performKinInversion(this->x_ref);
 
                 // Publish the twist for debug
                 if (DEBUG_PUB){

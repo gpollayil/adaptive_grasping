@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
     // Performing minimization
     Eigen::VectorXd x_ref;
-    bool relaxed = preserver.performMinimization(x_ref);
+    bool relaxed = preserver.performKinInversion(x_ref);
 
     // Print out all variables in contactPreserver
     preserver.printAll();
