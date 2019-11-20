@@ -8,6 +8,7 @@
 #include <ros/ros.h>
 
 #define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
+#define USE_DAMPING     1           // If true the manager makes use of damping while pseudo inverting
 
 /**
 * @brief The following are functions of the class stackOfTasksManager.
@@ -130,7 +131,11 @@ void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 		J_i = it.get_task_jacobian();
 
 		// Computing current solution
-		JP_i_pinv = damped_pseudo_inv(J_i * P_i_1, this->lambda_max_, this->epsilon_);
+		if (USE_DAMPING) {
+			JP_i_pinv = damped_pseudo_inv(J_i * P_i_1, this->lambda_max_, this->epsilon_);
+		} else {
+			JP_i_pinv = trunk_pseudo_inv(J_i * P_i_1, this->epsilon_);
+		}
 		q_res = q_res + JP_i_pinv * (x_dot_i - J_i * q_res);
 
 		// Updating the projection matrix

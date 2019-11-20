@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
+#define USE_DAMPING     1           // If true the manager makes use of damping while pseudo inverting
 
 /**
 * @brief The following are functions of the class reversePriorityManager.
@@ -133,7 +134,12 @@ bool reversePriorityManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
         Eigen::VectorXd x_dot_i = this->task_set_.at(i).get_task_x_dot();
         Eigen::MatrixXd J_i = this->task_set_.at(i).get_task_jacobian();
         Eigen::MatrixXd P_i1 = this->proj_mat_set_.at(i+1);
-        Eigen::MatrixXd pinv_J_i_P_i1 = damped_pseudo_inv((J_i*P_i1), this->lambda_max_, this->epsilon_);
+	    Eigen::MatrixXd pinv_J_i_P_i1;
+        if (USE_DAMPING) {
+	        pinv_J_i_P_i1 = damped_pseudo_inv((J_i*P_i1), this->lambda_max_, this->epsilon_);
+        } else {
+	        pinv_J_i_P_i1 = trunk_pseudo_inv((J_i*P_i1), this->epsilon_);
+        }
 
         // Debug print outs
         if (DEBUG) {
@@ -201,7 +207,12 @@ bool reversePriorityManager::compute_proj_mats() {
 
         // Clean jac and projection matrix
         Eigen::MatrixXd J_tilde = this->clean_jac(Jcurr.transpose(), J_aug.transpose()).transpose();
-        Eigen::MatrixXd pinv_J_tilde = damped_pseudo_inv(J_tilde, this->lambda_max_, this->epsilon_);
+	    Eigen::MatrixXd pinv_J_tilde;
+        if (USE_DAMPING) {
+	        pinv_J_tilde = damped_pseudo_inv(J_tilde, this->lambda_max_, this->epsilon_);
+        } else {
+	        pinv_J_tilde = trunk_pseudo_inv(J_tilde, this->epsilon_);
+        }
 
         if (DEBUG) {
             ROS_INFO_STREAM("The quantities for the " << i << "th Proj matrix computation are: ");
