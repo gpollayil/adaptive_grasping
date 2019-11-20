@@ -1,16 +1,10 @@
 #include "contactPreserver.h"
 #include "ros/ros.h"
 #include "utils/pseudo_inversion.h"
-#include <numeric>      // std::partial_sum
 
-#define EXEC_NAMESPACE    "adaptive_grasping"
-#define CLASS_NAMESPACE   "contact_preserver"
-#define DEBUG             0   // print out additional info
-#define N_DEBUG           0   // sends as reference column of N(Q)
-
-// The bool for keeping the constraints relaxed (if true... otherwise relaxation order is reset)
-// TODO : parse this bool from adaptive_params.yaml
-const bool keep_relaxed = false;
+#define DEBUG               0   // print out additional info
+#define N_DEBUG             0   // sends as reference column of N(Q)
+#define USE_RP              0   // task inversion is performed using RP
 
 /**
 * @brief The following are functions of the class contactPreserver.
@@ -20,441 +14,281 @@ const bool keep_relaxed = false;
 using namespace adaptive_grasping;
 
 /* DEFAULT CONSTRUCTOR */
-contactPreserver::contactPreserver(){
-  // Nothing to do here
+contactPreserver::contactPreserver() {
+	// Nothing to do here
 }
 
 /* CONSTRUCTOR */
-contactPreserver::contactPreserver(Eigen::MatrixXd S_){
-  // Initializing the object
-  initialized = initialize(S_);
+contactPreserver::contactPreserver(Eigen::MatrixXd S_) {
+	// Initializing the object
+	initialized = initialize(S_);
 }
 
 /* OTHER OVERLOADED CONSTRUCTOR */
-contactPreserver::contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_, double lambda_max_, double epsilon_){
-  // Initializing the object
-  initialized = initialize(S_);
+contactPreserver::contactPreserver(Eigen::MatrixXd S_, int num_tasks_, std::vector<int> dim_tasks_,
+                                   std::vector<int> prio_tasks_, double lambda_max_, double epsilon_) {
+	// Initializing the object
+	initialized = initialize(S_);
 
-  // Initializing RP tasks stuff
-  this->initialize_tasks(num_tasks_, dim_tasks_, prio_tasks_, lambda_max_, epsilon_);
+	// Initializing RP tasks stuff
+	this->initialize_tasks(num_tasks_, dim_tasks_, prio_tasks_, lambda_max_, epsilon_);
 }
 
 /* DESTRUCTOR */
-contactPreserver::~contactPreserver(){
-  // Nothing to do
+contactPreserver::~contactPreserver() {
+	// Nothing to do
 }
 
 /* INITIALIZE */
-bool contactPreserver::initialize(Eigen::MatrixXd S_){
-  // Set the synergy matrix
-  changeHandType(S_);
+bool contactPreserver::initialize(Eigen::MatrixXd S_) {
+	// Set the synergy matrix
+	changeHandType(S_);
 
-  // Initialize xi_o
-  this->xi_o = Eigen::VectorXd::Zero(6);
+	// Initialize xi_o
+	this->xi_o = Eigen::VectorXd::Zero(6);
 
-  // Setting temporary values of x_d and x_d_old
-  x_d_old = Eigen::VectorXd::Ones(1 + 6);
-  ROS_WARN_STREAM("The number of rows of x_d_old is " << this->x_d_old.rows());
-  x_ref_old = Eigen::VectorXd::Zero(x_d_old.size());
+	// Setting temporary values of x_d and x_d_old
+	x_d_old = Eigen::VectorXd::Ones(1 + 6);
+	ROS_WARN_STREAM("The number of rows of x_d_old is " << this->x_d_old.rows());
+	x_ref_old = Eigen::VectorXd::Zero(x_d_old.size());
 }
 
 /* INITIALIZETOPICS */
-bool contactPreserver::initialize_topics(std::string object_twist_topic_name_, ros::NodeHandle nh){
+bool contactPreserver::initialize_topics(std::string object_twist_topic_name_, ros::NodeHandle nh) {
 	// Setting the topic
 	this->object_twist_topic_name = object_twist_topic_name_;
 	this->cp_nh_ptr = std::unique_ptr<ros::NodeHandle>(&nh);
-  geometry_msgs::Twist::ConstPtr tmp_twist_in = ros::topic::waitForMessage<geometry_msgs::Twist>(this->object_twist_topic_name, nh, ros::Duration(2.0));
-	this->obj_twist_sub = this->cp_nh_ptr->subscribe(this->object_twist_topic_name, 10, &contactPreserver::object_twist_callback, this);
+	geometry_msgs::Twist::ConstPtr tmp_twist_in = ros::topic::waitForMessage<geometry_msgs::Twist>(
+			this->object_twist_topic_name, nh, ros::Duration(2.0));
+	this->obj_twist_sub = this->cp_nh_ptr->subscribe(this->object_twist_topic_name, 10,
+	                                                 &contactPreserver::object_twist_callback, this);
 }
 
 /* INITIALIZE */
-bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_, double lambda_max_, double epsilon_){
-  // Set the tasks stuff for RP Manager
-  this->num_tasks = num_tasks_;
-  this->dim_tasks = dim_tasks_;
-  this->prio_tasks = prio_tasks_;
+bool contactPreserver::initialize_tasks(int num_tasks_, std::vector<int> dim_tasks_, std::vector<int> prio_tasks_,
+                                        double lambda_max_, double epsilon_) {
+	// Set the tasks stuff for RP Manager
+	this->num_tasks = num_tasks_;
+	this->dim_tasks = dim_tasks_;
+	this->prio_tasks = prio_tasks_;
 
-  // Double checking for consistency of previous vectors
-  if (this->dim_tasks.size() <= this->num_tasks || this->prio_tasks.size() <= this->num_tasks ||
-    this->dim_tasks.size() != this->prio_tasks.size()) {
-  	ROS_ERROR("Attention!!! There is some incongurency between num_tasks, dim_tasks and prio_tasks... This won't work anymore!");
-  }
-  this->lambda_max = lambda_max_;
-  this->epsilon = epsilon_;
-  this->rp_manager.set_basics(this->x_d_old.rows(), this->lambda_max, this->epsilon);
+	// Double checking for consistency of previous vectors
+	if (this->dim_tasks.size() <= this->num_tasks || this->prio_tasks.size() <= this->num_tasks ||
+	    this->dim_tasks.size() != this->prio_tasks.size()) {
+		ROS_ERROR(
+				"Attention!!! There is some incongurency between num_tasks, dim_tasks and prio_tasks... This won't work anymore!");
+	}
+	this->lambda_max = lambda_max_;
+	this->epsilon = epsilon_;
+	if (USE_RP) {
+		this->rp_manager.set_basics(this->x_d_old.rows(), this->lambda_max, this->epsilon);
+	} else {
+		this->sot_manager.set_basics(this->x_d_old.rows(), this->lambda_max, this->epsilon);
+	}
 }
 
 /* CHANGEHANDTYPE */
-void contactPreserver::changeHandType(Eigen::MatrixXd S_){
-  // Set the new synergy matrix
-  S = S_;
-  ROS_DEBUG_STREAM("Changed the Synergy Matrix inside contact preserver!!!");
+void contactPreserver::changeHandType(Eigen::MatrixXd S_) {
+	// Set the new synergy matrix
+	S = S_;
+	ROS_DEBUG_STREAM("Changed the Synergy Matrix inside contact preserver!!!");
 }
 
 /* SETGRASPSTATE */
 void contactPreserver::setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_,
-  Eigen::MatrixXd T_, Eigen::MatrixXd H_){
-    // Set the new J, G, T and H matrices
-    J = J_; G = G_; T = T_; H = H_;
+                                     Eigen::MatrixXd T_, Eigen::MatrixXd H_) {
+	// Set the new J, G, T and H matrices
+	J = J_;
+	G = G_;
+	T = T_;
+	H = H_;
 }
 
 /* SETMINIMIZATIONPARAMS */
-void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_, Eigen::VectorXd f_d_d_){
-  // Set the new desired motion vector and weight matrix
-  x_d = x_d_;
-  f_d_d = f_d_d_;
+void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_, Eigen::VectorXd f_d_d_) {
+	// Set the new desired motion vector and weight matrix
+	x_d = x_d_;
+	f_d_d = f_d_d_;
 }
 
 /* SETPERMUTATIONMATRIX */
-void contactPreserver::setPermutationParams(Eigen::MatrixXd P_, int num_contacts_){
-  // Setting the permutation matrix
-  P = P_;
-  num_contacts = num_contacts_;
+void contactPreserver::setPermutationParams(Eigen::MatrixXd P_, int num_contacts_) {
+	// Setting the permutation matrix
+	P = P_;
+	num_contacts = num_contacts_;
 }
 
-/* SETRMATRIX */
-bool contactPreserver::setRMatrix(){
-  // Cannot relax more than the rows of Q_tilde
-  if(relaxation_order > Q_tilde.rows()) return false;
+/* PERFORMKININVERSTION */
+bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
+	// Print message for debug
+	if (DEBUG) std::cout << "Entered performKinInversion in ContactPreserver!" << std::endl;
 
-  // Build R case by case
-  if(relaxation_order == 0){
+	// Resize Q to be of correct size
+	Q.resize(H.rows(), x_d.size());
 
-    R = Eigen::MatrixXd::Zero(1, Q_tilde.rows());
+	// Print message for debug
+	if (DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
 
-  } else {
+	// Now create the block matrix
+	Q << H * J * S, H * T;
 
-    R = Eigen::MatrixXd::Zero(relaxation_order, Q_tilde.rows());
-    R.block(0, 0, relaxation_order, Q_tilde.rows()) = P.block(0, 0, relaxation_order, Q_tilde.rows());
+	// For debugging purposes (real line is above)
+	if (N_DEBUG) {
+		Eigen::FullPivLU<Eigen::MatrixXd> luN_debug(Q);
+		Eigen::MatrixXd N_debug = luN_debug.kernel();
+		x_result = N_debug.col(0);
+		return true;
+	}
 
-  }
+	// Print message for debug
+	if (DEBUG) std::cout << "Computed Q in contactPreserver!" << std::endl;
 
-  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R =" << std::endl; 
-  if(DEBUG) std::cout << R << std::endl;
+	// Now create Q_tilde by appending Q under Identity matrix
+	Q_tilde.resize(x_d.size() + H.rows(), x_d.size());
+	Q_tilde << Eigen::MatrixXd::Identity(x_d.size(), x_d.size()), Q;
 
-  // Compute R_bar as N(R) transpose
-  if(relaxation_order == 0){
-    R_bar = Eigen::MatrixXd::Identity(Q_tilde.rows(), Q_tilde.rows());
-  } else {
-    Eigen::FullPivLU<Eigen::MatrixXd> lu(R);
-    R_bar = lu.kernel().transpose();
-  }
+	// Print message for debug
+	if (DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
 
-  if(DEBUG) std::cout << "contactPreserver::setRMatrix Created R_bar =" << std::endl; 
-  if(DEBUG) std::cout << R_bar << std::endl;
-
-  return true;
-}
-
-/* PERFORMMINIMIZATION */
-bool contactPreserver::performMinimization(Eigen::VectorXd& x_result){
-  // Print message for debug
-  if(DEBUG) std::cout << "Entered performMinimization in ContactPreserver!" << std::endl;
-
-  // Resize Q to be of correct size
-  Q.resize(H.rows(), x_d.size());
-
-  // Print message for debug
-  if(DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
-
-  // Now create the block matrix
-  Q << H*J*S, H*T;
-
-  // For debugging purpouses (real line is above)
-  if(N_DEBUG){
-    Eigen::FullPivLU<Eigen::MatrixXd> luN_debug(Q);
-    Eigen::MatrixXd N_debug = luN_debug.kernel();
-    x_result = N_debug.col(0);
-    return true;
-  }
-  
-  // Comparing Q with the old one in order to reset relaxation
-  if(first_it){
-    Q_old = Q;
-  } else {
-    if(!(Q - Q_old).isMuchSmallerThan(0.0001) && !x_ref.isMuchSmallerThan(0.0001) && (relaxation_order > x_d.size()) && !keep_relaxed){
-      relaxation_order = 0;                     // Reset relaxation
-      if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because Q changed.");
-      if(DEBUG) std::cout << "----------------" << std::endl;
-      if(DEBUG) std::cout << "Q = " << Q << std::endl;
-      if(DEBUG) std::cout << "Q_old = " << Q_old << std::endl;
-      if(DEBUG) std::cout << "----------------" << std::endl;
-    }
-    Q_old = Q;
-  }
-
-  // Print message for debug
-  if(DEBUG) std::cout << "Computed Q in contactPreserver!" << std::endl;
-
-  // Now create Q_tilde by appending Q under Identity matrix
-  Q_tilde.resize(x_d.size() + H.rows(), x_d.size());
-  Q_tilde << Eigen::MatrixXd::Identity(x_d.size(), x_d.size()), Q;
-
-  // Print message for debug
-  if(DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
-
-  // Compute vector y
-  y.resize(x_d.size() + H.rows());
-  // There is no Kc in this formula because it has already been included in H by matrixCreator
-  y << x_d, f_d_d + H*G.transpose()*xi_o;
-
-  // If the desired motion has changed, reset R and R_bar
-  if( (!(x_d - x_d_old).isMuchSmallerThan(0.0001) && !keep_relaxed) || first_it){
-    relaxation_order = 0;               // Nothing is to be relaxed
-    if(first_it) first_it = false;
-    if(DEBUG || true) ROS_WARN_STREAM("Resetting relaxation because x_d changed.");
-  }
-
-  x_d_old = x_d;
-
-  if(DEBUG) std::cout << "x_d in CP = " << x_d << std::endl;
-  if(DEBUG) std::cout << "x_d_old in CP = " << x_d_old << std::endl;
-
-  // Now if necessary changing the matrices R and R_bar or eventually reset them
-  if(!setRMatrix()){
-    ROS_ERROR_STREAM("The Relaxation iterations finished without leading to a solution!!! Waiting for another x_d!");
-  }
-
-  if(DEBUG) std::cout << "-- Step 1 --" << std::endl;
-
-  // Computing pseudoinverse for next condition
-  pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, false);             // Undamped pseudo inversion of (R_bar * Q_tilde)
-  if(pinv_R_bar_Q_tilde.hasNaN()){
-    pseudo_inverse(R_bar * Q_tilde, pinv_R_bar_Q_tilde, true);            // Damped pseudo inversion of (R_bar * Q_tilde)
-  }
-
-  if(DEBUG) std::cout << "-- Step 2 --" << std::endl;
-
-  if(DEBUG) std::cout << "----------------" << std::endl;
-  if(DEBUG) std::cout << "pinv_R_bar_Q_tilde = " << pinv_R_bar_Q_tilde << std::endl;
-  if(DEBUG) std::cout << "----------------" << std::endl;
-
-  if(DEBUG || true){
-    std::cout << "----------------" << std::endl;
-    std::cout << "relaxation_order = " << relaxation_order << std::endl;
-    std::cout << "----------------" << std::endl;
-  }
-
-  // Check if all constraints have been relaxed
-  bool all_relaxed = relaxation_order >= Q_tilde.rows();
-
-  // Check the first condition of algorithm
-  if((R_bar * Q_tilde * pinv_R_bar_Q_tilde * R_bar * y - R_bar * y).isMuchSmallerThan(0.0001) && !all_relaxed){
-    // Fill in the tasks in the RP Manager (The highest priority task first -> R_bar)
-    Eigen::VectorXd tmp_x_dot = R_bar * y;
-    Eigen::MatrixXd tmp_jacobian = R_bar * Q_tilde;
-    int tmp_priority = 1;
-
-    this->tmp_task.set_task_x_dot(tmp_x_dot);
-    this->tmp_task.set_task_jacobian(tmp_jacobian);
-    this->tmp_task.set_task_priority(tmp_priority);
-
-    this->tmp_task_vec.clear();
-    this->tmp_task_vec.push_back(tmp_task);
-
-    if (DEBUG || true) std::cout << "The jacobian of task 1 is \n" << tmp_jacobian << std::endl;
-    if (DEBUG || true) std::cout << "The x_dot of task 1 is \n" << tmp_x_dot << std::endl;
-
-    // Fill up the lower priority task
-    tmp_x_dot = R * y;
-    tmp_jacobian = R * Q_tilde;
-    tmp_priority = 2;
-
-    this->tmp_task.set_task_x_dot(tmp_x_dot);
-    this->tmp_task.set_task_jacobian(tmp_jacobian);
-    this->tmp_task.set_task_priority(tmp_priority);
-
-    this->tmp_task_vec.push_back(tmp_task);
-
-    if (DEBUG || true) std::cout << "The jacobian of task 2 is \n" << tmp_jacobian << std::endl;
-    if (DEBUG || true) std::cout << "The x_dot of task 2 is \n" << tmp_x_dot << std::endl;
-
-    // Set the RP Manager
-    this->rp_manager.insert_tasks(this->tmp_task_vec);
-
-    // Compute reference as solution of RP Algorithm
-    if(this->rp_manager.solve_inv_kin(x_ref)) ROS_INFO_STREAM("The RP Solution is \n" << x_ref);
-    else ROS_ERROR("RP Manager could not find solution!");
-    
-    // Checking the second condition of algorithm (norm of sigma)
-    if(x_ref.head(S.cols()).norm() < 0.0001){
-      /*  If the condition for norm is not valid, relax (increase relaxation_order) 
-        Recomputation of the R matrices will be performed by setRMatrix at next iteration 
-      */
-      if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-      x_ref = x_ref_old;            // Old vector is returned until good solution is found
-      x_result = x_ref;
-      if(DEBUG || true) ROS_WARN_STREAM("Relaxing because small joint velocity reference.");
-      return false;
-    }
-  } else {
-    /*  If the condition for solution is not valid, relax (increase relaxation_order) 
-        Recomputation of the R matrices will be performed by setRMatrix at next iteration 
-    */
-    if(relaxation_order <= Q_tilde.rows()) relaxation_order += 1;
-    x_ref = x_ref_old;            // Old vector is returned until good solution is found
-    x_result = x_ref;
-    if(DEBUG) ROS_WARN_STREAM("Relaxing because no particular solution found.");
-    return false;
-  }
-
-  // DEBUG PRINTS
-  if(DEBUG) std::cout << "----------------" << std::endl;
-  if(DEBUG) std::cout << "Q_tilde = " << Q_tilde << std::endl;
-  if(DEBUG) std::cout << "y = " << y << std::endl;
-  if(DEBUG) std::cout << "R_bar * y = " << R_bar * y << std::endl;
-  if(DEBUG) std::cout << "----------------" << std::endl;
-
-  // Saving to old and return contact preserving solution
-  x_ref_old = x_ref;
-  x_result = x_ref;
-  if(DEBUG) ROS_WARN_STREAM("A new reference has been sent! Yahoo!.");
-  return true;
-}
-
-/* PERFORMSIMPLERP */
-bool contactPreserver::performSimpleRP(Eigen::VectorXd& x_result) {
-    // Print message for debug
-    if(DEBUG) std::cout << "Entered performSimpleRP in ContactPreserver!" << std::endl;
-
-    // Resize Q to be of correct size
-    Q.resize(H.rows(), x_d.size());
-
-    // Print message for debug
-    if(DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
-
-    // Now create the block matrix
-    Q << H*J*S, H*T;
-
-    // For debugging purposes (real line is above)
-    if(N_DEBUG){
-      Eigen::FullPivLU<Eigen::MatrixXd> luN_debug(Q);
-      Eigen::MatrixXd N_debug = luN_debug.kernel();
-      x_result = N_debug.col(0);
-      return true;
-    }
-
-    // Print message for debug
-    if(DEBUG) std::cout << "Computed Q in contactPreserver!" << std::endl;
-
-    // Now create Q_tilde by appending Q under Identity matrix
-    Q_tilde.resize(x_d.size() + H.rows(), x_d.size());
-    Q_tilde << Eigen::MatrixXd::Identity(x_d.size(), x_d.size()), Q;
-
-    // Print message for debug
-    if(DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
-
-  // Repeating f_d_d for all contacts
-  int rep_factor = H.rows()/f_d_d.size();
-  Eigen::VectorXd f_d_d_tot = f_d_d.replicate(rep_factor, 1);
+	// Repeating f_d_d for all contacts
+	int rep_factor = H.rows() / f_d_d.size();
+	Eigen::VectorXd f_d_d_tot = f_d_d.replicate(rep_factor, 1);
 
 	// Compute vector y
 	y.resize(x_d.size() + H.rows());
 	// There is no Kc in this formula because it has already been included in H by matrixCreator
-  Eigen::VectorXd y_c = f_d_d_tot + H*G.transpose()*xi_o;
+	Eigen::VectorXd y_c = f_d_d_tot + H * G.transpose() * xi_o;
 	y << x_d, y_c;
 
-    // DEBUG PRINTS
-    if(DEBUG || true) std::cout << "----------------" << std::endl;
-    if(DEBUG || true) std::cout << "Q_tilde = " << Q_tilde << std::endl;
-    if(DEBUG || true) std::cout << "y = " << y << std::endl;
-    if(DEBUG || true) std::cout << "f_d_d = " << f_d_d << std::endl;
-    if(DEBUG || true) std::cout << "f_d_d_tot = " << f_d_d_tot << std::endl;
-    if(DEBUG || true) std::cout << "xi_o = " << xi_o << std::endl;
-    if(DEBUG || true) std::cout << "y_c = " << y_c << std::endl;
-    if(DEBUG || true) std::cout << "rep_factor = " << rep_factor << std::endl;
-    if(DEBUG || true) std::cout << "H*G.transpose()*xi_o = " << H*G.transpose()*xi_o << std::endl;
-    if(DEBUG || true) std::cout << "----------------" << std::endl;
+	// DEBUG PRINTS
+	if (DEBUG || true) {
+		std::cout << "----------------" << std::endl;
+		std::cout << "Q_tilde = " << Q_tilde << std::endl;
+		std::cout << "y = " << y << std::endl;
+		std::cout << "f_d_d = " << f_d_d << std::endl;
+		std::cout << "f_d_d_tot = " << f_d_d_tot << std::endl;
+		std::cout << "xi_o = " << xi_o << std::endl;
+		std::cout << "y_c = " << y_c << std::endl;
+		std::cout << "rep_factor = " << rep_factor << std::endl;
+		std::cout << "H*G.transpose()*xi_o = " << H * G.transpose() * xi_o << std::endl;
+		std::cout << "----------------" << std::endl;
+	}
 
-    // Preparing to fill in the tasks in the RP Manager
-    Eigen::VectorXd tmp_x_dot;
-    Eigen::MatrixXd tmp_jacobian;
-    int tmp_priority;
-    int row_index;
+	// Preparing to fill in the tasks in the RP Manager
+	Eigen::VectorXd tmp_x_dot;
+	Eigen::MatrixXd tmp_jacobian;
+	int tmp_priority;
+	int row_index;
 
-    this->tmp_task_vec.clear();     // Clearing the vector of tasks
-    this->rp_manager.clear_set();   // Clearing the rp set
-    int dim_reached = 0;            // Temporary sum of dimension for understanding if the contacts part has been reached
+	this->tmp_task_vec.clear();     // Clearing the vector of tasks
 
-    for (int i = 0; i < this->num_tasks; i++) { // Filling in the tasks except the contact ones
-    	// The row index is the sum of the previous dimensions
-    	row_index = 0;
-    	for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(k);
-    	tmp_x_dot = y.block(row_index, 0, this->dim_tasks[i], y.cols());
-    	tmp_jacobian = Q_tilde.block(row_index, 0, this->dim_tasks[i], Q_tilde.cols());
-    	tmp_priority = this->prio_tasks[i];
-    	dim_reached += this->dim_tasks[i];
+	// Clearing the task set
+	if (USE_RP) {
+		this->rp_manager.clear_set();
+	} else {
+		this->sot_manager.clear_set();
+	}
 
-        // Push in tmp variables
-        this->tmp_task.set_task_x_dot(tmp_x_dot);
-        this->tmp_task.set_task_jacobian(tmp_jacobian);
-        this->tmp_task.set_task_priority(tmp_priority);
-        this->tmp_task_vec.push_back(tmp_task);
-    }
+	int dim_reached = 0;            // Temporary sum of dimension for understanding if the contacts part has been reached
 
-    for (int i = 0; i < this->num_contacts; i++) { // Filling in the tasks regarding the contacts
-    	// Iterating and pushing back the tasks in which the contacts part is divided
-    	for (int j = this->num_tasks; j < this->dim_tasks.size(); j++) {
-		    // The row index is the sum of the previous dimensions
-		    tmp_x_dot = y.block(dim_reached, 0, this->dim_tasks[j], y.cols());
-		    tmp_jacobian = Q_tilde.block(dim_reached, 0, this->dim_tasks[j], Q_tilde.cols());
-		    tmp_priority = this->prio_tasks[j];
-		    dim_reached += this->dim_tasks[j];
+	for (int i = 0; i < this->num_tasks; i++) { // Filling in the tasks except the contact ones
+		// The row index is the sum of the previous dimensions
+		row_index = 0;
+		for (int k = 0; k < i; k++) row_index += this->dim_tasks.at(k);
+		tmp_x_dot = y.block(row_index, 0, this->dim_tasks[i], y.cols());
+		tmp_jacobian = Q_tilde.block(row_index, 0, this->dim_tasks[i], Q_tilde.cols());
+		tmp_priority = this->prio_tasks[i];
+		dim_reached += this->dim_tasks[i];
 
-		    // Push in tmp variables
-		    this->tmp_task.set_task_x_dot(tmp_x_dot);
-		    this->tmp_task.set_task_jacobian(tmp_jacobian);
-		    this->tmp_task.set_task_priority(tmp_priority);
-		    this->tmp_task_vec.push_back(tmp_task);
-	    }
-    }
+		// Push in tmp variables
+		this->tmp_task.set_task_x_dot(tmp_x_dot);
+		this->tmp_task.set_task_jacobian(tmp_jacobian);
+		this->tmp_task.set_task_priority(tmp_priority);
+		this->tmp_task_vec.push_back(tmp_task);
+	}
 
-    // Setting the secondary priorities (by adding +1 when first and sec priorities are same)
-    for (int i = 0; i < this->tmp_task_vec.size(); i++) {
-      for (int j = i + 1; j < this->tmp_task_vec.size(); j++) {
-        if (this->tmp_task_vec.at(i).get_task_priority() == this->tmp_task_vec.at(j).get_task_priority()) {
-          if (this->tmp_task_vec.at(i).get_sec_priority() == this->tmp_task_vec.at(j).get_sec_priority()) {
-            int curr_sec_prio = this->tmp_task_vec.at(j).get_sec_priority();
-            this->tmp_task_vec.at(j).set_sec_priority(curr_sec_prio + 1);
-          }
-        }
-      }
-    }
+	for (int i = 0; i < this->num_contacts; i++) { // Filling in the tasks regarding the contacts
+		// Iterating and pushing back the tasks in which the contacts part is divided
+		for (int j = this->num_tasks; j < this->dim_tasks.size(); j++) {
+			// The row index is the sum of the previous dimensions
+			tmp_x_dot = y.block(dim_reached, 0, this->dim_tasks[j], y.cols());
+			tmp_jacobian = Q_tilde.block(dim_reached, 0, this->dim_tasks[j], Q_tilde.cols());
+			tmp_priority = this->prio_tasks[j];
+			dim_reached += this->dim_tasks[j];
 
-    // Pushing into RP Manager and printing out
-    this->rp_manager.insert_tasks(this->tmp_task_vec);
-    if(DEBUG) this->rp_manager.print_set();
+			// Push in tmp variables
+			this->tmp_task.set_task_x_dot(tmp_x_dot);
+			this->tmp_task.set_task_jacobian(tmp_jacobian);
+			this->tmp_task.set_task_priority(tmp_priority);
+			this->tmp_task_vec.push_back(tmp_task);
+		}
+	}
 
-    // Compute reference as solution of RP Algorithm
-    if(this->rp_manager.solve_inv_kin(x_ref)) {
-        ROS_INFO_STREAM("The RP Solution is \n" << x_ref);
-        x_ref_old = x_ref;
-        x_result = x_ref;
-        if(DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!");
-        return true;
-    } else {
-        ROS_ERROR("RP Manager could not find solution!");
-        x_result = x_ref_old;
-        return false;
-    }
+	// Setting the secondary priorities (by adding +1 when first and sec priorities are same)
+	for (long int i = 0; i < this->tmp_task_vec.size(); i++) {
+		for (int j = i + 1; j < this->tmp_task_vec.size(); j++) {
+			if (this->tmp_task_vec.at(i).get_task_priority() == this->tmp_task_vec.at(j).get_task_priority()) {
+				if (this->tmp_task_vec.at(i).get_sec_priority() == this->tmp_task_vec.at(j).get_sec_priority()) {
+					int curr_sec_prio = this->tmp_task_vec.at(j).get_sec_priority();
+					this->tmp_task_vec.at(j).set_sec_priority(curr_sec_prio + 1);
+				}
+			}
+		}
+	}
+
+	// Insert tasks in manager and solve
+	bool solved = false;
+	if (USE_RP) {
+		// Pushing into RP Manager, printing out and solving
+		this->rp_manager.insert_tasks(this->tmp_task_vec);
+		if (DEBUG) this->rp_manager.print_set();
+		solved = this->rp_manager.solve_inv_kin(x_ref);
+	} else {
+		// Pushing into SOT Manager, printing out and solving
+		this->sot_manager.insert_tasks(this->tmp_task_vec);
+		if (DEBUG) this->sot_manager.print_set();
+		this->sot_manager.solve_inv_kin(x_ref);
+		solved = true;
+	}
+
+	// Pass reference as solution of task inversion
+	if (solved) {
+		ROS_INFO_STREAM("The Task Set Solution is \n" << x_ref);
+		x_ref_old = x_ref;
+		x_result = x_ref;
+		if (DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!");
+		return true;
+	} else {
+		ROS_ERROR("Task Inversion Manager could not find solution!");
+		x_result = x_ref_old;
+		return false;
+	}
 
 }
 
 /* PRINTALL */
-void contactPreserver::printAll(){
-  // Print to screen the main private variables
-  std::cout << "J =" << std::endl; std::cout << J << std::endl;
-  std::cout << "G =" << std::endl; std::cout << G << std::endl;
-  std::cout << "T =" << std::endl; std::cout << T << std::endl;
-  std::cout << "H =" << std::endl; std::cout << H << std::endl;
-  std::cout << "S =" << std::endl; std::cout << S << std::endl;
-  std::cout << "x_d =" << std::endl; std::cout << x_d << std::endl;
-  std::cout << "Q =" << std::endl; std::cout << Q << std::endl;
-  std::cout << "N_tilde =" << std::endl; std::cout << N_tilde << std::endl;
+void contactPreserver::printAll() {
+	// Print to screen the main private variables
+	std::cout << "J =" << std::endl;
+	std::cout << J << std::endl;
+	std::cout << "G =" << std::endl;
+	std::cout << G << std::endl;
+	std::cout << "T =" << std::endl;
+	std::cout << T << std::endl;
+	std::cout << "H =" << std::endl;
+	std::cout << H << std::endl;
+	std::cout << "S =" << std::endl;
+	std::cout << S << std::endl;
+	std::cout << "x_d =" << std::endl;
+	std::cout << x_d << std::endl;
+	std::cout << "Q =" << std::endl;
+	std::cout << Q << std::endl;
+	std::cout << "N_tilde =" << std::endl;
+	std::cout << N_tilde << std::endl;
 }
 
 /* OBJECTTWISTCALLBACK */
-void contactPreserver::object_twist_callback(const geometry_msgs::Twist::ConstPtr &msg){
+void contactPreserver::object_twist_callback(const geometry_msgs::Twist::ConstPtr &msg) {
 	// Resizing the eigen vector
 	this->xi_o.resize(6);
 

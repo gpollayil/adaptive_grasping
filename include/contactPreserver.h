@@ -144,30 +144,14 @@ namespace adaptive_grasping {
     */
     void setPermutationParams(Eigen::MatrixXd P_, int num_contacts_);
 
-    /** SETRMATRIX
-    * @brief Function to build relaxation matrices R and R_bar from order of relaxation
-    *
-    * @return bool
-    */
-    bool setRMatrix();
-
-    /** PERFORMMINIMIZATION
-    * @brief Function to perform the minimization using current values
-    *
-    * @param x_result
-    *   the resulting motion that preserves contacts
-    * @return bool success if no relaxation happens and nothing goes wrong
-    */
-    bool performMinimization(Eigen::VectorXd& x_result);
-
-    /** PERFORMSIMPLERP
-    * @brief Function to perform a simple reverse priority with task (num_tasks and dim_tasks)
+    /** PERFORMKININVERSTION
+    * @brief Function to perform a simple task inversion(num_tasks and dim_tasks)
     *
     * @param x_result
     *   the resulting motion that preserves contacts
     * @return bool success if the found result is a valid one
     */
-    bool performSimpleRP(Eigen::VectorXd& x_result);
+    bool performKinInversion(Eigen::VectorXd& x_result);
 
     /** PRINTALL
     * @brief Function to print out to console all relevant variables
