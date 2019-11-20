@@ -8,7 +8,7 @@
 #include <ros/ros.h>
 
 #define DEBUG           0           // Prints out additional info (additional to ROS_DEBUG)
-#define USE_DAMPING     1           // If true the manager makes use of damping while pseudo inverting
+#define USE_DAMPING     0           // If true the manager makes use of damping while pseudo inverting
 
 /**
 * @brief The following are functions of the class stackOfTasksManager.
@@ -112,17 +112,20 @@ void stackOfTasksManager::print_set() {
 void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 	// Initializing the result vector
 	Eigen::VectorXd q_res; q_res.resize(this->dim_config_space_); q_res.setZero();
+	if (DEBUG || true) std::cout << "The dimension of the config space is " << this->dim_config_space_ << "." << std::endl;
 
 	// Ordering the task set
 	this->reorder_set();
 	if (DEBUG || true) this->print_set();
 
 	// Initialize projection matrices and the current jacobian and task vector
-	int n_rows_init = this->task_set_.at(0).get_task_jacobian().rows();
-	Eigen::MatrixXd P_i_1 = Eigen::MatrixXd::Identity(n_rows_init, n_rows_init);
+	int n_cols_init = this->task_set_.at(0).get_task_jacobian().cols();
+	Eigen::MatrixXd P_i_1 = Eigen::MatrixXd::Identity(n_cols_init, n_cols_init);
 	Eigen::MatrixXd J_i;
 	Eigen::VectorXd x_dot_i;
 	Eigen::MatrixXd JP_i_pinv;
+
+	if (DEBUG || true) std::cout << "Starting SOT with q_res = " << q_res << "." << std::endl;
 
 	// Recursion loop (ref stack of tasks paper)
 	for (auto it : this->task_set_) {
@@ -138,9 +141,21 @@ void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 		}
 		q_res = q_res + JP_i_pinv * (x_dot_i - J_i * q_res);
 
+		// Debug couts
+		if (DEBUG || true) {
+			std::cout << "x_dot_i: \n" << x_dot_i << std::endl;
+			std::cout << "J_i: \n" << J_i << std::endl;
+			std::cout << "P_i_1: \n" << P_i_1 << std::endl;
+			std::cout << "JP_i_pinv: \n" << JP_i_pinv << std::endl;
+			std::cout << "q_res: \n" << q_res << std::endl;
+		}
+
 		// Updating the projection matrix
 		P_i_1 = P_i_1 - JP_i_pinv * J_i * P_i_1;
+
 	}
+
+	if (DEBUG || true) std::cout << "Ending SOT with q_res = " << q_res << "." << std::endl;
 
 	// Returning
 	q_sol = q_res;
