@@ -6,6 +6,8 @@
     This object is a manager for a set of tasks and performs reverse priority algorithm.
 */
 
+// TODO: Create a basic taskInversionManager class from which this can be created with inheritance
+
 // Basic Includes
 #include <vector>
 

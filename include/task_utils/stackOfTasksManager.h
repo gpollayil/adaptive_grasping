@@ -10,6 +10,8 @@
     This object is a manager for a set of tasks and performs stack of tasks algorithm.
 */
 
+// TODO: Create a basic taskInversionManager class from which this can be created with inheritance
+
 // Basic Includes
 #include <vector>
 
