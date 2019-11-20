@@ -49,7 +49,7 @@ inline Eigen::MatrixXd trunk_pseudo_inv(const Eigen::MatrixXd input_mat, double 
 			ROS_WARN_STREAM("The " << i << "th sing val is really small! Will set it to zero for the pseudo inverse!!!");
 			S(i, i) = 0.0;
 		} else {
-			S(i,i) = sing_vals(i);
+			S(i,i) = 1 / sing_vals(i);
 		}
 	}
 
