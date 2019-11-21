@@ -126,7 +126,6 @@ namespace adaptive_grasping {
     // ROS elements
     ros::NodeHandle ag_nh;
     ros::Subscriber js_sub;                               // Subscriber to joint states
-    ros::Subscriber safety_sub;                           // Subscriber to panda_softhand_safety
     ros::Subscriber op_sub;                               // Subscriber to object pose
     ros::Publisher marker_pub;                            // Publisher for object marker to RViz
     ros::Publisher pub_twist_debug;                       // To visualize the twist in rqt_plot
@@ -159,7 +158,7 @@ namespace adaptive_grasping {
     // Elements needed for construction of the main objects (private ones -- look above for the public ones)
     int contacts_num;                                   // Number of present finger contacts (updated in the loop)
     std::string touch_topic_name;                       // Contains the name of the topic where touch ids are published (for Contact State)
-    std::map<int, std::string> link_names_map;          // Contains the correspondance between ids and link names (for Contact State)
+    std::map<int, std::string> link_names_map;          // Contains the correspondence between ids and link names (for Contact State)
     std::map<std::string, std::string> params_map;      // Contains mainly frame names (for Contact State)
     std::vector<int> joint_numbers;                     // Contains the number of links of each finger (for Matrix Creator)
     Eigen::MatrixXd H_i;                                // Contains contact selection matrix H fully constrained(for Matrix Creator)
@@ -222,14 +221,6 @@ namespace adaptive_grasping {
     * @return null
     */
     void getJointsAndComputeSyn(const sensor_msgs::JointState::ConstPtr &msg);
-
-    /** GETSAFETYINFO
-    * @brief Callback function to get the safety info from robot
-    *
-    * @param msg
-    * @return null
-    */
-    void getSafetyInfo(const panda_softhand_safety::SafetyInfo::ConstPtr &msg);
 
     /** GETOBJECTPOSE
     * @brief Callback function to get the object pose from a topic
