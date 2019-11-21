@@ -60,7 +60,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     }
     ROS_INFO_STREAM("adaptiveGrasper::initialize PARSING ONE BY ONE!");
     this->initialized = this->parseParams(this->adaptive_params, param_names);
-    
+
     // Subscribing to object pose
     this->op_sub = this->ag_nh.subscribe(this->object_topic_name, 1, &adaptiveGrasper::getObjectPose, this);
     ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << op_sub.getTopic() << ".");
