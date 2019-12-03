@@ -240,7 +240,7 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
     Eigen::MatrixXd Syn(33, 1);
 
     // Copying the values of the joints
-    int index = find (this->full_joint_state->name.begin(),this->full_joint_state->name.end(), "right_hand_thumb_abd_joint") - this->full_joint_state->name.begin();
+    int index = find (this->full_joint_state->name.begin(),this->full_joint_state->name.end(), "soft_hand_thumb_abd_joint") - this->full_joint_state->name.begin();
     if(DEBUG && false) std::cout << "********************************* " << std::endl;
     for(int j = 0; j < 33; j++){
         if(DEBUG && false) std::cout << "Getting the joint " << this->full_joint_state->name[index + j] << " with value " << this->full_joint_state->position[index + j] << "." << std::endl;
