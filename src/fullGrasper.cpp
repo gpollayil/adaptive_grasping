@@ -29,7 +29,8 @@ fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<
 
     // Initializing the object subscriber and waiting (TODO: parse the topic name)
     this->object_sub = this->nh.subscribe("/object_pose", 1, &fullGrasper::get_object_pose, this);
-    ros::topic::waitForMessage<geometry_msgs::Pose>("/object_pose", ros::Duration(2.0));
+    // Commenting the wait for message for Klampt
+    // ros::topic::waitForMessage<geometry_msgs::Pose>("/object_pose", ros::Duration(2.0));
 
     // Advertising the services (TODO: parse the service names)
     this->adaptive_task_server = this->nh.advertiseService("adaptive_task_service", &fullGrasper::call_adaptive_grasp_task, this);

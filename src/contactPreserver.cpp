@@ -58,8 +58,8 @@ bool contactPreserver::initialize_topics(std::string object_twist_topic_name_, r
 	// Setting the topic
 	this->object_twist_topic_name = object_twist_topic_name_;
 	this->cp_nh_ptr = std::unique_ptr<ros::NodeHandle>(&nh);
-	geometry_msgs::Twist::ConstPtr tmp_twist_in = ros::topic::waitForMessage<geometry_msgs::Twist>(
-			this->object_twist_topic_name, nh, ros::Duration(2.0));
+	// Commenting the wait for message for Klampt
+	// geometry_msgs::Twist::ConstPtr tmp_twist_in = ros::topic::waitForMessage<geometry_msgs::Twist>(this->object_twist_topic_name, nh, ros::Duration(2.0));
 	this->obj_twist_sub = this->cp_nh_ptr->subscribe(this->object_twist_topic_name, 10,
 	                                                 &contactPreserver::object_twist_callback, this);
 }
