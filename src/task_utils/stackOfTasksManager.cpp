@@ -51,7 +51,7 @@ bool stackOfTasksManager::set_basics(int dim_config_space, double lambda_max, do
 	this->lambda_max_ = lambda_max;
 	this->epsilon_ = epsilon;
 
-	ROS_INFO_STREAM("This RP Manager has dim_config_space_ " << this->dim_config_space_ << " lambda_max_ " << this->lambda_max_ << " epsilon " << this->epsilon_ << ".");
+	ROS_INFO_STREAM("This SOT Manager has dim_config_space_ " << this->dim_config_space_ << " lambda_max_ " << this->lambda_max_ << " epsilon " << this->epsilon_ << ".");
 }
 
 
@@ -125,7 +125,7 @@ void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 	Eigen::VectorXd x_dot_i;
 	Eigen::MatrixXd JP_i_pinv;
 
-	if (DEBUG || true) std::cout << "Starting SOT with q_res = " << q_res << "." << std::endl;
+	if (DEBUG) std::cout << "Starting SOT with q_res = " << q_res << "." << std::endl;
 
 	// Recursion loop (ref stack of tasks paper)
 	for (auto it : this->task_set_) {
@@ -142,7 +142,7 @@ void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 		q_res = q_res + JP_i_pinv * (x_dot_i - J_i * q_res);
 
 		// Debug couts
-		if (DEBUG || true) {
+		if (DEBUG) {
 			std::cout << "x_dot_i: \n" << x_dot_i << std::endl;
 			std::cout << "J_i: \n" << J_i << std::endl;
 			std::cout << "P_i_1: \n" << P_i_1 << std::endl;

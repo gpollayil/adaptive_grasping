@@ -132,6 +132,15 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	// Now create the block matrix
 	Q << H * J * S, H * T;
 
+    // DEBUG PRINTS
+    if (DEBUG || true) {
+        std::cout << "----------------" << std::endl;
+        std::cout << "H = " << H << std::endl;
+        std::cout << "J = " << J << std::endl;
+        std::cout << "S = " << S << std::endl;
+        std::cout << "----------------" << std::endl;
+    }
+
 	// For debugging purposes (real line is above)
 	if (N_DEBUG) {
 		Eigen::FullPivLU<Eigen::MatrixXd> luN_debug(Q);
@@ -161,7 +170,7 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	y << x_d, y_c;
 
 	// DEBUG PRINTS
-	if (DEBUG || true) {
+	if (DEBUG) {
 		std::cout << "----------------" << std::endl;
 		std::cout << "Q_tilde = " << Q_tilde << std::endl;
 		std::cout << "y = " << y << std::endl;

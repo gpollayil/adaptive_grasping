@@ -75,7 +75,7 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
   // This if-else is needed to avoid the zeros in touching finger topic to create
   // problems in the contacts and joints maps updating
   if(msg->data == 0){
-    if(DEBUG) ROS_INFO("There have been no touches yet! adaptive_grasping break!");
+    if(DEBUG || true) ROS_INFO("There have been no touches yet! adaptive_grasping break!");
   } else {
     // Temporarily saving message
     touching_finger = msg->data;
@@ -156,19 +156,21 @@ void contactState::iterateJoints(){
   // Creating an iterator for joints_map
   std::map<int, sensor_msgs::JointState>::iterator it_j;
 
+  if(DEBUG || true) ROS_INFO("Just before the for NOW!");
+
   // Now with another loop echoing and saving all needed joints in joints_map
   for(it_j = joints_map.begin(); it_j != joints_map.end(); ++it_j){
     // Getting the joint state from service
     sensor_msgs::JointState correct_joints;
 
     // Creating an srv with touching_finger id and filling up
-    if(DEBUG) ROS_INFO("The Finger Joint srv is being filled!");
+    if(DEBUG || true) ROS_INFO("The Finger Joint srv is being filled!");
     finger_fk::FingerJointsService srv;
     srv.request.finger_id = it_j->first;
 
     // Calling the service
     if (fj_client.call(srv)) {
-      if(DEBUG){
+      if(DEBUG || true){
         ROS_INFO("The result is as follows:");
         for(size_t i = 0; i < srv.response.joint_state.name.size(); i++) {
           std::cout << i << ", " << srv.response.joint_state.name[i] << " : " <<
