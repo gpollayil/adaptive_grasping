@@ -15,8 +15,8 @@ adaptive_grasping:
   # The following map contains other necessary params for adaptive_grasping
   params_map:
     world_name: "world"
-    palm_name: "soft_hand_palm_link"
-    ee_name: "soft_hand_palm_link"
+    palm_name: "soft_hand_kuka_coupler_bottom"
+    ee_name: "soft_hand_kuka_coupler_bottom"
   # The array containing the number of links of each finger
   joints_num: [5, 7, 7, 7, 7]
   # The following list of arrays is the contact selection matrix H (CHANGE ALSO p_vector ACCORDINGLY)
@@ -37,7 +37,7 @@ adaptive_grasping:
     - [0, 0, 0, 0, 0, 0.1]
   # The following array is the desired x motion
   x_d:
-    - [0.1, 0, 0, 0, 0, 0, 0]                   # for simple grasp?
+    - [1.0, 0, 0, 0, 0, 0, 0]                   # for simple grasp?
   # The following array is the desired contact force derivative
   f_d_d:
     - [0, 0, 0, 0, 0, 0]

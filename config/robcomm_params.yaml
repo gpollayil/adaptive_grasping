@@ -4,8 +4,8 @@
 
 robot_commander:
   # Enable reference lowpass filtering
-  enable_filter: false
+  enable_filter: true
   # Velocity upper limit (in absolute value)
-  vel_limit: 0.01
+  vel_limit: 0.5
   
 
