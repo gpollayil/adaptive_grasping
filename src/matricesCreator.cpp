@@ -431,7 +431,7 @@ void matricesCreator::computeWholeJacobian(std::map<int,
 		robot_kin_tree.getChain(palm_frame_name, std::get<0>(it_c->second),
 		                        finger_kin_chain);
 
-		if (DEBUG || true) {
+		if (DEBUG) {
 			std::cout << "The segments of current chain are:" << std::endl;
 			for (auto it : finger_kin_chain.segments) {
 				std::cout << it.getName() << std::endl;
@@ -448,7 +448,7 @@ void matricesCreator::computeWholeJacobian(std::map<int,
 		finger_joint_array = getFingerJoints(joints_map, current_finger);
 
 		// Printing current finger joint array
-		if (DEBUG || true)
+		if (DEBUG)
 			std::cout << "Finger joint array is: " <<
 			          finger_joint_array.data << std::endl;
 

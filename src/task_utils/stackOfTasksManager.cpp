@@ -112,7 +112,7 @@ void stackOfTasksManager::print_set() {
 void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 	// Initializing the result vector
 	Eigen::VectorXd q_res; q_res.resize(this->dim_config_space_); q_res.setZero();
-	if (DEBUG || true) std::cout << "The dimension of the config space is " << this->dim_config_space_ << "." << std::endl;
+	if (DEBUG) std::cout << "The dimension of the config space is " << this->dim_config_space_ << "." << std::endl;
 
 	// Ordering the task set
 	this->reorder_set();

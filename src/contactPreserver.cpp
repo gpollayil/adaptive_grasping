@@ -133,7 +133,7 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	Q << H * J * S, H * T;
 
     // DEBUG PRINTS
-    if (DEBUG || true) {
+    if (DEBUG) {
         std::cout << "----------------" << std::endl;
         std::cout << "H = " << H << std::endl;
         std::cout << "J = " << J << std::endl;
@@ -265,7 +265,7 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 		ROS_INFO_STREAM("The Task Set Solution is \n" << x_ref);
 		x_ref_old = x_ref;
 		x_result = x_ref;
-		if (DEBUG || true) ROS_WARN_STREAM("A new reference has been sent! Yahoo!");
+		if (DEBUG) ROS_WARN_STREAM("A new reference has been sent! Yahoo!");
 		return true;
 	} else {
 		ROS_ERROR("Task Inversion Manager could not find solution!");
