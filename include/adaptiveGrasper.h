@@ -16,7 +16,6 @@
 #include "std_srvs/Trigger.h"
 #include "adaptive_grasping/velCommand.h"
 #include "adaptive_grasping/adaptiveGrasp.h"
-#include "panda_softhand_safety/SafetyInfo.h"
 
 // For RViz Visualization
 #include <visualization_msgs/Marker.h>
