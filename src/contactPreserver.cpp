@@ -2,7 +2,7 @@
 #include "ros/ros.h"
 #include "utils/pseudo_inversion.h"
 
-#define DEBUG               0   // print out additional info
+#define DEBUG               1   // print out additional info
 #define N_DEBUG             0   // sends as reference column of N(Q)
 #define USE_RP              0   // task inversion is performed using RP
 
@@ -298,14 +298,11 @@ void contactPreserver::printAll() {
 
 /* OBJECTTWISTCALLBACK */
 void contactPreserver::object_twist_callback(const geometry_msgs::Twist::ConstPtr &msg) {
+	ROS_INFO_STREAM("IN OBJ TWIST 1");
 	// Resizing the eigen vector
 	this->xi_o.resize(6);
 
 	// Saving the msg to the eigen vector
-	this->xi_o << msg->linear.x;
-	this->xi_o << msg->linear.y;
-	this->xi_o << msg->linear.z;
-	this->xi_o << msg->angular.x;
-	this->xi_o << msg->angular.y;
-	this->xi_o << msg->angular.z;
+	this->xi_o << msg->linear.x, msg->linear.y, msg->linear.z, msg->angular.x, msg->angular.y, msg->angular.z;
+	ROS_INFO_STREAM("IN OBJ TWIST 2");
 }

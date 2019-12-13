@@ -239,8 +239,10 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
         return false;
     }
 
+    ROS_INFO_STREAM("This thing is " << params[param_name].getType());
+
     // Make sure that the parameter is of the correct type
-    ROS_ASSERT(params[param_name].getType() == XmlRpc::XmlRpcValue::TypeStruct);
+    ROS_ASSERT(params[param_name].getType() == XmlRpc::XmlRpcValue::TypeArray);
 
     // Resizing matrix param to correct dimensions
     int matrix_rows = params[param_name].size();

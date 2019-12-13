@@ -6,7 +6,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "full_grasper"
 
-#define DEBUG_FG   0           // Prints out additional info
+#define DEBUG_FG   1           // Prints out additional info
 
 /**
 * @brief The following are functions of the class fullGrasper.

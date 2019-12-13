@@ -4,7 +4,7 @@
 #define EXEC_NAMESPACE    "adaptive_grasping"
 #define CLASS_NAMESPACE   "adaptive_grasper"
 
-#define DEBUG   0           // Prints out additional info (additional to ROS_DEBUG)
+#define DEBUG   1           // Prints out additional info (additional to ROS_DEBUG)
 #define DEBUG_PUB         1   // publishes additional info for rqt_plot
 
 /**
@@ -168,18 +168,23 @@ bool adaptiveGrasper::parseParams(XmlRpc::XmlRpcValue params_xml, std::vector<st
     parseParameter(params_xml, this->link_names_map, param_names[1]);
     parseParameter(params_xml, this->params_map, param_names[2]);
     parseParameter(params_xml, this->joint_numbers, param_names[3]);
+    std::cout << "Here 1" << std::endl;
     parseParameter(params_xml, this->H_i, param_names[4]);
+    std::cout << "Here 2" << std::endl;
 	parseParameter(params_xml, this->Kc_i, param_names[5]);
+    std::cout << "Here 3" << std::endl;
 
     // x_d (vector) needs to be parsed differently using the parsing function for matrix
     Eigen::MatrixXd temp_x_d;
     parseParameter(params_xml, temp_x_d, param_names[6]);
     this->x_d = temp_x_d.transpose().col(0);
+    std::cout << "Here 4" << std::endl;
 
 	// f_d_d (vector) needs to be parsed differently using the parsing function for matrix
 	Eigen::MatrixXd temp_f_d_d;
 	parseParameter(params_xml, temp_f_d_d, param_names[7]);
 	this->f_d_d = temp_f_d_d.transpose().col(0);
+    std::cout << "Here 5" << std::endl;
 
     parseParameter(params_xml, this->spin_rate, param_names[8]);
     parseParameter(params_xml, this->object_topic_name, param_names[9]);
@@ -231,6 +236,7 @@ bool adaptiveGrasper::setCommandAndSend(Eigen::VectorXd ref_vec, adaptive_graspi
 
 /* GETJOINTSANDCOMPUTESYN */
 void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::ConstPtr &msg){
+    if(DEBUG) ROS_INFO_STREAM("IN SYN COMP");
     // Storing the message into another global message variable
 	ROS_DEBUG_STREAM("adaptiveGrasper::getJointsAndComputeSyn GOT JOINTSTATE MSG: STARTING TO SAVE!");
 	this->full_joint_state = msg;
@@ -275,10 +281,16 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
 
 /* GETOBJECTPOSE */
 void adaptiveGrasper::getObjectPose(const geometry_msgs::Pose::ConstPtr &msg){
+
+    if(DEBUG) ROS_INFO_STREAM("IN OBJ CALL");
+
     // Saving to the eigen affine
     this->adaptive_grasper_mutex.lock();
+    if(DEBUG) ROS_INFO_STREAM("IN OBJ CALL1");
     tf::poseMsgToEigen(*msg, this->object_pose);
+    if(DEBUG) ROS_INFO_STREAM("IN OBJ CALL2");
     this->adaptive_grasper_mutex.unlock();
+    if(DEBUG) ROS_INFO_STREAM("IN OBJ CALL3");
 
     // Publishing the object to RViz
     this->obj_marker.header.stamp = ros::Time::now();
@@ -292,6 +304,7 @@ void adaptiveGrasper::getObjectPose(const geometry_msgs::Pose::ConstPtr &msg){
     this->obj_marker.color.r = 0.0f; this->obj_marker.color.g = 1.0f; this->obj_marker.color.b = 0.0f; this->obj_marker.color.a = 1.0f;
     this->obj_marker.lifetime = ros::Duration(0);
     this->marker_pub.publish(this->obj_marker);
+    if(DEBUG) ROS_INFO_STREAM("IN OBJ CALL4");
 }
 
 /* AGCALLBACK */
