@@ -14,12 +14,9 @@
 
 // Custom msg and srv includes
 #include "adaptive_grasping/choose_object.h"
-#include <franka_msgs/FrankaState.h>
-#include <franka_control/ErrorRecoveryActionGoal.h>
 
 // Custom Includes
 #include "adaptiveGrasper.h"                                // Most of other h files are included in this one
-#include "panda_softhand_control/PandaSoftHandClient.h"
 
 /**
 * @brief This class is created by the main of the full_grasping_node.

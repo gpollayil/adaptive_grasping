@@ -57,7 +57,6 @@
   <build_depend>message_runtime</build_depend>
   <build_depend>urdf</build_depend>
   <build_depend>filters</build_depend>
-  <build_depend>panda_softhand_control</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>controller_manager_msgs</build_depend>
   <build_depend>moveit_msgs</build_depend>

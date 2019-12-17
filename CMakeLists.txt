@@ -27,7 +27,6 @@ find_package(catkin REQUIRED COMPONENTS
     eigen_conversions
     urdf
     sensor_msgs
-    panda_softhand_control
     moveit_msgs
     moveit_ros_planning
     moveit_ros_planning_interface
@@ -195,12 +194,12 @@ add_executable(${PROJECT_NAME}_test_reversePriority test/test_reverse_priority.c
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(${PROJECT_NAME}_collision_detection_twist_node ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
-add_dependencies(${PROJECT_NAME}_fg_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
-add_dependencies(${PROJECT_NAME}_ag_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
+add_dependencies(${PROJECT_NAME}_fg_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_ag_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME}_robotCommander ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_homing_node ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
-add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
-add_dependencies(${PROJECT_NAME}_test_StateCreatorPreserver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
+add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_test_StateCreatorPreserver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME}_test_reversePriority ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
