@@ -13,6 +13,9 @@
 // Default Constructor
 basicTask::basicTask(){
 
+    // Default secondary priority is zero (if other values needed, use public set function)
+    this->sec_priority_ = 0;
+
 }
 
 // Overloaded Constructor
