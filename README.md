@@ -39,6 +39,9 @@ Remember to set correctly `robot_ip` and set `load_gripper` to `false` in `launc
 6. `rostopic pub -r 50 /touching_finger_topic std_msgs/Int8 "data: 4"` (From 0 to 5 for fingers from thumb to pinky)
 
 ### Simulation (Klampt)
-
-... TODO ...
+The package [Adaptive Simulation](https://github.com/gpollayil/adaptive_simulation) is required.
+1. `roslaunch soft_hand_klampt_description floating_soft_hand_klampt.launch` (Launches floating SoftHand robot in RViz)
+2. `rosrun adaptive_simulation main_ros.py apc2015 stanley_66_052 ` (Launches Klampt and waits for service adaptive_grasping)
+3. `roslaunch adaptive_grasping launchRobotCommAdaptiveGrasp.launch ` (The main server for adaptive grasping, and launches robotCommander... The service is called in the above python node)
+4. `rostopic pub -r 50 /touching_finger_topic std_msgs/Int8 "data: 4"` (From 0 to 5 for fingers from thumb to pinky)
 
