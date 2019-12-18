@@ -59,7 +59,7 @@ adaptive_grasping:
   syn_thresh: 0.8
   # The bool to decide if null twist should be sent when relaxation occurs
   relax_to_zero: false
-  # The bool to decide if to change contact selection when touch occurs
+  # The bool to decide if to change contact selection when touch occurs (NOT USED NOW)
   touch_change: true
   # The number of tasks for the RP Manger (Excluding contact tasks) (Contact Preserver) if num_tasks == 2 -> basic two tasks relaxation RP
   num_tasks: 3
