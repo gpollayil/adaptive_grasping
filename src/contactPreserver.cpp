@@ -5,6 +5,7 @@
 #define DEBUG               0   // print out additional info
 #define N_DEBUG             0   // sends as reference column of N(Q)
 #define USE_RP              0   // task inversion is performed using RP
+#define UNIFY_TOUCHES       1   // the tasks relative to different fingers are put together
 
 /**
 * @brief The following are functions of the class contactPreserver.
@@ -216,21 +217,57 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 		this->tmp_task_vec.push_back(tmp_task);
 	}
 
-	for (int i = 0; i < this->num_contacts; i++) { // Filling in the tasks regarding the contacts
-		// Iterating and pushing back the tasks in which the contacts part is divided
-		for (int j = this->num_tasks; j < this->dim_tasks.size(); j++) {
-			// The row index is the sum of the previous dimensions
-			tmp_x_dot = y.block(dim_reached, 0, this->dim_tasks[j], y.cols());
-			tmp_jacobian = Q_tilde.block(dim_reached, 0, this->dim_tasks[j], Q_tilde.cols());
-			tmp_priority = this->prio_tasks[j];
-			dim_reached += this->dim_tasks[j];
+    // Filling in the tasks regarding the contacts //
+	if (UNIFY_TOUCHES) {    // Different finger tasks are put together
 
-			// Push in tmp variables
-			this->tmp_task.set_task_x_dot(tmp_x_dot);
-			this->tmp_task.set_task_jacobian(tmp_jacobian);
-			this->tmp_task.set_task_priority(tmp_priority);
-			this->tmp_task_vec.push_back(tmp_task);
-		}
+	    int k = 0;
+	    int dim = 0;
+
+	    for (int i = this->num_tasks; i < this->dim_tasks.size(); i++) { // Iterating the division of contact part
+	        // Present task dimension and empty matrix to be filled
+	        dim = this->dim_tasks.at(i);
+	        Eigen::MatrixXd tmp_jac_mat(dim * this->num_contacts, Q_tilde.cols());
+	        Eigen::VectorXd tmp_x_d_vec(dim * this->num_contacts, y.cols());
+	        tmp_jac_mat.setIdentity();
+	        tmp_x_d_vec.setIdentity();
+
+	        // Putting together parts related to different fingers
+	        for (int j = 0; j < this->num_contacts; j ++) {
+                tmp_jac_mat.block(dim * j, 0, dim, Q_tilde.cols()) = Q_tilde.block(dim_reached + k + 6 * j, 0, dim, Q_tilde.cols());
+                tmp_x_d_vec.block(dim * j, 0, dim, y.cols()) = y.block(dim_reached + k + 6 * j, 0, dim, y.cols());
+	        }
+
+	        k += dim;
+
+            // Setting the tmp task and pushing back
+            tmp_jacobian = tmp_jac_mat;
+            tmp_x_dot = tmp_x_d_vec;
+            tmp_priority = this->prio_tasks[i];
+            this->tmp_task.set_task_x_dot(tmp_x_dot);
+            this->tmp_task.set_task_jacobian(tmp_jacobian);
+            this->tmp_task.set_task_priority(tmp_priority);
+            this->tmp_task_vec.push_back(tmp_task);
+	    }
+
+	} else {    // Different finger tasks are separated
+
+        for (int i = 0; i < this->num_contacts; i++) {
+            // Iterating and pushing back the tasks in which the contacts part is divided
+            for (int j = this->num_tasks; j < this->dim_tasks.size(); j++) {
+                // The row index is the sum of the previous dimensions
+                tmp_x_dot = y.block(dim_reached, 0, this->dim_tasks[j], y.cols());
+                tmp_jacobian = Q_tilde.block(dim_reached, 0, this->dim_tasks[j], Q_tilde.cols());
+                tmp_priority = this->prio_tasks[j];
+                dim_reached += this->dim_tasks[j];
+
+                // Push in tmp variables
+                this->tmp_task.set_task_x_dot(tmp_x_dot);
+                this->tmp_task.set_task_jacobian(tmp_jacobian);
+                this->tmp_task.set_task_priority(tmp_priority);
+                this->tmp_task_vec.push_back(tmp_task);
+            }
+        }
+
 	}
 
 	// Setting the secondary priorities (by adding +1 when first and sec priorities are same)
