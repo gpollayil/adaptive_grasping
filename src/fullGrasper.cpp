@@ -169,7 +169,7 @@ bool fullGrasper::parse_task_params(){
         }
     }
 
-    if(!parseParameter(this->task_seq_params, this->approach_ref_map, "poses_map")){
+    if(!parseParameter(this->task_seq_params, this->approach_ref_map, "approach_ref_map")){
         ROS_ERROR("Could not parse the approach_ref map.");
         success = false;
     }
@@ -185,14 +185,14 @@ bool fullGrasper::parse_task_params(){
         }
     }
 
-    if(!parseParameter(this->task_seq_params, this->adaptive_ref_map, "poses_map")){
+    if(!parseParameter(this->task_seq_params, this->adaptive_ref_map, "adaptive_ref_map")){
         ROS_ERROR("Could not parse the adaptive_ref map.");
         success = false;
     }
 
     if(DEBUG_FG){
         ROS_INFO_STREAM("The lift map is");
-        for(auto it : this->lift_ref_map){
+        for(auto it : this->adaptive_ref_map){
             std::cout << it.first << " : [ ";
             for(auto vec_it : it.second){
                 std::cout << vec_it << " ";
@@ -201,7 +201,7 @@ bool fullGrasper::parse_task_params(){
         }
     }
 
-    if(!parseParameter(this->task_seq_params, this->lift_ref_map, "poses_map")){
+    if(!parseParameter(this->task_seq_params, this->lift_ref_map, "lift_ref_map")){
         ROS_ERROR("Could not parse the lift_ref map.");
         success = false;
     }
@@ -396,6 +396,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
 
     // Checking the request for correctness
     if(!req.data){
+        // TODO: Here stop adaptive grasping
         ROS_WARN("Did you really want to call the adaptive grasp task service with data = false?");
         res.success = true;
         res.message = "The service call_adaptive_grasp_task done correctly with false request!";
