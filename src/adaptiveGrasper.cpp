@@ -49,7 +49,7 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     this->server_ag = this->ag_nh.advertiseService("adaptive_grasper_service", &adaptiveGrasper::agCallback, this);
 
     // Initializing the client to end adaptive grasping
-    this->end_client = this->ag_nh.serviceClient<std_srvs::Trigger>("adaptive_grasping_end_trigger");
+    this->signal_client = this->ag_nh.serviceClient<std_srvs::Trigger>("adaptive_grasping_signal_trigger");
 
     // Starting to parse the needed elements from parameter server
     ROS_INFO_STREAM("adaptiveGrasper::initialize STARTING TO PARSE THE NEEDED VARIABLES!");
@@ -71,6 +71,12 @@ bool adaptiveGrasper::initialize(std::vector<std::string> param_names){
     // Subscribing to object pose
     this->op_sub = this->ag_nh.subscribe(this->object_topic_name, 1, &adaptiveGrasper::getObjectPose, this);
     ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << op_sub.getTopic() << ".");
+
+    // Subscribing to reference topics
+    this->x_d_reference_sub = this->ag_nh.subscribe("/x_d_reference", 1, &adaptiveGrasper::getXReference, this);
+    ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << x_d_reference_sub.getTopic() << ".");
+    this->f_d_d_reference_sub = this->ag_nh.subscribe("/f_d_d_reference", 1, &adaptiveGrasper::getFReference, this);
+    ROS_INFO_STREAM("adaptiveGrasper::initialize A SUBSCRIBER SUBSCRIBED TO " << f_d_d_reference_sub.getTopic() << ".");
 
     // Waiting for a message in object pose
     geometry_msgs::Pose::ConstPtr tmp_op = ros::topic::waitForMessage<geometry_msgs::Pose>(this->object_topic_name, this->ag_nh);
@@ -268,7 +274,7 @@ void adaptiveGrasper::getJointsAndComputeSyn(const sensor_msgs::JointState::Cons
         this->my_contact_state.resetContact();       // Might cause crashing
 
         // Calling the end adaptive grasping service to let full grasper know that it ended
-        if(this->end_client.call(this->end_srv)){
+        if(this->signal_client.call(this->signal_srv)){
             ROS_WARN_STREAM("adaptiveGrasper : Triggered stop adaptive grasping!");
         } else {
             ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
@@ -290,7 +296,7 @@ void adaptiveGrasper::getSafetyInfo(const panda_softhand_safety::SafetyInfo::Con
         this->my_contact_state.resetContact();       // Might cause crashing
 
         // Calling the end adaptive grasping service to let full grasper know that it ended
-        if(this->end_client.call(this->end_srv)){
+        if(this->signal_client.call(this->signal_srv)){
             ROS_WARN_STREAM("adaptiveGrasper : Triggered stop adaptive grasping!");
         } else {
             ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
@@ -322,6 +328,18 @@ void adaptiveGrasper::getObjectPose(const geometry_msgs::Pose::ConstPtr &msg){
     this->marker_pub.publish(this->obj_marker);
 }
 
+/* GETXREFERENCE */
+void adaptiveGrasper::getXReference(const std_msgs::Float64MultiArray::ConstPtr &msg){
+    std::vector<double> tmp_vec(msg->data.begin(), msg->data.end());
+    this->x_d = Eigen::VectorXd::Map(tmp_vec.data(), tmp_vec.size());
+}
+
+/* GETFREFERENCE */
+void adaptiveGrasper::getFReference(const std_msgs::Float64MultiArray::ConstPtr &msg){
+    std::vector<double> tmp_vec(msg->data.begin(), msg->data.end());
+    this->f_d_d = Eigen::VectorXd::Map(tmp_vec.data(), tmp_vec.size());
+}
+
 /* AGCALLBACK */
 bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req, adaptive_grasping::adaptiveGrasp::Response &res){
     if(DEBUG) ROS_INFO_STREAM("Entering the AG callback!");
@@ -337,7 +355,7 @@ bool adaptiveGrasper::agCallback(adaptive_grasping::adaptiveGrasp::Request &req,
         res.success = false;
 
         // Calling the end adaptive grasping service to let full grasper know that it ended
-        if(this->end_client.call(this->end_srv)){
+        if(this->signal_client.call(this->signal_srv)){
             ROS_WARN_STREAM("adaptiveGrasper : Triggered stop adaptive grasping!");
         } else {
             ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");

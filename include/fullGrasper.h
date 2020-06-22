@@ -9,6 +9,7 @@
 // ROS msg includes
 #include <geometry_msgs/Pose.h>
 #include "std_msgs/Float64.h"
+#include "std_msgs/Float64MultiArray.h"
 #include "std_srvs/SetBool.h"
 #include "std_srvs/Trigger.h"
 
@@ -121,6 +122,14 @@ namespace adaptive_grasping {
         */
         void get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg);
 
+        /** CALLPREGRASPTASK
+        * @brief Callback function for getting to the pregrasp pose
+        *
+        * @param req / res
+        * @return bool success
+        */
+        bool call_pre_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
+
         /** CALLADAPTIVEGRASPTASK
         * @brief Callback function for performing the whole adaptive grasp routine
         *
@@ -135,7 +144,31 @@ namespace adaptive_grasping {
         * @param req / res
         * @return bool success
         */
-        bool call_end_adaptive_grasp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+        bool call_signal_adaptive_grasp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+
+        /** CALLPOSTGRASPTASK
+        * @brief Callback function for getting to the postgrasp pose
+        *
+        * @param req / res
+        * @return bool success
+        */
+        bool call_post_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
+
+        /** CALLSWITCHPOS2VEL
+        * @brief Callback function for switching from position controllers to velocity controllers
+        *
+        * @param req / res
+        * @return bool success
+        */
+        bool call_switch_pos2vel(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
+
+        /** CALLSWITCHVEL2POS
+        * @brief Callback function for switching from velocity controllers to position controllers
+        *
+        * @param req / res
+        * @return bool success
+        */
+        bool call_switch_vel2pos(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
 
         private:
 
@@ -166,26 +199,35 @@ namespace adaptive_grasping {
         std::string franka_state_topic_name = "/franka_state_controller/franka_states";
         ros::Subscriber franka_state_sub;
         franka_msgs::FrankaState latest_franka_state;
+        Eigen::Vector3d ee_position_now;            // present panda_EE position
         bool franka_ok = true;
         double tau_ext_norm = 0.0;
         ros::Publisher pub_tau_ext_norm;
         ros::Publisher pub_franka_recovery;         // TODO: Recover from error automatically
+        ros::Publisher pub_x_d_reference;
+        std_msgs::Float64MultiArray x_d_msg;
+        ros::Publisher pub_f_d_d_reference;
+        std_msgs::Float64MultiArray f_d_d_msg;
 
         // Subscriber to object pose and the pose
         ros::Subscriber object_sub;
         geometry_msgs::Pose object_pose_T;
 
         // Service Servers
+        ros::ServiceServer pregrasp_task_server;
         ros::ServiceServer adaptive_task_server;
+        ros::ServiceServer postgrasp_task_server;
         ros::ServiceServer set_object_server;
-        ros::ServiceServer ag_ended_server;
+        ros::ServiceServer ag_signal_server;
+        ros::ServiceServer switch_pos2vel_server;
+        ros::ServiceServer switch_vel2pos_server;
 
         // Service Clients
         ros::ServiceClient arm_switch_client;
         ros::ServiceClient hand_switch_client;
 
-        // Adaptive grasping ended trigger bool
-        bool adaptive_grasping_ended;
+        // Adaptive grasping signal trigger bool
+        bool adaptive_grasping_signal;
 
         // The XmlRpc value for parsing complex params
         XmlRpc::XmlRpcValue task_seq_params;
@@ -205,7 +247,14 @@ namespace adaptive_grasping {
         std::vector<double> handover_joints;
         double handover_thresh;
 
-        std::map<std::string, std::vector<double>> poses_map;     // The map containing the notable poses
+        std::map<std::string, std::vector<double>> poses_map;               // The map containing the notable poses
+
+        std::map<std::string, std::vector<double>> approach_ref_map;        // The map containing references for approach
+        std::map<std::string, std::vector<double>> adaptive_ref_map;        // The map containing references for adaptive
+        std::map<std::string, std::vector<double>> lift_ref_map;            // The map containing references for lift
+
+        std::vector<double> null_x_d = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        std::vector<double> null_f_d_d = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
     };
 

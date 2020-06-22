@@ -42,6 +42,8 @@ fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<
     // Initializing the tau_ext norm and franka recovery publishers
     this->pub_franka_recovery = this->nh.advertise<franka_control::ErrorRecoveryActionGoal>("/" + this->arm_name + "/franka_control/error_recovery/goal", 1);
     this->pub_tau_ext_norm = this->nh.advertise<std_msgs::Float64>("tau_ext_norm", 1);
+    this->pub_x_d_reference = this->nh.advertise<std_msgs::Float64MultiArray>("/x_d_reference", 1);
+    this->pub_f_d_d_reference = this->nh.advertise<std_msgs::Float64MultiArray>("/f_d_d_reference", 1);
 
     // Initializing Panda SoftHand Client (TODO: Return error if initialize returns false)
     this->panda_softhand_client.initialize(this->nh);
@@ -51,9 +53,14 @@ fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<
     ros::topic::waitForMessage<geometry_msgs::Pose>("/object_pose", ros::Duration(2.0));
 
     // Advertising the services (TODO: parse the service names)
+    this->pregrasp_task_server = this->nh.advertiseService("pregrasp_task_service", &fullGrasper::call_pre_grasp_task, this);
     this->adaptive_task_server = this->nh.advertiseService("adaptive_task_service", &fullGrasper::call_adaptive_grasp_task, this);
+    this->postgrasp_task_server = this->nh.advertiseService("postgrasp_task_service", &fullGrasper::call_post_grasp_task, this);
     this->set_object_server = this->nh.advertiseService("set_object_service", &fullGrasper::call_set_object, this);
-    this->ag_ended_server = this->nh.advertiseService("adaptive_grasping_end_trigger", &fullGrasper::call_end_adaptive_grasp, this);
+    this->ag_signal_server = this->nh.advertiseService("adaptive_grasping_signal_trigger", &fullGrasper::call_signal_adaptive_grasp, this);
+    this->switch_pos2vel_server = this->nh.advertiseService("switch_pos2vel_service", &fullGrasper::call_switch_pos2vel, this);
+    this->switch_vel2pos_server = this->nh.advertiseService("switch_vel2pos_service", &fullGrasper::call_switch_vel2pos, this);
+
 
     // Initializing the service clients
     this->arm_switch_client = this->nh.serviceClient<controller_manager_msgs::SwitchController>(this->arm_name + this->switch_service_name);
@@ -159,6 +166,54 @@ bool fullGrasper::parse_task_params(){
                 std::cout << vec_it << " ";
             } 
             std::cout << "]" << std::endl;     
+        }
+    }
+
+    if(!parseParameter(this->task_seq_params, this->approach_ref_map, "poses_map")){
+        ROS_ERROR("Could not parse the approach_ref map.");
+        success = false;
+    }
+
+    if(DEBUG_FG){
+        ROS_INFO_STREAM("The approach map is");
+        for(auto it : this->approach_ref_map){
+            std::cout << it.first << " : [ ";
+            for(auto vec_it : it.second){
+                std::cout << vec_it << " ";
+            }
+            std::cout << "]" << std::endl;
+        }
+    }
+
+    if(!parseParameter(this->task_seq_params, this->adaptive_ref_map, "poses_map")){
+        ROS_ERROR("Could not parse the adaptive_ref map.");
+        success = false;
+    }
+
+    if(DEBUG_FG){
+        ROS_INFO_STREAM("The lift map is");
+        for(auto it : this->lift_ref_map){
+            std::cout << it.first << " : [ ";
+            for(auto vec_it : it.second){
+                std::cout << vec_it << " ";
+            }
+            std::cout << "]" << std::endl;
+        }
+    }
+
+    if(!parseParameter(this->task_seq_params, this->lift_ref_map, "poses_map")){
+        ROS_ERROR("Could not parse the lift_ref map.");
+        success = false;
+    }
+
+    if(DEBUG_FG){
+        ROS_INFO_STREAM("The lift map is");
+        for(auto it : this->lift_ref_map){
+            std::cout << it.first << " : [ ";
+            for(auto vec_it : it.second){
+                std::cout << vec_it << " ";
+            }
+            std::cout << "]" << std::endl;
         }
     }
 
@@ -284,17 +339,24 @@ void fullGrasper::get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg
     // Publishing norm
     std_msgs::Float64 norm_msg; norm_msg.data = this->tau_ext_norm;
     this->pub_tau_ext_norm.publish(norm_msg);
+
+    // Saving the present panda_EE position
+    std::vector<double> O_T_EE_vec (this->latest_franka_state.O_T_EE.begin(), this->latest_franka_state.O_T_EE.end());
+    std::vector<double>::const_iterator first = O_T_EE_vec.begin() + 12;
+    std::vector<double>::const_iterator last = O_T_EE_vec.begin() + 14;
+    std::vector<double> tmp_position(first, last);
+    this->ee_position_now = Eigen::Vector3d::Map(tmp_position.data(), tmp_position.size());
     
 }
 
-/* CALLADAPTIVEGRASPTASK */
-bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+/* CALLPREGRASPTASK */
+bool fullGrasper::call_pre_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
     
     // Checking the request for correctness
     if(!req.data){
-        ROS_WARN("Did you really want to call the simple grasp task service with data = false?");
+        ROS_WARN("Did you really want to call the pre grasp task service with data = false?");
         res.success = true;
-        res.message = "The service call_adaptive_grasp_task done correctly with false request!";
+        res.message = "The service call_pre_grasp_task done correctly with false request!";
         return true;
     }
 
@@ -302,7 +364,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     if(!this->panda_softhand_client.call_joint_service(this->home_joints) || !this->franka_ok){
         ROS_ERROR("Could not go to the specified home joint configuration.");
         res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        res.message = "The service call_pre_grasp_task was NOT performed correctly!";
         return false;
     }
 
@@ -323,35 +385,34 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         return false;
     }
 
-    // 3) Going to grasp pose
-    if(!this->panda_softhand_client.call_slerp_service(grasp_pose, false) || !this->franka_ok){
-        ROS_ERROR("Could not go to the specified grasp pose.");
-        res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
-        return false;
+    // Now, everything finished well
+    res.success = true;
+    res.message = "The service call_adaptive_grasp_task was correctly performed!";
+    return true;
+}
+
+/* CALLADAPTIVEGRASPTASK */
+bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+
+    // Checking the request for correctness
+    if(!req.data){
+        ROS_WARN("Did you really want to call the adaptive grasp task service with data = false?");
+        res.success = true;
+        res.message = "The service call_adaptive_grasp_task done correctly with false request!";
+        return true;
     }
 
-    sleep(2);       // TODO: listen to robot and make sure it's not moving
+    // Computing the grasp and pregrasp pose and converting to geometry_msgs Pose
+    Eigen::Affine3d object_pose_aff; tf::poseMsgToEigen(this->object_pose_T, object_pose_aff);
+    Eigen::Affine3d grasp_transform_aff; tf::poseMsgToEigen(this->grasp_T, grasp_transform_aff);
+    Eigen::Affine3d pre_grasp_transform_aff; tf::poseMsgToEigen(this->pre_grasp_T, pre_grasp_transform_aff);
 
-    // 4.1) Switching to velocity controllers
-    if(!this->switch_control(this->arm_name, this->arm_pos_controller, this->arm_vel_controller) || !this->franka_ok){
-        ROS_ERROR_STREAM("Could not switch to the arm velocity controller " 
-            << this->arm_vel_controller << " from " << this->arm_pos_controller << ". Are these controllers loaded?");
-        res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
-        return false;
-    }
-    sleep(1);     // Giving some time to controller manager
-    if(!this->switch_control(this->hand_name, this->hand_pos_controller, this->hand_vel_controller) || !this->franka_ok){
-        ROS_ERROR_STREAM("Could not switch to the hand velocity controller " 
-            << this->hand_vel_controller << " from " << this->hand_pos_controller << ". Are these controllers loaded?");
-        res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
-        return false;
-    }
+    Eigen::Affine3d pre_grasp_pose; Eigen::Affine3d grasp_pose;
+    pre_grasp_pose = object_pose_aff * grasp_transform_aff * pre_grasp_transform_aff;
+    grasp_pose = object_pose_aff * grasp_transform_aff;
 
-    // Calling the adaptive grasp service and waiting for its completion
-    this->adaptive_grasping_ended = false;                                  // Setting end trigger to false
+    // Calling the adaptive grasp service, changing references and waiting for its completion
+    this->adaptive_grasping_signal = false;                                  // Setting end trigger to false
 
     adaptive_grasping::adaptiveGrasp ag_srv; ag_srv.request.run_adaptive_grasp = true;
     if(!ros::service::call<adaptive_grasping::adaptiveGrasp>("adaptive_grasper_service", ag_srv)){
@@ -363,47 +424,43 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
 
     ROS_INFO("Called the adaptive_grasper_service!");
 
-    // 4) Wait for an event on a topic
-    while(!this->adaptive_grasping_ended){
-        // Sleep for some time
-        usleep(50);
+    // 1) Sending the reference for going down till pregrasp pose reached
+    bool pose_reached = false;
+    while(!pose_reached){
+        // Checking if the present position of panda_EE is near grasp position
+        if ((this->ee_position_now - grasp_pose.translation()).norm() < 0.001) {
+            pose_reached = true;
+            this->x_d_msg.data.clear();
+            this->x_d_msg.data = this->null_x_d;
+            this->f_d_d_msg.data.clear();
+            this->f_d_d_msg.data = this->null_f_d_d;
+            this->pub_x_d_reference.publish(this->x_d_msg);
+            this->pub_f_d_d_reference.publish(this->f_d_d_msg);
+        } else {
+            this->x_d_msg.data = this->approach_ref_map.at("x_d");
+            this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
+            this->pub_x_d_reference.publish(this->x_d_msg);
+            this->pub_f_d_d_reference.publish(this->f_d_d_msg);
+        }
     }
 
     ROS_INFO("Someone triggered the adaptive grasp end!");
 
-    sleep(2);       // TODO: listen to robot and make sure it's not moving
+    // Now, everything finished well
+    res.success = true;
+    res.message = "The service call_adaptive_grasp_task was correctly performed!";
+    return true;
+}
 
-    // 4.4) Switching to back to position controllers
-    if(!this->switch_control(this->arm_name, this->arm_vel_controller, this->arm_pos_controller) || !this->franka_ok){
-        ROS_ERROR_STREAM("Could not switch to the arm position controller " 
-            << this->arm_pos_controller << " from " << this->arm_vel_controller << ". Are these controllers loaded?");
-        res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
-        return false;
-    }
-    sleep(1);     // Giving some time to controller manager
-    if(!this->switch_control(this->hand_name, this->hand_vel_controller, this->hand_pos_controller) || !this->franka_ok){
-        ROS_ERROR_STREAM("Could not switch to the hand position controller " 
-            << this->hand_pos_controller << " from " << this->hand_vel_controller << ". Are these controllers loaded?");
-        res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
-        return false;
-    }
+/* CALLPOSTGRASPTASK */
+bool fullGrasper::call_post_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
 
-    // 4.5) Completing grasp
-    if(!this->panda_softhand_client.call_hand_service(1.0, 2.0) || !this->franka_ok){
-        ROS_ERROR("Could not complete the grasp.");
-        res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
-        return false;
-    }
-
-    // 5) Lifting up the object
-    if(!this->panda_softhand_client.call_joint_service(this->home_joints) || !this->franka_ok){
-        ROS_ERROR("Could not lift to the specified pose.");
-        res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
-        return false;
+    // Checking the request for correctness
+    if(!req.data){
+        ROS_WARN("Did you really want to call the post grasp task service with data = false?");
+        res.success = true;
+        res.message = "The service call_post_grasp_task done correctly with false request!";
+        return true;
     }
 
     // 6) Going to handover joint config
@@ -431,12 +488,12 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         if((now_time - init_time) > ros::Duration(10, 0)){
             hand_open = true;
             if(DEBUG_FG) ROS_WARN_STREAM("Opening condition reached!" << " TIMEOUT!");
-            if(DEBUG_FG) ROS_WARN_STREAM("The initial time was " << init_time << ", now it is " << now_time 
-                << ", the difference is " << (now_time - init_time) << " and the timeout thresh is " << ros::Duration(10, 0));
+            if(DEBUG_FG) ROS_WARN_STREAM("The initial time was " << init_time << ", now it is " << now_time
+                                                                 << ", the difference is " << (now_time - init_time) << " and the timeout thresh is " << ros::Duration(10, 0));
         }
     }
 
-    // 8) Opening hand 
+    // 8) Opening hand
     if(!this->panda_softhand_client.call_hand_service(0.0, 2.0) || !this->franka_ok){
         ROS_ERROR("Could not open the hand.");
         res.success = false;
@@ -451,7 +508,57 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
 }
 
 /* CALLENDADAPTIVEGRASP */
-bool fullGrasper::call_end_adaptive_grasp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res){
+bool fullGrasper::call_signal_adaptive_grasp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res){
     // Setting the trigger bool
-    this->adaptive_grasping_ended = true;
+    this->adaptive_grasping_signal = true;
+}
+
+/* CALLSWITCHPOS2VEL */
+bool fullGrasper::call_switch_pos2vel(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+
+    sleep(2);       // TODO: listen to robot and make sure it's not moving
+
+    // Switching to velocity controllers from position controllers
+    if(!this->switch_control(this->arm_name, this->arm_pos_controller, this->arm_vel_controller) || !this->franka_ok){
+        ROS_ERROR_STREAM("Could not switch to the arm velocity controller "
+                                 << this->arm_vel_controller << " from " << this->arm_pos_controller << ". Are these controllers loaded?");
+        res.success = false;
+        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        return false;
+    }
+    sleep(1);     // Giving some time to controller manager
+    if(!this->switch_control(this->hand_name, this->hand_pos_controller, this->hand_vel_controller) || !this->franka_ok){
+        ROS_ERROR_STREAM("Could not switch to the hand velocity controller "
+                                 << this->hand_vel_controller << " from " << this->hand_pos_controller << ". Are these controllers loaded?");
+        res.success = false;
+        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        return false;
+    }
+
+}
+
+/* CALLSWITCHVEL2POS */
+bool fullGrasper::call_switch_vel2pos(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+
+    sleep(2);       // TODO: listen to robot and make sure it's not moving
+
+    // Switching to position controllers from velocity controllers
+    if(!this->switch_control(this->arm_name, this->arm_vel_controller, this->arm_pos_controller) || !this->franka_ok){
+        ROS_ERROR_STREAM("Could not switch to the arm position controller "
+                                 << this->arm_pos_controller << " from " << this->arm_vel_controller << ". Are these controllers loaded?");
+        res.success = false;
+        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        return false;
+    }
+
+    sleep(1);     // Giving some time to controller manager
+
+    if(!this->switch_control(this->hand_name, this->hand_vel_controller, this->hand_pos_controller) || !this->franka_ok){
+        ROS_ERROR_STREAM("Could not switch to the hand position controller "
+                                 << this->hand_pos_controller << " from " << this->hand_vel_controller << ". Are these controllers loaded?");
+        res.success = false;
+        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        return false;
+    }
+
 }
