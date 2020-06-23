@@ -493,6 +493,11 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         this->pub_x_d_reference.publish(this->x_d_msg);
     }
 
+    // 5) Stop the lift by sending null reference
+    this->x_d_msg.data.clear();
+    this->x_d_msg.data = this->null_x_d;
+    this->pub_x_d_reference.publish(this->x_d_msg);
+
     // Now, everything finished well
     res.success = true;
     res.message = "The service call_adaptive_grasp_task was correctly performed!";
