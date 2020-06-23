@@ -343,9 +343,21 @@ void fullGrasper::get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg
     // Saving the present panda_EE position
     std::vector<double> O_T_EE_vec (this->latest_franka_state.O_T_EE.begin(), this->latest_franka_state.O_T_EE.end());
     std::vector<double>::const_iterator first = O_T_EE_vec.begin() + 12;
-    std::vector<double>::const_iterator last = O_T_EE_vec.begin() + 14;
+    std::vector<double>::const_iterator last = O_T_EE_vec.begin() + 15;
     std::vector<double> tmp_position(first, last);
     this->ee_position_now = Eigen::Vector3d::Map(tmp_position.data(), tmp_position.size());
+
+    // std::cout << "O_T_EE_vec is" << std::endl;
+    // for (auto i = O_T_EE_vec.begin(); i != O_T_EE_vec.end(); ++i){
+    //     std::cout << *i << ' ';
+    // }
+
+    // std::cout << "tmp_position is" << std::endl;
+    // for (auto i = tmp_position.begin(); i != tmp_position.end(); ++i){
+    //     std::cout << *i << ' ';
+    // }
+    
+    // ROS_INFO_STREAM("The present position is " << this->ee_position_now);
     
 }
 
