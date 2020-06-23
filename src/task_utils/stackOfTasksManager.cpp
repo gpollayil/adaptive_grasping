@@ -112,11 +112,11 @@ void stackOfTasksManager::print_set() {
 void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 	// Initializing the result vector
 	Eigen::VectorXd q_res; q_res.resize(this->dim_config_space_); q_res.setZero();
-	if (DEBUG || true) std::cout << "The dimension of the config space is " << this->dim_config_space_ << "." << std::endl;
+	if (DEBUG) std::cout << "The dimension of the config space is " << this->dim_config_space_ << "." << std::endl;
 
 	// Ordering the task set
 	this->reorder_set();
-	if (DEBUG || true) this->print_set();
+	if (DEBUG) this->print_set();
 
 	// Initialize projection matrices and the current jacobian and task vector
 	int n_cols_init = this->task_set_.at(0).get_task_jacobian().cols();
@@ -125,7 +125,7 @@ void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 	Eigen::VectorXd x_dot_i;
 	Eigen::MatrixXd JP_i_pinv;
 
-	if (DEBUG || true) std::cout << "Starting SOT with q_res = " << q_res << "." << std::endl;
+	if (DEBUG) std::cout << "Starting SOT with q_res = " << q_res << "." << std::endl;
 
 	// Recursion loop (ref stack of tasks paper)
 	for (auto it : this->task_set_) {
@@ -142,7 +142,7 @@ void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 		q_res = q_res + JP_i_pinv * (x_dot_i - J_i * q_res);
 
 		// Debug couts
-		if (DEBUG || true) {
+		if (DEBUG) {
 			std::cout << "x_dot_i: \n" << x_dot_i << std::endl;
 			std::cout << "J_i: \n" << J_i << std::endl;
 			std::cout << "P_i_1: \n" << P_i_1 << std::endl;
@@ -155,7 +155,7 @@ void stackOfTasksManager::solve_inv_kin(Eigen::VectorXd &q_sol) {
 
 	}
 
-	if (DEBUG || true) std::cout << "Ending SOT with q_res = " << q_res << "." << std::endl;
+	if (DEBUG) std::cout << "Ending SOT with q_res = " << q_res << "." << std::endl;
 
 	// Returning
 	q_sol = q_res;
