@@ -486,7 +486,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     this->x_d_msg.data = this->lift_ref_map.at("x_d");      // Change reference to lift
     time_before = ros::Time::now().toSec();
     duration_close = 0.0;
-    while (duration_close < 6.0) { // Lift for 3 seconds
+    while (duration_close < 5.0) { // Lift for 6 seconds
         // Check duration
         duration_close = ros::Time::now().toSec() - time_before;
 
@@ -576,7 +576,7 @@ bool fullGrasper::call_switch_pos2vel(std_srvs::SetBool::Request &req, std_srvs:
         ROS_ERROR_STREAM("Could not switch to the arm velocity controller "
                                  << this->arm_vel_controller << " from " << this->arm_pos_controller << ". Are these controllers loaded?");
         res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        res.message = "The service call_switch_pos2vel was NOT performed correctly!";
         return false;
     }
     sleep(1);     // Giving some time to controller manager
@@ -584,9 +584,14 @@ bool fullGrasper::call_switch_pos2vel(std_srvs::SetBool::Request &req, std_srvs:
         ROS_ERROR_STREAM("Could not switch to the hand velocity controller "
                                  << this->hand_vel_controller << " from " << this->hand_pos_controller << ". Are these controllers loaded?");
         res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        res.message = "The service call_switch_pos2vel was NOT performed correctly!";
         return false;
     }
+
+    // Now, everything finished well
+    res.success = true;
+    res.message = "The service call_switch_pos2vel was correctly performed!";
+    return true;
 
 }
 
@@ -600,7 +605,7 @@ bool fullGrasper::call_switch_vel2pos(std_srvs::SetBool::Request &req, std_srvs:
         ROS_ERROR_STREAM("Could not switch to the arm position controller "
                                  << this->arm_pos_controller << " from " << this->arm_vel_controller << ". Are these controllers loaded?");
         res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        res.message = "The service call_switch_vel2pos was NOT performed correctly!";
         return false;
     }
 
@@ -610,8 +615,13 @@ bool fullGrasper::call_switch_vel2pos(std_srvs::SetBool::Request &req, std_srvs:
         ROS_ERROR_STREAM("Could not switch to the hand position controller "
                                  << this->hand_pos_controller << " from " << this->hand_vel_controller << ". Are these controllers loaded?");
         res.success = false;
-        res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+        res.message = "The service call_switch_vel2pos was NOT performed correctly!";
         return false;
     }
+
+    // Now, everything finished well
+    res.success = true;
+    res.message = "The service call_switch_vel2pos was correctly performed!";
+    return true;
 
 }
