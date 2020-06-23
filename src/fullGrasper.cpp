@@ -479,7 +479,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         // No need to set anything as long as x_d of adaptive ref has non palm moving reference
         // Send the same x_d reference as adaptive (CHECK: if adaptive reference has palm movement this is not valid!!!)
         this->pub_x_d_reference.publish(this->x_d_msg);
-        ROS_INFO_STREAM("The hand reference being sent is " << this->x_d_msg.data.at(0));
+        // ROS_INFO_STREAM("The hand reference being sent is " << this->x_d_msg.data.at(0));
     }
 
     // 4) Lift the object for a specified number of time (here there is no more task inversion in adaptive grasper)
