@@ -442,7 +442,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     while(!pose_reached){
         // Checking if the present position of panda_EE is near grasp position
         if ((this->ee_position_now - grasp_pose.translation()).norm() < 0.001) {
-            ROS_INFO_STREAM("GOT INTO IF!! GETTING OUT");
+            // ROS_INFO_STREAM("GOT INTO IF!! GETTING OUT");
             pose_reached = true;
             this->x_d_msg.data.clear();
             this->x_d_msg.data = this->null_x_d;
@@ -451,7 +451,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
             this->pub_x_d_reference.publish(this->x_d_msg);
             this->pub_f_d_d_reference.publish(this->f_d_d_msg);
         } else {
-            ROS_INFO_STREAM("I'm in else with norm " << (this->ee_position_now - grasp_pose.translation()).norm());
+            // ROS_INFO_STREAM("I'm in else with norm " << (this->ee_position_now - grasp_pose.translation()).norm());
             this->x_d_msg.data = this->approach_ref_map.at("x_d");
             this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
             this->pub_x_d_reference.publish(this->x_d_msg);
@@ -459,7 +459,39 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         }
     }
 
+    // 2) Sending the references for adaptive grasping until the signal of stopping condition by adaptive grasper
+    while(this->adaptive_grasping_signal) {
+        this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
+        this->f_d_d_msg.data = this->adaptive_ref_map.at("f_d_d");
+        this->pub_x_d_reference.publish(this->x_d_msg);
+        this->pub_f_d_d_reference.publish(this->f_d_d_msg);
+    }
+
     ROS_INFO("Someone triggered the adaptive grasp end!");
+
+    // 3) Stop the palm and finish closing for some time (here there is no more task inversion in adaptive grasper)
+    double time_before = ros::Time::now().toSec();
+    double duration_close = 0.0;
+    while (duration_close < 3.0) { // Close for 3 seconds
+        // Check duration
+        duration_close = ros::Time::now().toSec() - time_before;
+
+        // No need to set anything as long as x_d of adaptive ref has non palm moving reference
+        // Send the same x_d reference as adaptive (CHECK: if adaptive reference has palm movement this is not valid!!!)
+        this->pub_x_d_reference.publish(this->x_d_msg);
+    }
+
+    // 4) Lift the object for a specified number of time (here there is no more task inversion in adaptive grasper)
+    this->x_d_msg.data = this->lift_ref_map.at("x_d");      // Change reference to lift
+    time_before = ros::Time::now().toSec();
+    duration_close = 0.0;
+    while (duration_close < 3.0) { // Lift for 3 seconds
+        // Check duration
+        duration_close = ros::Time::now().toSec() - time_before;
+
+        // Send the same x_d reference as adaptive (CHECK: if adaptive reference has palm movement this is not valid!!!)
+        this->pub_x_d_reference.publish(this->x_d_msg);
+    }
 
     // Now, everything finished well
     res.success = true;
