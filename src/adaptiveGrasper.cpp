@@ -297,13 +297,13 @@ void adaptiveGrasper::getSafetyInfo(const panda_softhand_safety::SafetyInfo::Con
 
         // Calling the end adaptive grasping service to let full grasper know that it ended
         if(this->signal_client.call(this->signal_srv)){
-            ROS_WARN_STREAM("adaptiveGrasper : Triggered stop adaptive grasping!");
+            ROS_WARN_STREAM("adaptiveGrasper : Triggered stop sequential computing!");
         } else {
-            ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the stop..!");
+            ROS_ERROR_STREAM("adaptiveGrasper : something went wrong trying to trigger the signal..!");
         }
 
-        if(msg->collision) ROS_INFO_STREAM("adaptiveGrasper : The robot is about to collide: stopping the grasping!");
-        else ROS_INFO_STREAM("adaptiveGrasper : The robot is about to violate joint limits: stopping the grasping!");
+        if(msg->collision) ROS_INFO_STREAM("adaptiveGrasper : The robot is about to collide: stopping the sequential computing!");
+        else ROS_INFO_STREAM("adaptiveGrasper : The robot is about to violate joint limits: stopping the sequential computing!");
     }
 }
 
@@ -483,9 +483,11 @@ void adaptiveGrasper::spinGrasper(){
             track_error.data = (this->x_ref - this->x_d).norm();
             this->pub_error_tracking.publish(track_error);
         } else {
-            // If the run bool is false publish zero twist and speed
-            zero_ref = Eigen::VectorXd::Zero(this->x_ref.size());
-            if(!this->setCommandAndSend(zero_ref, this->ref_command)){
+            // If the run bool is false send x_d as it is given (after scaling)
+            // Scaling the reference and sending to the robot commander
+            if(DEBUG || true) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->scaling * this->x_d << ".");
+
+            if(!this->setCommandAndSend(this->scaling * this->x_d, this->ref_command)){
                 // ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending zeros!");
             }
         }
