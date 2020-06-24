@@ -52,6 +52,14 @@ fullGrasper::fullGrasper(std::string arm_ns_, std::string hand_ns_, std::vector<
     this->object_sub = this->nh.subscribe("/object_pose", 1, &fullGrasper::get_object_pose, this);
     ros::topic::waitForMessage<geometry_msgs::Pose>("/object_pose", ros::Duration(2.0));
 
+    // Initializing the num contacts subscriber and waiting (TODO: parse the topic name)
+    this->num_contacts_sub = this->nh.subscribe("/num_touches_contact_state", 1, &fullGrasper::get_num_contacts, this);
+    ros::topic::waitForMessage<std_msgs::Int8>("/num_touches_contact_state", ros::Duration(2.0));
+
+    // Initializing the num contacts subscriber and waiting (TODO: parse the topic name)
+    this->js_sub = this->nh.subscribe("/joint_states", 1, &fullGrasper::get_joints_compute_syn_joint, this);
+    ros::topic::waitForMessage<sensor_msgs::JointState>("/joint_states", ros::Duration(2.0));
+
     // Advertising the services (TODO: parse the service names)
     this->pregrasp_task_server = this->nh.advertiseService("pregrasp_task_service", &fullGrasper::call_pre_grasp_task, this);
     this->adaptive_task_server = this->nh.advertiseService("adaptive_task_service", &fullGrasper::call_adaptive_grasp_task, this);
@@ -365,6 +373,20 @@ void fullGrasper::get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg
     
 }
 
+/* GETNUMCONTACTS */
+void fullGrasper::get_num_contacts(const std_msgs::Int8::ConstPtr &msg){
+    this->num_cont_msg = *msg;
+}
+
+/* GETJOINTSANDCOMPUTESYNJOINT */
+void fullGrasper::get_joints_compute_syn_joint(const sensor_msgs::JointState::ConstPtr &msg){
+    
+    this->js_msg = *msg;
+    int index = std::find (this->js_msg.name.begin(),this->js_msg.name.end(), "right_hand_synergy_joint") - this->js_msg.name.begin();
+    this->present_synergy = this->js_msg.position[index];
+
+}
+
 /* CALLPREGRASPTASK */
 bool fullGrasper::call_pre_grasp_task(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
     
@@ -475,32 +497,36 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
 
     // 2) Sending the references for adaptive grasping until the signal of stopping condition by adaptive grasper
     while(!this->adaptive_grasping_signal) {
-        this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
-        this->f_d_d_msg.data = this->adaptive_ref_map.at("f_d_d");
+        int n_cont = this->num_cont_msg.data;
+        if (n_cont < 3) {   // Pivoting
+            this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
+            this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
+        } else {            // Restraining
+            this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
+            this->f_d_d_msg.data = this->adaptive_ref_map.at("f_d_d");
+        }
+        
         this->pub_x_d_reference.publish(this->x_d_msg);
         this->pub_f_d_d_reference.publish(this->f_d_d_msg);
     }
 
     ROS_INFO("Someone triggered the adaptive grasp end!");
 
-    // 3) Stop the palm and finish closing for some time (here there is no more task inversion in adaptive grasper)
-    double time_before = ros::Time::now().toSec();
-    double duration_close = 0.0;
-    while (duration_close < 5.0) { // Close for 3 seconds
-        // Check duration
-        duration_close = ros::Time::now().toSec() - time_before;
+    // 3) Stop the palm and finish closing (here there is no more task inversion in adaptive grasper)
+    while (this->present_synergy < 0.8) { // Close until threshold (TODO: Parse this!)
 
         // No need to set anything as long as x_d of adaptive ref has non palm moving reference
         // Send the same x_d reference as adaptive (CHECK: if adaptive reference has palm movement this is not valid!!!)
         this->pub_x_d_reference.publish(this->x_d_msg);
-        ROS_INFO_STREAM("The reference being sent to hand and palm is " << this->x_d_msg);
+        ROS_INFO_STREAM("The reference being sent to hand and palm is " << this->x_d_msg << " because syn is " << this->present_synergy);
+
     }
 
     // 4) Lift the object for a specified number of time (here there is no more task inversion in adaptive grasper)
     this->x_d_msg.data = this->lift_ref_map.at("x_d");      // Change reference to lift
-    time_before = ros::Time::now().toSec();
-    duration_close = 0.0;
-    while (duration_close < 5.0) { // Lift for 6 seconds
+    double time_before = ros::Time::now().toSec();
+    double duration_close = 0.0;
+    while (duration_close < 6.0) { // Lift for 6 seconds
         // Check duration
         duration_close = ros::Time::now().toSec() - time_before;
 

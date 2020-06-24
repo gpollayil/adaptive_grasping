@@ -8,6 +8,7 @@
 
 // ROS msg includes
 #include <geometry_msgs/Pose.h>
+#include "std_msgs/Int8.h"
 #include "std_msgs/Float64.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "std_srvs/SetBool.h"
@@ -116,12 +117,28 @@ namespace adaptive_grasping {
         bool call_set_object(adaptive_grasping::choose_object::Request &req, adaptive_grasping::choose_object::Response &res);
 
         /** GETFRANKASTATE
-        * @brief Callback function for getting information fram franka robot
+        * @brief Callback function for getting information from franka robot
         *
         * @param msg state
         * @return null
         */
         void get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg);
+
+        /** GETNUMCONTACTS
+        * @brief Callback function for getting information from contact state
+        *
+        * @param msg state
+        * @return null
+        */
+        void get_num_contacts(const std_msgs::Int8::ConstPtr &msg);
+
+        /** GETJOINTSANDCOMPUTESYNJOINT
+        * @brief Callback function to get the joint states and compute the synergy joint
+        *
+        * @param msg
+        * @return null
+        */
+        void get_joints_compute_syn_joint(const sensor_msgs::JointState::ConstPtr &msg);
 
         /** CALLPREGRASPTASK
         * @brief Callback function for getting to the pregrasp pose
@@ -215,6 +232,15 @@ namespace adaptive_grasping {
         // Subscriber to object pose and the pose
         ros::Subscriber object_sub;
         geometry_msgs::Pose object_pose_T;
+
+        // Subscriber to number of touhces in contact state and relative msg
+        ros::Subscriber num_contacts_sub;
+        std_msgs::Int8 num_cont_msg;
+
+        // Subscriber to joint states for getting synergy value
+        ros::Subscriber js_sub;                               // Subscriber to joint states
+        sensor_msgs::JointState js_msg;
+        double present_synergy;
 
         // Service Servers
         ros::ServiceServer pregrasp_task_server;

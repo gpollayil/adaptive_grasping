@@ -44,10 +44,10 @@ full_grasper:
   approach_ref_map:
     "sigma_d" : [0.0]
     "vel_p_d" : [0.03] # Speed for going down the local z axis
-    "f_d_d" : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    "f_d_d" : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]    # Forces for both approaching and pivoting
   adaptive_ref_map:
     "x_d": [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    "f_d_d": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    "f_d_d": [0.0, 0.0, 0.001, 0.0, 0.0, 0.0]     # Forces for restraining
   lift_ref_map:
     "x_d": [0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0]
-    "f_d_d": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    "f_d_d": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]     # Forces when lifting (not used)
