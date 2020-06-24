@@ -554,13 +554,16 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
 	std::map<int, std::tuple<std::string, Eigen::Affine3d,
 			Eigen::Affine3d>>::iterator it_c;
 
-	// Resize and set to null the whole contact selection MatrixXd
+	// Resize and set to null the whole contact selection and model MatrixXd
 	H = Eigen::MatrixXd::Zero(H_i.rows() * contacts_map_.size(),
 	                          6 * contacts_map_.size());
+	Kc = Eigen::MatrixXd::Zero(Kc_i.rows() * contacts_map_.size(),
+	                          Kc_i.cols() * contacts_map_.size());
 
 	// Indexes to put H_i in diagonal positions
 	int k = 0;
 	int h = 0;
+	int l = 0;
 
 	// For each contact, compute H_i (in world frame) and compose into H
 	for (it_c = contacts_map_.begin(); it_c != contacts_map_.end(); ++it_c) {
@@ -573,13 +576,14 @@ void matricesCreator::computeWholeContactSelection(std::map<int,
 		// Get the contact selection in world frames
 		Eigen::MatrixXd H_i_w = H_i * M_i;
 
-		// Now, put the current contact selection into the whole diag. H matrix
-		// Multiplying by the contact stiffness matrix
-		H.block(k, h, H_i.rows(), 6) = Kc_i * H_i_w;
+		// Now, put the current contact selection or model into the whole diag. H or Kc matrix
+		H.block(k, h, H_i.rows(), 6) = H_i_w;
+		Kc.block(k, l, Kc_i.rows(), Kc_i.cols()) = Kc_i;
 
 		// Increment the indexes to shift through diagonal of H
 		k += H_i.rows();
 		h += 6;
+		l += Kc_i.cols();
 	}
 }
 

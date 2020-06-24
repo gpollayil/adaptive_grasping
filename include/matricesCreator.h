@@ -277,6 +277,9 @@ namespace adaptive_grasping {
     // Contacts selection Matrix
     Eigen::MatrixXd H;
 
+    // Contacts model Matrix
+    Eigen::MatrixXd Kc;
+
     // Hand kinematic tree
     KDL::Tree robot_kin_tree;
 
