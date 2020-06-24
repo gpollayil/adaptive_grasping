@@ -342,10 +342,12 @@ void fullGrasper::get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg
 
     // Saving the present panda_EE position
     std::vector<double> O_T_EE_vec (this->latest_franka_state.O_T_EE.begin(), this->latest_franka_state.O_T_EE.end());
+    this->T_EE = Eigen::Map<Eigen::Matrix<double, 4, 4>>(O_T_EE_vec.data());
     std::vector<double>::const_iterator first = O_T_EE_vec.begin() + 12;
     std::vector<double>::const_iterator last = O_T_EE_vec.begin() + 15;
     std::vector<double> tmp_position(first, last);
     this->ee_position_now = Eigen::Vector3d::Map(tmp_position.data(), tmp_position.size());
+    this->local_z_axis_now = this->T_EE.block<3,1>(0,2);
 
     // std::cout << "O_T_EE_vec is" << std::endl;
     // for (auto i = O_T_EE_vec.begin(); i != O_T_EE_vec.end(); ++i){
@@ -358,6 +360,8 @@ void fullGrasper::get_franka_state(const franka_msgs::FrankaState::ConstPtr &msg
     // }
     
     // ROS_INFO_STREAM("The present position is " << this->ee_position_now);
+
+    // ROS_INFO_STREAM("The local_z_axis_now is " << this->local_z_axis_now);
     
 }
 
@@ -438,8 +442,16 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     ROS_INFO("Called the adaptive_grasper_service!");
 
     // 1) Sending the reference for going down till pregrasp pose reached
+    // Attention: We need to go down along the EE z axis (not the global axis)
+    double velocity = this->approach_ref_map.at("vel_p_d")[0];
+    Eigen::Vector3d approach_vec = velocity * this->local_z_axis_now;
+    std::vector<double> approach_vel(approach_vec.data(), approach_vec.data() + approach_vec.rows() * approach_vec.cols());
+    std::vector<double> approach_x_d = this->approach_ref_map.at("sigma_d");
+    approach_x_d.insert(approach_x_d.end(), approach_vel.begin(), approach_vel.end());
+    std::vector<double> zeros_vec(3, 0.0);
+    approach_x_d.insert(approach_x_d.end(), zeros_vec.begin(), zeros_vec.end());
     bool pose_reached = false;
-    while(!pose_reached){
+    while(!pose_reached && !this->adaptive_grasping_signal){
         // Checking if the present position of panda_EE is near grasp position
         if ((this->ee_position_now - grasp_pose.translation()).norm() < 0.001) {
             // ROS_INFO_STREAM("GOT INTO IF!! GETTING OUT");
@@ -452,7 +464,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
             this->pub_f_d_d_reference.publish(this->f_d_d_msg);
         } else {
             // ROS_INFO_STREAM("I'm in else with norm " << (this->ee_position_now - grasp_pose.translation()).norm());
-            this->x_d_msg.data = this->approach_ref_map.at("x_d");
+            this->x_d_msg.data = approach_x_d;
             this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
             this->pub_x_d_reference.publish(this->x_d_msg);
             this->pub_f_d_d_reference.publish(this->f_d_d_msg);
@@ -479,7 +491,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         // No need to set anything as long as x_d of adaptive ref has non palm moving reference
         // Send the same x_d reference as adaptive (CHECK: if adaptive reference has palm movement this is not valid!!!)
         this->pub_x_d_reference.publish(this->x_d_msg);
-        // ROS_INFO_STREAM("The hand reference being sent is " << this->x_d_msg.data.at(0));
+        ROS_INFO_STREAM("The reference being sent to hand and palm is " << this->x_d_msg);
     }
 
     // 4) Lift the object for a specified number of time (here there is no more task inversion in adaptive grasper)

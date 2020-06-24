@@ -21,6 +21,7 @@
 // Custom Includes
 #include "adaptiveGrasper.h"                                // Most of other h files are included in this one
 #include "panda_softhand_control/PandaSoftHandClient.h"
+#include "panda_softhand_safety/SafetyInfo.h"
 
 /**
 * @brief This class is created by the main of the full_grasping_node.
@@ -199,7 +200,9 @@ namespace adaptive_grasping {
         std::string franka_state_topic_name = "/franka_state_controller/franka_states";
         ros::Subscriber franka_state_sub;
         franka_msgs::FrankaState latest_franka_state;
+        Eigen::Matrix<double, 4, 4> T_EE;           // The homogeneous trans. from world to ee frame
         Eigen::Vector3d ee_position_now;            // present panda_EE position
+        Eigen::Vector3d local_z_axis_now;            // present panda_EE z axis
         bool franka_ok = true;
         double tau_ext_norm = 0.0;
         ros::Publisher pub_tau_ext_norm;
