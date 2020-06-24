@@ -439,6 +439,8 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         return false;
     }
 
+    // TODO: Need to add panda safety checks here!
+
     ROS_INFO("Called the adaptive_grasper_service!");
 
     // 1) Sending the reference for going down till pregrasp pose reached

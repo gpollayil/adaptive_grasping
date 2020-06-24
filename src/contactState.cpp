@@ -68,6 +68,9 @@ bool contactState::intialize(std::string topic_name,
     // Constructing the maps
     this->params_map = params_map_;
     this->link_names_map = link_names_map_;
+
+    // Initializing the publisher
+    this->pub_num_touches = this->node_contact_state.advertise<std_msgs::Int8>("/num_touches_contact_state", 1);
 }
 
 /* HANDLECOLLISION */
@@ -111,6 +114,11 @@ void contactState::handleCollision(const std_msgs::Int8::ConstPtr& msg){
     // Iteratively updating contacts_map and joints_map
     iterateContacts();
     iterateJoints();
+
+    // Getting the number of elements in the map and publishing
+    int number_contacts = this->contacts_map.size();
+    this->num_msg.data = number_contacts;
+    this->pub_num_touches.publish(this->num_msg);
   }
 
   // Printing out the contacts map

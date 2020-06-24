@@ -121,6 +121,10 @@ namespace adaptive_grasping {
     ros::Subscriber finger_col_sub;
     ros::ServiceClient fj_client;
 
+    // Publisher for number of touches
+    ros::Publisher pub_num_touches;
+    std_msgs::Int8 num_msg;
+
     /** HANDLECOLLISION
     * @brief Callback function to handle the touching topic (finger_col_sub)
     *
