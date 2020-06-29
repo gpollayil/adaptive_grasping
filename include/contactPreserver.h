@@ -122,6 +122,24 @@ namespace adaptive_grasping {
     void setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
       Eigen::MatrixXd H_);
 
+      /** SETGRASPSTATE (overloaded)
+      * @brief Function to set new values for J, G, T and H
+      *
+      * @param J_
+      *   the whole jacobian for the contacts
+      * @param G_
+      *   the whole grasp matrix for the contacts
+      * @param T_
+      *   the whole palm twist pole change matrix for the contacts
+      * @param H_
+      *   the new contact selection matrix
+      * @param Kc_
+      *   the new contact model matrix
+      * @return null
+      */
+      void setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
+                         Eigen::MatrixXd H_, Eigen::MatrixXd Kc_);
+
     /** SETMINIMIZATIONPARAMS
     * @brief Function to set new values for the minimization problem
     *
@@ -175,6 +193,9 @@ namespace adaptive_grasping {
 
     // Contact selection Matrix
     Eigen::MatrixXd H;
+
+    // Contact model Matrix
+    Eigen::MatrixXd Kc;
 
     // Synergy Matrix
     Eigen::MatrixXd S;

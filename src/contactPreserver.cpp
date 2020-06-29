@@ -104,6 +104,17 @@ void contactPreserver::setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_,
 	H = H_;
 }
 
+/* SETGRASPSTATE (overloaded) */
+void contactPreserver::setGraspState(Eigen::MatrixXd J_, Eigen::MatrixXd G_, Eigen::MatrixXd T_,
+                   Eigen::MatrixXd H_, Eigen::MatrixXd Kc_){
+    // Set the new J, G, T, H and Kcmatrices
+    J = J_;
+    G = G_;
+    T = T_;
+    H = H_;
+    Kc = Kc_;
+}
+
 /* SETMINIMIZATIONPARAMS */
 void contactPreserver::setMinimizationParams(Eigen::VectorXd x_d_, Eigen::VectorXd f_d_d_) {
 	// Set the new desired motion vector and weight matrix
@@ -130,7 +141,7 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	if (DEBUG) std::cout << "Resized Q in contactPreserver!" << std::endl;
 
 	// Now create the block matrix
-	Q << H * J * S, H * T;
+	Q << Kc * H * J * S, Kc * H * T;
 
 	// For debugging purposes (real line is above)
 	if (N_DEBUG) {

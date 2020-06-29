@@ -244,6 +244,17 @@ void matricesCreator::readAllMatrices(Eigen::MatrixXd &read_J,
 	read_P = P;
 }
 
+/* READALLMATRICES (overloaded) */
+void matricesCreator::readAllMatrices(Eigen::MatrixXd& read_J, Eigen::MatrixXd& read_G,
+        Eigen::MatrixXd& read_T, Eigen::MatrixXd& read_H, Eigen::MatrixXd& read_Kc, Eigen::MatrixXd& read_P){
+    read_J = J;
+    read_G = G;
+    read_T = T;
+    read_H = H;
+    read_Kc = Kc;
+    read_P = P;
+}
+
 /* COMPUTEJACOBIAN */
 KDL::Jacobian matricesCreator::computeJacobian(KDL::Chain chain,
                                                KDL::JntArray q_) {
