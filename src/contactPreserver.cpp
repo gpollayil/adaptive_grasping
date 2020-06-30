@@ -162,13 +162,13 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	if (DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
 
 	// Repeating f_d_d for all contacts
-	int rep_factor = H.rows() / f_d_d.size();
+	int rep_factor = H.cols() / f_d_d.size();
 	Eigen::VectorXd f_d_d_tot = f_d_d.replicate(rep_factor, 1);
 
 	// Compute vector y
 	y.resize(x_d.size() + H.rows());
-	// There is no Kc in this formula because it has already been included in H by matrixCreator
-	Eigen::VectorXd y_c = f_d_d_tot + H * G.transpose() * xi_o;
+	// Use also Kc
+	Eigen::VectorXd y_c = f_d_d_tot + Kc * H * G.transpose() * xi_o;
 	y << x_d, y_c;
 
 	// DEBUG PRINTS

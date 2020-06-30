@@ -416,13 +416,14 @@ void adaptiveGrasper::spinGrasper(){
             this->my_matrices_creator.computeAllMatrices();
 
             // Reading and couting the matrices
-            this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H, this->read_P);
+            this->my_matrices_creator.readAllMatrices(this->read_J, this->read_G, this->read_T, this->read_H, this->read_Kc, this->read_P);
             if(DEBUG){
                 ROS_INFO_STREAM("adaptiveGrasper::spinGrasper The created matrices are: ");
                 ROS_INFO_STREAM("\nJ = " << "\n" << this->read_J << "\n");
                 ROS_INFO_STREAM("\nG = " << "\n" << this->read_G << "\n");
                 ROS_INFO_STREAM("\nT = " << "\n" << this->read_T << "\n");
                 ROS_INFO_STREAM("\nH = " << "\n" << this->read_H << "\n");
+                ROS_INFO_STREAM("\nKc = " << "\n" << this->read_Kc << "\n");
                 ROS_INFO_STREAM("\nP = " << "\n" << this->read_P << "\n");
             }
             // Printing out the contacts map
@@ -440,9 +441,9 @@ void adaptiveGrasper::spinGrasper(){
             this->x_ref = this->x_d;
 
             // Performing the minimization only if there are contacts (i.e. the matrices are not empty)
-            if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0){
+            if(read_J.innerSize() > 0 && read_G.innerSize() > 0 && read_T.innerSize() > 0 && read_H.innerSize() > 0 && read_Kc.innerSize() > 0){
                 // Setting grasp state
-                this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H);
+                this->my_contact_preserver.setGraspState(this->read_J, this->read_G, this->read_T, this->read_H, this->read_Kc);
 
                 // Setting minimization and relaxation parameters
                 this->my_contact_preserver.setMinimizationParams(this->x_d, this->f_d_d);

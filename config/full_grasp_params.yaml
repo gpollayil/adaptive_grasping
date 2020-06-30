@@ -51,3 +51,6 @@ full_grasper:
   lift_ref_map:
     "x_d": [0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0]
     "f_d_d": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]     # Forces when lifting (not used)
+
+
+# ATTENTION!!! Check if f_d_d complies with the h_matrix in adaptive_params.yaml

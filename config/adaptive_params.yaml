@@ -72,4 +72,6 @@ adaptive_grasping:
   # The epsilon for the diagonal loading in singular value decomposition in RP Manager
   epsilon: 0.001
 
+  # ATTENTION!!! While changing the contact selection h_matrix -> change also k_matrix, f_d_d, dim_tasks, prio_tasks
+
 

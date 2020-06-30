@@ -204,6 +204,7 @@ namespace adaptive_grasping {
         Eigen::MatrixXd read_G;
         Eigen::MatrixXd read_T;
         Eigen::MatrixXd read_H;
+        Eigen::MatrixXd read_Kc;
         Eigen::MatrixXd read_P;
         int size_Q_1;
 
