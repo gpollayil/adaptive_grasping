@@ -449,6 +449,9 @@ void adaptiveGrasper::spinGrasper(){
                 this->my_contact_preserver.setMinimizationParams(this->x_d, this->f_d_d);
                 this->my_contact_preserver.setPermutationParams(this->read_P, this->contacts_num);
 
+                // Setting the contacts map in preserver (for force ref transformations to local finger frames)
+                this->my_contact_preserver.set_contacts_and_selection(this->read_contacts_map, this->H_i);
+
                 // Performing minimization (from here on check if the RP Changes are OK)
                 bool no_relaxation = true;
                 no_relaxation = this->my_contact_preserver.performKinInversion(this->x_ref);

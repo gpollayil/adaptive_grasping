@@ -161,9 +161,8 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	// Print message for debug
 	if (DEBUG) std::cout << "Computed Q_tilde in contactPreserver!" << std::endl;
 
-	// Repeating f_d_d for all contacts
-	int rep_factor = H.cols() / f_d_d.size();
-	Eigen::VectorXd f_d_d_tot = f_d_d.replicate(rep_factor, 1);
+	// Rotating the contact wrenches to finger frames and appending
+	Eigen::VectorXd f_d_d_tot = this->create_force_ref_vec(this->read_contacts_map, this->f_d_d);
 
 	// Compute vector y
 	y.resize(x_d.size() + H.rows());
@@ -180,7 +179,6 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 		std::cout << "f_d_d_tot = " << f_d_d_tot << std::endl;
 		std::cout << "xi_o = " << xi_o << std::endl;
 		std::cout << "y_c = " << y_c << std::endl;
-		std::cout << "rep_factor = " << rep_factor << std::endl;
 		std::cout << "H*G.transpose()*xi_o = " << H * G.transpose() * xi_o << std::endl;
 		std::cout << "----------------" << std::endl;
 	}
@@ -296,6 +294,48 @@ void contactPreserver::printAll() {
 	std::cout << Q << std::endl;
 	std::cout << "N_tilde =" << std::endl;
 	std::cout << N_tilde << std::endl;
+}
+
+/* SETCONTACTSMAP */
+void contactPreserver::set_contacts_and_selection(std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map_, Eigen::MatrixXd H_i_){
+    this->read_contacts_map = contacts_map_;
+    this->H_i = H_i_;
+}
+
+/* CREATEFORCEREFVEC */
+Eigen::VectorXd contactPreserver::create_force_ref_vec(std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map, Eigen::VectorXd f_d_d){
+
+    int num_conts = contacts_map.size();
+    int tot_size = f_d_d.size() * num_conts;
+    int size_h_i = this->H_i.cols();
+
+    Eigen::VectorXd tmp_f_d_d_tot(tot_size);                // Temporary vector to be filled in (declared with size)
+    Eigen::VectorXd tmp_f_d_d_r(f_d_d.size());            // Temporary vector for each finger force ref
+    Eigen::MatrixXd tmp_rot;
+    Eigen::MatrixXd whole_rot(size_h_i, size_h_i); // 6x6 rotation matrix
+
+    std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>>::iterator it_map;
+    for (it_map = contacts_map.begin(); it_map != contacts_map.end(); it_map++) {
+
+        // Getting the rotation from finger to world
+        tmp_rot = std::get<1>(it_map->second).rotation().transpose();
+
+        // Building the rotation for the contact wrench variation
+        whole_rot.block(0,0,size_h_i/2,size_h_i/2) = tmp_rot;
+        whole_rot.block(0,size_h_i/2,size_h_i/2,size_h_i/2) = Eigen::MatrixXd::Zero(3,3);
+        whole_rot.block(size_h_i/2,0,size_h_i/2,size_h_i/2) = Eigen::MatrixXd::Zero(3,3);
+        whole_rot.block(size_h_i/2,size_h_i/2,size_h_i/2,size_h_i/2) = tmp_rot;
+
+        // Complying with the selection matrix and rotating contact wrench
+        whole_rot = this->H_i * whole_rot;
+        tmp_f_d_d_r = whole_rot * f_d_d;
+
+        // Appending
+        tmp_f_d_d_tot << tmp_f_d_d_r;
+    }
+
+    return tmp_f_d_d_tot;
+
 }
 
 /* OBJECTTWISTCALLBACK */

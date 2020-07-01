@@ -162,6 +162,13 @@ namespace adaptive_grasping {
     */
     void setPermutationParams(Eigen::MatrixXd P_, int num_contacts_);
 
+    /** SETCONTACTSMAP
+    * @brief Function to set the contacts map
+    *
+    * @return null
+    */
+    void set_contacts_and_selection(std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map_, Eigen::MatrixXd H_i_);
+
     /** PERFORMKININVERSTION
     * @brief Function to perform a simple task inversion(num_tasks and dim_tasks)
     *
@@ -190,6 +197,9 @@ namespace adaptive_grasping {
 
     // Pole change matrix (twist of palm to contacts)
     Eigen::MatrixXd T;
+
+    // Single selection model
+    Eigen::MatrixXd H_i;
 
     // Contact selection Matrix
     Eigen::MatrixXd H;
@@ -245,6 +255,9 @@ namespace adaptive_grasping {
     // The C matrix in the algorithm
     Eigen::MatrixXd C;
 
+    // Contacts map for transforming the force refs to local finger frames
+    std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> read_contacts_map;
+
     // Object twist topic, subscriber and needed node handle.
     std::string object_twist_topic_name;
     std::unique_ptr<ros::NodeHandle> cp_nh_ptr;
@@ -285,6 +298,11 @@ namespace adaptive_grasping {
     Eigen::MatrixXd N_tilde;
 
     // PRIVATE FUNCTIONS
+    /** CREATEFORCEREFVEC
+    * @brief For creating the contact force vector reference after transforming to each finger local frame
+    *
+    */
+    Eigen::VectorXd create_force_ref_vec(std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map, Eigen::VectorXd f_d_d);
 
 	/** OBJECTTWISTCALLBACK
     * @brief Callback function to get the object twist from a topic
