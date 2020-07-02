@@ -477,7 +477,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     bool pose_reached = false;
     while(!pose_reached && !this->adaptive_grasping_signal){
         // Checking if the present position of panda_EE is near grasp position
-        if ((this->ee_position_now - grasp_pose.translation()).norm() < 0.001) {
+        if ((this->ee_position_now - grasp_pose.translation()).norm() < 0.001 || this->ee_position_now(2) - grasp_pose.translation()(2) < 0.0) {
             // ROS_INFO_STREAM("GOT INTO IF!! GETTING OUT");
             pose_reached = true;
             this->x_d_msg.data.clear();
@@ -487,7 +487,8 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
             this->pub_x_d_reference.publish(this->x_d_msg);
             this->pub_f_d_d_reference.publish(this->f_d_d_msg);
         } else {
-            // ROS_INFO_STREAM("I'm in else with norm " << (this->ee_position_now - grasp_pose.translation()).norm());
+            ROS_INFO_STREAM("I'm in else with norm " << (this->ee_position_now - grasp_pose.translation()).norm());
+            ROS_INFO_STREAM("And difference between zs is " << this->ee_position_now(2) - grasp_pose.translation()(2));
             this->x_d_msg.data = approach_x_d;
             this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
             this->pub_x_d_reference.publish(this->x_d_msg);
@@ -518,7 +519,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
         // No need to set anything as long as x_d of adaptive ref has non palm moving reference
         // Send the same x_d reference as adaptive (CHECK: if adaptive reference has palm movement this is not valid!!!)
         this->pub_x_d_reference.publish(this->x_d_msg);
-        ROS_INFO_STREAM("The reference being sent to hand and palm is " << this->x_d_msg << " because syn is " << this->present_synergy);
+        // ROS_INFO_STREAM("The reference being sent to hand and palm is " << this->x_d_msg << " because syn is " << this->present_synergy);
 
     }
 

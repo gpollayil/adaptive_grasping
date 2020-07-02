@@ -477,7 +477,7 @@ void adaptiveGrasper::spinGrasper(){
 
             // Scaling the reference and sending to the robot commander
             this->x_ref = this->scaling * this->x_ref;
-            if(DEBUG || true) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
+            if(DEBUG) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->x_ref << ".");
 
             if(!this->setCommandAndSend(this->x_ref, this->ref_command)){
                 // ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending x_ref!");
@@ -489,7 +489,7 @@ void adaptiveGrasper::spinGrasper(){
         } else {
             // If the run bool is false send x_d as it is given (after scaling)
             // Scaling the reference and sending to the robot commander
-            if(DEBUG || true) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->scaling * this->x_d << ".");
+            if(DEBUG) ROS_INFO_STREAM("The reference to be sent to the commander is: \n" << this->scaling * this->x_d << ".");
 
             if(!this->setCommandAndSend(this->scaling * this->x_d, this->ref_command)){
                 // ROS_ERROR_STREAM("adaptiveGrasper::spinGrasper Something went wrong while sending the reference to the commander while sending zeros!");

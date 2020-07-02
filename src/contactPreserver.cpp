@@ -171,7 +171,7 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	y << x_d, y_c;
 
 	// DEBUG PRINTS
-	if (DEBUG || true) {
+	if (DEBUG) {
 		std::cout << "----------------" << std::endl;
 		std::cout << "Q_tilde = " << Q_tilde << std::endl;
 		std::cout << "y = " << y << std::endl;
@@ -321,7 +321,7 @@ Eigen::VectorXd contactPreserver::create_force_ref_vec(std::map<int, std::tuple<
         // Getting the rotation from finger to world
         tmp_rot = std::get<1>(it_map->second).rotation().transpose();
 
-		ROS_INFO_STREAM("Got the contact number " << it_map->first << " and it has the rotation " << tmp_rot);
+		// ROS_INFO_STREAM("Got the contact number " << it_map->first << " and it has the rotation " << tmp_rot);
 
         // Building the rotation for the contact wrench variation
 		whole_rot.resize(size_h_i, size_h_i);
@@ -330,12 +330,12 @@ Eigen::VectorXd contactPreserver::create_force_ref_vec(std::map<int, std::tuple<
         whole_rot.block(size_h_i/2,0,size_h_i/2,size_h_i/2) = Eigen::MatrixXd::Zero(3,3);
         whole_rot.block(size_h_i/2,size_h_i/2,size_h_i/2,size_h_i/2) = tmp_rot;
 
-		ROS_INFO_STREAM("I have built the whole rotation and it is " << whole_rot);
+		// ROS_INFO_STREAM("I have built the whole rotation and it is " << whole_rot);
 
         // Complying with the selection matrix and rotating contact wrench
         whole_rot = this->H_i * whole_rot;
-		ROS_INFO_STREAM("After mult with H_i whole rotation it is " << whole_rot);
-		ROS_INFO_STREAM("f_d_d_in is " << f_d_d_in);
+		// ROS_INFO_STREAM("After mult with H_i whole rotation it is " << whole_rot);
+		// ROS_INFO_STREAM("f_d_d_in is " << f_d_d_in);
         tmp_f_d_d_r = whole_rot * f_d_d_in;
 
         // Appending
@@ -345,7 +345,7 @@ Eigen::VectorXd contactPreserver::create_force_ref_vec(std::map<int, std::tuple<
 			prev_f_d_d_tot = tmp_f_d_d_tot;
 			tmp_f_d_d_tot.conservativeResize(prev_f_d_d_tot.size() + tmp_f_d_d_r.size());
 			tmp_f_d_d_tot << prev_f_d_d_tot, tmp_f_d_d_r;
-			ROS_INFO_STREAM("Appendedddd!!!!");
+			// ROS_INFO_STREAM("Appendedddd!!!!");
 		}
     }
 
