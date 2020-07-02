@@ -477,7 +477,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     bool pose_reached = false;
     while(!pose_reached && !this->adaptive_grasping_signal){
         // Checking if the present position of panda_EE is near grasp position
-        if ((this->ee_position_now - grasp_pose.translation()).norm() < 0.001 || this->ee_position_now(2) - grasp_pose.translation()(2) < 0.0) {
+        if ((this->ee_position_now - grasp_pose.translation()).norm() < 0.0005 || this->ee_position_now(2) - grasp_pose.translation()(2) < -0.01) {
             // ROS_INFO_STREAM("GOT INTO IF!! GETTING OUT");
             pose_reached = true;
             this->x_d_msg.data.clear();

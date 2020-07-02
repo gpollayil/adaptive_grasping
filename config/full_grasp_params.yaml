@@ -19,7 +19,7 @@ full_grasper:
   home_joints: [-0.035, -0.109, -0.048, -1.888, 0.075, 1.797, -0.110] 
   # Transform from object frame to grasp pose frame (xyzrpy) (DEFAULT)
   # grasp_transform: [0.0, 0.0, 0.090, -3.1415, 0.0, 0.0]
-  grasp_transform: [0.029, -0.133, 0.100, 3.096, -0.167, 0.057]
+  grasp_transform: [0.028, -0.122, 0.096, 3.057, -0.272, -0.075]
   # Transform from grasp pose frame to pre-grasp pose frame (xyzrpy)
   pre_grasp_transform: [0.0, 0.0, -0.1, 0.0, 0.0, 0.0]
   # The joint configuration for handover
