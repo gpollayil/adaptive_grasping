@@ -84,8 +84,8 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
         << "\n" << this->x_ref << ".");
 
     // Checking if the reference contains NaNs
-    if(this->x_ref.hasNaN()){
-        ROS_FATAL_STREAM("robotCommander::performRobotCommand : The requested velocity vector contains NaNs, setting x_ref to null.");
+    if(!this->x_ref.allFinite()){
+        ROS_WARN_STREAM("robotCommander::performRobotCommand : The requested velocity vector contains NaNs or Infs, setting x_ref to null.");
         this->x_ref = Eigen::VectorXd::Zero(this->x_ref.size());
     }
 
@@ -115,6 +115,9 @@ bool robotCommander::performRobotCommand(adaptive_grasping::velCommand::Request 
     } else {
         this->filtered_x_ref = this->x_ref;
     }
+
+    if(DEBUG) ROS_INFO_STREAM("robotCommander::performRobotCommand : The to be sent velocity vector is:" 
+        << "\n" << this->filtered_x_ref << ".");
 
     // Filling up the messages to be published
     this->cmd_syn.data = float (filtered_x_ref(0));
