@@ -171,7 +171,7 @@ bool contactPreserver::performKinInversion(Eigen::VectorXd &x_result) {
 	y << x_d, y_c;
 
 	// DEBUG PRINTS
-	if (DEBUG) {
+	if (DEBUG || true) {
 		std::cout << "----------------" << std::endl;
 		std::cout << "Q_tilde = " << Q_tilde << std::endl;
 		std::cout << "y = " << y << std::endl;
@@ -303,14 +303,15 @@ void contactPreserver::set_contacts_and_selection(std::map<int, std::tuple<std::
 }
 
 /* CREATEFORCEREFVEC */
-Eigen::VectorXd contactPreserver::create_force_ref_vec(std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map, Eigen::VectorXd f_d_d){
+Eigen::VectorXd contactPreserver::create_force_ref_vec(std::map<int, std::tuple<std::string, Eigen::Affine3d, Eigen::Affine3d>> contacts_map, Eigen::VectorXd f_d_d_in){
 
     int num_conts = contacts_map.size();
-    int tot_size = f_d_d.size() * num_conts;
+    int tot_size = f_d_d_in.size() * num_conts;
     int size_h_i = this->H_i.cols();
 
     Eigen::VectorXd tmp_f_d_d_tot(tot_size);                // Temporary vector to be filled in (declared with size)
-    Eigen::VectorXd tmp_f_d_d_r(f_d_d.size());            // Temporary vector for each finger force ref
+	Eigen::VectorXd prev_f_d_d_tot(tot_size);				// For saving the above vector
+    Eigen::VectorXd tmp_f_d_d_r(f_d_d_in.size());            // Temporary vector for each finger force ref
     Eigen::MatrixXd tmp_rot;
     Eigen::MatrixXd whole_rot(size_h_i, size_h_i); // 6x6 rotation matrix
 
@@ -320,18 +321,32 @@ Eigen::VectorXd contactPreserver::create_force_ref_vec(std::map<int, std::tuple<
         // Getting the rotation from finger to world
         tmp_rot = std::get<1>(it_map->second).rotation().transpose();
 
+		ROS_INFO_STREAM("Got the contact number " << it_map->first << " and it has the rotation " << tmp_rot);
+
         // Building the rotation for the contact wrench variation
+		whole_rot.resize(size_h_i, size_h_i);
         whole_rot.block(0,0,size_h_i/2,size_h_i/2) = tmp_rot;
         whole_rot.block(0,size_h_i/2,size_h_i/2,size_h_i/2) = Eigen::MatrixXd::Zero(3,3);
         whole_rot.block(size_h_i/2,0,size_h_i/2,size_h_i/2) = Eigen::MatrixXd::Zero(3,3);
         whole_rot.block(size_h_i/2,size_h_i/2,size_h_i/2,size_h_i/2) = tmp_rot;
 
+		ROS_INFO_STREAM("I have built the whole rotation and it is " << whole_rot);
+
         // Complying with the selection matrix and rotating contact wrench
         whole_rot = this->H_i * whole_rot;
-        tmp_f_d_d_r = whole_rot * f_d_d;
+		ROS_INFO_STREAM("After mult with H_i whole rotation it is " << whole_rot);
+		ROS_INFO_STREAM("f_d_d_in is " << f_d_d_in);
+        tmp_f_d_d_r = whole_rot * f_d_d_in;
 
         // Appending
-        tmp_f_d_d_tot << tmp_f_d_d_r;
+		if (it_map == contacts_map.begin()) {
+			tmp_f_d_d_tot = tmp_f_d_d_r;
+		} else {
+			prev_f_d_d_tot = tmp_f_d_d_tot;
+			tmp_f_d_d_tot.conservativeResize(prev_f_d_d_tot.size() + tmp_f_d_d_r.size());
+			tmp_f_d_d_tot << prev_f_d_d_tot, tmp_f_d_d_r;
+			ROS_INFO_STREAM("Appendedddd!!!!");
+		}
     }
 
     return tmp_f_d_d_tot;
