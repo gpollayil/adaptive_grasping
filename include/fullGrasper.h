@@ -280,6 +280,7 @@ namespace adaptive_grasping {
 
         std::map<std::string, std::vector<double>> approach_ref_map;        // The map containing references for approach
         std::map<std::string, std::vector<double>> adaptive_ref_map;        // The map containing references for adaptive
+        std::map<std::string, std::vector<double>> restrain_ref_map;        // The map containing references for adaptive
         std::map<std::string, std::vector<double>> lift_ref_map;            // The map containing references for lift
 
         std::vector<double> null_x_d = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};

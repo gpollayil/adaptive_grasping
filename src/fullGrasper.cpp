@@ -199,8 +199,24 @@ bool fullGrasper::parse_task_params(){
     }
 
     if(DEBUG_FG){
-        ROS_INFO_STREAM("The lift map is");
+        ROS_INFO_STREAM("The adaptive map is");
         for(auto it : this->adaptive_ref_map){
+            std::cout << it.first << " : [ ";
+            for(auto vec_it : it.second){
+                std::cout << vec_it << " ";
+            }
+            std::cout << "]" << std::endl;
+        }
+    }
+
+    if(!parseParameter(this->task_seq_params, this->restrain_ref_map, "restrain_ref_map")){
+        ROS_ERROR("Could not parse the restrain_ref map.");
+        success = false;
+    }
+
+    if(DEBUG_FG){
+        ROS_INFO_STREAM("The restrain map is");
+        for(auto it : this->restrain_ref_map){
             std::cout << it.first << " : [ ";
             for(auto vec_it : it.second){
                 std::cout << vec_it << " ";
@@ -503,8 +519,8 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
             this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
             this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
         } else {            // Restraining
-            this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
-            this->f_d_d_msg.data = this->adaptive_ref_map.at("f_d_d");
+            this->x_d_msg.data = this->restrain_ref_map.at("x_d");
+            this->f_d_d_msg.data = this->restrain_ref_map.at("f_d_d");
         }
         
         this->pub_x_d_reference.publish(this->x_d_msg);

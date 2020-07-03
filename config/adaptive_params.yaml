@@ -24,22 +24,22 @@ adaptive_grasping:
     - [1, 0, 0, 0, 0, 0]
     - [0, 1, 0, 0, 0, 0]
     - [0, 0, 1, 0, 0, 0]
-    # - [0, 0, 0, 1, 0, 0]
-    # - [0, 0, 0, 0, 1, 0]
-    # - [0, 0, 0, 0, 0, 1]
+    - [0, 0, 0, 1, 0, 0]
+    - [0, 0, 0, 0, 1, 0]
+    - [0, 0, 0, 0, 0, 1]
   # The stiffness matrix for the contact forces
   k_matrix:     
     # fully constrained
-    # - [0.1, 0, 0, 0, 0, 0]
-    # - [0, 0.1, 0, 0, 0, 0]
-    # - [0, 0, 0.1, 0, 0, 0]
-    # - [0, 0, 0, 0.1, 0, 0]
-    # - [0, 0, 0, 0, 0.1, 0]
-    # - [0, 0, 0, 0, 0, 0.1]
+    - [0.1, 0, 0, 0, 0, 0]
+    - [0, 0.1, 0, 0, 0, 0]
+    - [0, 0, 0.1, 0, 0, 0]
+    - [0, 0, 0, 0.1, 0, 0]
+    - [0, 0, 0, 0, 0.1, 0]
+    - [0, 0, 0, 0, 0, 0.1]
     # position constrained
-    - [0.1, 0, 0]
-    - [0, 0.1, 0]
-    - [0, 0, 0.1]
+    # - [0.1, 0, 0]
+    # - [0, 0.1, 0]
+    # - [0, 0, 0.1]
 
   # The following array is the desired x motion
   x_d:
@@ -57,14 +57,14 @@ adaptive_grasping:
   scaling: 1.0
   # The permutation vector for relaxed minimization (the elements of the vector stand for the reordering of the rows of Q) (CHANGE ALSO h_matrix ACCORDINGLY)
   p_vector:
-      # - [2, 3, 4, 5, 6, 7, 13, 11, 12, 10, 8, 9, 1]              # For RP (fully constrained)
-      - [2, 3, 4, 5, 6, 7, 10, 8, 9, 1]              # For RP (position constrained)
+      - [2, 3, 4, 5, 6, 7, 13, 11, 12, 10, 8, 9, 1]              # For RP (fully constrained)
+      # - [2, 3, 4, 5, 6, 7, 10, 8, 9, 1]              # For RP (position constrained)
   # The vector containing the indexes of the touch constraints
   touch_indexes:
-    # - [8, 9, 10, 11, 12, 13] #  (fully constrained)
-    - [8, 9, 10] #  (position constrained)
+    - [8, 9, 10, 11, 12, 13] #  (fully constrained)
+    # - [8, 9, 10] #  (position constrained)
   # The threshold on the synergy joint value for stopping the grasping motion
-  syn_thresh: 0.75
+  syn_thresh: 0.8
   # The bool to decide if null twist should be sent when relaxation occurs
   relax_to_zero: false
   # The bool to decide if to change contact selection when touch occurs
