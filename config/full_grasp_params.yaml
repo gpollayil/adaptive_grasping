@@ -16,12 +16,14 @@ full_grasper:
   hand_vel_controller: velocity_controller
 
   # The joint configuration for home
-  home_joints: [-0.035, -0.109, -0.048, -1.888, 0.075, 1.797, -0.110] 
+  # home_joints: [-0.035, -0.109, -0.048, -1.888, 0.075, 1.797, -0.110] # ball
+  home_joints: [-0.109, -0.382, -0.458, -2.181, -0.160, 1.822, -0.492] # bottle
   # Transform from object frame to grasp pose frame (xyzrpy) (DEFAULT)
   # grasp_transform: [0.0, 0.0, 0.090, -3.1415, 0.0, 0.0]
-  # grasp_transform: [0.028, -0.122, 0.096, 3.057, -0.272, -0.075]
+  # grasp_transform: [0.028, -0.122, 0.096, 3.057, -0.272, -0.075] # ball silicone
   # grasp_transform: [0.015, -0.149, 0.110, -3.049, 0.093, -0.047]
-  grasp_transform: [0.058, -0.152, 0.152, 2.906, 0.542, -0.136]
+  # grasp_transform: [0.058, -0.152, 0.152, 2.906, 0.542, -0.136] # ball giorgio
+  grasp_transform: [0.019, -0.217, 0.123, -2.460, -0.485, 0.085] # bottle
   # Transform from grasp pose frame to pre-grasp pose frame (xyzrpy)
   pre_grasp_transform: [0.0, 0.0, -0.1, 0.0, 0.0, 0.0]
   # The joint configuration for handover
@@ -49,11 +51,11 @@ full_grasper:
     "vel_p_d" : [0.03] # Speed for going down the local z axis
     "f_d_d" : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]    # Forces for both approaching and pivoting (same for fully and only position constrained -> filtered by H)
   adaptive_ref_map:
-    "x_d": [0.1, 0.0, 0.0, -0.002, 0.0, 0.0, 0.0]
+    "x_d": [0.1, 0.002, 0.0, 0.0, 0.0, 0.0, 0.0]
     "f_d_d": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]     # NOT USED!!!!
   restrain_ref_map:
     "x_d": [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    "f_d_d": [0.0, 0.0, 0.001, 0.0, 0.0, 0.0]     # Forces for restraining (same for fully and only position constrained -> filtered by H)
+    "f_d_d": [0.0, 0.0, 0.000, 0.0, 0.0, 0.0]     # Forces for restraining (same for fully and only position constrained -> filtered by H)
   lift_ref_map:
     "x_d": [0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0]
     "f_d_d": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]     # Forces when lifting (NOT USED!!!!!)

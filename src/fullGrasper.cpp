@@ -519,6 +519,15 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
             this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
             this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
         } else {            // Restraining
+
+            ag_srv.request.run_adaptive_grasp = false;
+            if(!ros::service::call<adaptive_grasping::adaptiveGrasp>("adaptive_grasper_service", ag_srv)){
+                ROS_ERROR("Could not call the adaptive_grasper_service.");
+                res.success = false;
+                res.message = "The service call_adaptive_grasp_task was NOT performed correctly!";
+                return false;
+            }
+
             this->x_d_msg.data = this->restrain_ref_map.at("x_d");
             this->f_d_d_msg.data = this->restrain_ref_map.at("f_d_d");
         }
@@ -530,7 +539,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     ROS_INFO("Someone triggered the adaptive grasp end!");
 
     // 3) Stop the palm and finish closing (here there is no more task inversion in adaptive grasper)
-    while (this->present_synergy < 0.8) { // Close until threshold (TODO: Parse this!)
+    while (this->present_synergy < 0.65) { // Close until threshold (TODO: Parse this!)
 
         // No need to set anything as long as x_d of adaptive ref has non palm moving reference
         // Send the same x_d reference as adaptive (CHECK: if adaptive reference has palm movement this is not valid!!!)
@@ -614,6 +623,10 @@ bool fullGrasper::call_post_grasp_task(std_srvs::SetBool::Request &req, std_srvs
     // Now, everything finished well
     res.success = true;
     res.message = "The service call_adaptive_grasp_task was correctly performed!";
+
+    // Resetting the number of touches
+    this->num_cont_msg.data = 0;
+    
     return true;
 }
 
