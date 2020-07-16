@@ -64,7 +64,7 @@ adaptive_grasping:
     - [8, 9, 10, 11, 12, 13] #  (fully constrained)
     # - [8, 9, 10] #  (position constrained)
   # The threshold on the synergy joint value for stopping the grasping motion
-  syn_thresh: 0.65
+  syn_thresh: 0.70
   # The bool to decide if null twist should be sent when relaxation occurs
   relax_to_zero: false
   # The bool to decide if to change contact selection when touch occurs
@@ -72,7 +72,7 @@ adaptive_grasping:
   # The number of tasks for the RP Manger (Excluding contact tasks) (Contact Preserver) if num_tasks == 2 -> basic two tasks relaxation RP
   num_tasks: 3
   # The dimensions of the tasks for the RP Manger (Contact Preserver) (The last ones from the num_task_th element are the ones on touch)
-  dim_tasks: [1, 3, 3, 3]  # PLEASE DOUBLE CHECK THIS SO THAT IT COMPLIES WITH prio_tasks
+  dim_tasks: [1, 3, 3, 6]  # PLEASE DOUBLE CHECK THIS SO THAT IT COMPLIES WITH prio_tasks
   # The priority of the above defined tasks (The last ones from the num_task_th element are the ones on touch)
   prio_tasks: [1, 3, 4, 2]  # PLEASE DOUBLE CHECK THIS SO THAT IT COMPLIES WITH dim_tasks
   # The lambda max for the pseudo inversion in RP Manager
