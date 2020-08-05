@@ -1,4 +1,4 @@
-# adaptive_grasping
+# Sequential Contact-Based Adaptive Grasping
 
 A ROS Package for the Sequential Contact-Based Adaptive Grasping Algorithm.
 
