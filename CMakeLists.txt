@@ -174,7 +174,7 @@ add_executable(${PROJECT_NAME}_fg_node src/full_grasper_node.cpp src/fullGrasper
 add_executable(${PROJECT_NAME}_ag_node src/adaptive_grasper_node.cpp src/adaptiveGrasper.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_robotCommander src/robot_commander_node.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_service_caller_node src/service_caller_node.cpp ${ADAPTIVE_SOURCE_FILES})
-add_executable(${PROJECT_NAME}_pregrasp_pose_caller_node src/service_caller_node.cpp ${ADAPTIVE_SOURCE_FILES})
+add_executable(${PROJECT_NAME}_pregrasp_pose_caller_node src/pregrasp_pose_caller_node.cpp ${ADAPTIVE_SOURCE_FILES})
 
 #TESTS
 add_executable(${PROJECT_NAME}_tf_listener test/tf_listener.cpp)
