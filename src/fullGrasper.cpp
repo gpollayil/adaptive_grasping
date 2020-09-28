@@ -515,7 +515,7 @@ bool fullGrasper::call_adaptive_grasp_task(std_srvs::SetBool::Request &req, std_
     // 2) Sending the references for adaptive grasping until the signal of stopping condition by adaptive grasper
     while(!this->adaptive_grasping_signal) {
         int n_cont = this->num_cont_msg.data;
-        if (n_cont < 2) {   // Pivoting
+        if (n_cont < 3) {   // Pivoting
             this->x_d_msg.data = this->adaptive_ref_map.at("x_d");
             this->f_d_d_msg.data = this->approach_ref_map.at("f_d_d");
         } else {            // Restraining
