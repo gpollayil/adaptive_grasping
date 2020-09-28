@@ -174,6 +174,7 @@ add_executable(${PROJECT_NAME}_fg_node src/full_grasper_node.cpp src/fullGrasper
 add_executable(${PROJECT_NAME}_ag_node src/adaptive_grasper_node.cpp src/adaptiveGrasper.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_robotCommander src/robot_commander_node.cpp ${ADAPTIVE_SOURCE_FILES})
 add_executable(${PROJECT_NAME}_service_caller_node src/service_caller_node.cpp ${ADAPTIVE_SOURCE_FILES})
+add_executable(${PROJECT_NAME}_pregrasp_pose_caller_node src/service_caller_node.cpp ${ADAPTIVE_SOURCE_FILES})
 
 #TESTS
 add_executable(${PROJECT_NAME}_tf_listener test/tf_listener.cpp)
@@ -199,6 +200,7 @@ add_dependencies(${PROJECT_NAME}_collision_detection_twist_node ${catkin_EXPORTE
 add_dependencies(${PROJECT_NAME}_fg_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_ag_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
 add_dependencies(${PROJECT_NAME}_service_caller_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_pregrasp_pose_caller_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_robotCommander ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_homing_node ${catkin_EXPORTED_TARGETS} adaptive_grasping_gencpp)
 add_dependencies(${PROJECT_NAME}_test_contactState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} finger_fk_gencpp)
@@ -220,6 +222,9 @@ target_link_libraries(${PROJECT_NAME}_robotCommander
    ${catkin_LIBRARIES}
 )
 target_link_libraries(${PROJECT_NAME}_service_caller_node
+   ${catkin_LIBRARIES}
+)
+target_link_libraries(${PROJECT_NAME}_pregrasp_pose_caller_node
    ${catkin_LIBRARIES}
 )
 
