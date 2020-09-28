@@ -8,7 +8,8 @@
     <!-- <arg name="topics" default="/x_ref_error /right_hand/velocity_controller/command/ /panda_arm/cartesian_velocity_controller/command/ /x_ref_object_debug"/> -->
     <!-- <arg name="topics" default=" /panda_arm/franka_state_controller/franka_states /rob_comm_sigma_debug /rob_comm_twist_debug
     /x_d_reference /f_d_d_reference /touching_finger_topic /object_pose /object_twist "/> -->
-    <arg name="topics" default=" /panda_arm/franka_state_controller/franka_states "/>
+    <arg name="topics" default=" /panda_arm/franka_state_controller/franka_states /joint_states /panda_arm/pd_controller/tracking_error 
+        /panda_arm/computed_torque_controller/tracking_error /panda_arm/back_stepping_controller/tracking_error "/>
     <arg name="path" default="/home/george/Desktop/Ste_Bags/"/>
 
     <!-- START LAUNCH -->
